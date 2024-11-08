@@ -1,7 +1,5 @@
-"use client";
-
-import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 
 import {
   BadgeCheck,
@@ -70,10 +68,11 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { signOutAction } from "../actions";
 
 const data = {
   user: {
-    name: "shadcn",
+    name: "Wahab",
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
@@ -195,11 +194,16 @@ const data = {
   ],
 };
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <SidebarProvider>
       <Sidebar variant="inset">
@@ -212,9 +216,7 @@ export default function DashboardLayout({
                     <Command className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      StudySync
-                    </span>
+                    <span className="truncate font-semibold">StudySync</span>
                     <span className="truncate text-xs">Student</span>
                   </div>
                 </a>
@@ -346,15 +348,13 @@ export default function DashboardLayout({
                         src={data.user.avatar}
                         alt={data.user.name}
                       />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      <AvatarFallback className="rounded-lg">WZ</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">
                         {data.user.name}
                       </span>
-                      <span className="truncate text-xs">
-                        {data.user.email}
-                      </span>
+                      <span className="truncate text-xs">{user?.email}</span>
                     </div>
                     <ChevronsUpDown className="ml-auto size-4" />
                   </SidebarMenuButton>
@@ -373,16 +373,14 @@ export default function DashboardLayout({
                           alt={data.user.name}
                         />
                         <AvatarFallback className="rounded-lg">
-                          CN
+                          WZ
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">
                           {data.user.name}
                         </span>
-                        <span className="truncate text-xs">
-                          {data.user.email}
-                        </span>
+                        <span className="truncate text-xs">{user?.email}</span>
                       </div>
                     </div>
                   </DropdownMenuLabel>
@@ -409,7 +407,7 @@ export default function DashboardLayout({
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onSelect={signOutAction}>
                     <LogOut />
                     Log out
                   </DropdownMenuItem>
