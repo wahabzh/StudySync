@@ -63,7 +63,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?redirect_to=/dashboard/reset-password`,
+    redirectTo: `${origin}/auth/callback?redirect_to=/recover/reset-password`,
   });
 
   if (error) {
@@ -95,7 +95,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (!password || !confirmPassword) {
     encodedRedirect(
       "error",
-      "/dashboard/reset-password",
+      "/recover/reset-password",
       "Password and confirm password are required",
     );
   }
@@ -103,7 +103,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (password !== confirmPassword) {
     encodedRedirect(
       "error",
-      "/dashboard/reset-password",
+      "/recover/reset-password",
       "Passwords do not match",
     );
   }
@@ -115,12 +115,12 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (error) {
     encodedRedirect(
       "error",
-      "/dashboard/reset-password",
+      "/recover/reset-password",
       "Password update failed",
     );
   }
 
-  encodedRedirect("success", "/dashboard/reset-password", "Password updated");
+  encodedRedirect("success", "/recover/reset-password", "Password updated");
 };
 
 export const signOutAction = async () => {

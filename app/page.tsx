@@ -1,16 +1,25 @@
-import Hero from "@/components/hero";
-import ConnectSupabaseSteps from "@/components/tutorial/connect-supabase-steps";
-import SignUpUserSteps from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function Index() {
   return (
-    <>
-      <Hero />
-      <main className="flex-1 flex flex-col gap-6 px-4">
-        <h2 className="font-medium text-xl mb-4">Next steps</h2>
-        {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-      </main>
-    </>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-background">
+      <div className="text-center space-y-8">
+        <h1 className="text-4xl font-bold tracking-tighter">
+          Welcome to StudySync
+        </h1>
+        <p className="text-muted-foreground text-lg max-w-md mx-auto">
+          Make studying easier, together.
+        </p>
+        <div className="flex gap-4 justify-center">
+          <Button asChild size="lg">
+            <Link href="/sign-up">Sign Up</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link href="/sign-in">Sign In</Link>
+          </Button>
+        </div>
+      </div>
+    </main>
   );
 }

@@ -1,4 +1,7 @@
-"use client"
+"use client";
+
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 import {
   BadgeCheck,
@@ -22,13 +25,9 @@ import {
   Sparkles,
   SquareTerminal,
   Trash2,
-} from "lucide-react"
+} from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,12 +35,12 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,8 +49,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -70,7 +69,8 @@ import {
   SidebarMenuSubItem,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+
 const data = {
   user: {
     name: "shadcn",
@@ -193,9 +193,13 @@ const data = {
       icon: Map,
     },
   ],
-}
+};
 
-export default function Page() {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <SidebarProvider>
       <Sidebar variant="inset">
@@ -208,8 +212,10 @@ export default function Page() {
                     <Command className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Acme Inc</span>
-                    <span className="truncate text-xs">Enterprise</span>
+                    <span className="truncate font-semibold">
+                      StudySync
+                    </span>
+                    <span className="truncate text-xs">Student</span>
                   </div>
                 </a>
               </SidebarMenuButton>
@@ -433,15 +439,8 @@ export default function Page() {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-          </div>
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-        </div>
+        {children}
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
