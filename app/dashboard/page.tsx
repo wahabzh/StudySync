@@ -1,5 +1,26 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+
+const EmptyState = () => {
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-sm text-muted-foreground">No documents found.</p>
+      <Button>Create your first document</Button>
+    </div>
+  );
+};
+
+const DocumentList = ({ documents }: { documents: any[] }) => {
+  return <div>DocumentList</div>;
+};
+
+const getDocuments = async (userId: string) => {
+  // TODO: get documents from supabase
+  return [];
+};
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -12,14 +33,26 @@ export default async function HomePage() {
     return redirect("/sign-in");
   }
 
+  const documents = await getDocuments(user.id);
+
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="aspect-video rounded-xl bg-muted/50" />
-        <div className="aspect-video rounded-xl bg-muted/50" />
-        <div className="aspect-video rounded-xl bg-muted/50" />
+    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="font-semibold text-lg md:text-2xl">My Documents</h1>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          New Document
+        </Button>
       </div>
-      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          {documents.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <DocumentList documents={documents} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
