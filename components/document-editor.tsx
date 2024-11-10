@@ -5,11 +5,12 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Typography from "@tiptap/extension-typography";
 import Highlight from "@tiptap/extension-highlight";
+import { Document } from "@/types/database";
 
 const editorClassName =
   "prose prose-sm sm:prose lg:prose-lg focus:outline-none min-h-screen prose-headings:p-0 prose-headings:font-normal dark:prose-invert";
 
-export default function DocumentEditor({ document }: { document: any }) {
+export default function DocumentEditor({ document }: { document: Document }) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
