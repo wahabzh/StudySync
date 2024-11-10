@@ -9,16 +9,56 @@ import { Document } from "@/types/database";
 import { useCallback, useEffect, useState } from "react";
 import { updateDocument } from "@/app/actions";
 import { useDebounce } from "use-debounce";
-import { Loader2 } from "lucide-react";
+import { Check, Cloud, CloudOff, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const editorClassName =
-  "prose prose-sm sm:prose lg:prose-lg focus:outline-none min-h-screen prose-headings:p-0 prose-headings:font-normal dark:prose-invert";
+type SaveStatus = "saved" | "saving" | "unsaved" | "error";
+
+const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
+  const statusConfig = {
+    saved: {
+      icon: Check,
+      text: "Saved",
+      className: "text-green-500",
+    },
+    saving: {
+      icon: Cloud,
+      text: "Saving...",
+      className: "text-yellow-500",
+    },
+    unsaved: {
+      icon: Cloud,
+      text: "Unsaved changes",
+      className: "text-yellow-500",
+    },
+    error: {
+      icon: CloudOff,
+      text: "Failed to save",
+      className: "text-red-500",
+    },
+  };
+
+  const config = statusConfig[status];
+  const Icon = config.icon;
+
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-2 text-sm transition-all duration-200",
+        config.className
+      )}
+    >
+      <Icon className={cn("h-4 w-4", status === "saving" && "animate-pulse")} />
+      <span className="hidden sm:inline">{config.text}</span>
+    </div>
+  );
+};
 
 export default function DocumentEditor({ document }: { document: Document }) {
-  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
   const [content, setContent] = useState(document.content);
-  const [debouncedContent] = useDebounce(content, 1000); // 1 second debounce
-  // initialize the editor
+  const [debouncedContent] = useDebounce(content, 1000);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -26,22 +66,21 @@ export default function DocumentEditor({ document }: { document: Document }) {
       }),
       Typography,
       Highlight,
-      Placeholder.configure({ placeholder: " # Write something..." }),
+      Placeholder.configure({ placeholder: "# Write something..." }),
     ],
     content: document.content,
-    immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: editorClassName,
+        class:
+          "prose prose-sm sm:prose lg:prose-lg focus:outline-none min-h-[500px] max-w-none prose-headings:font-normal dark:prose-invert",
       },
     },
-    // update the content state when the editor content changes
     onUpdate: ({ editor }) => {
       setContent(editor.getJSON());
+      setSaveStatus("unsaved");
     },
   });
 
-  // automatically save the document when the debounced content changes
   // Auto-save effect
   useEffect(() => {
     if (
@@ -49,14 +88,13 @@ export default function DocumentEditor({ document }: { document: Document }) {
       JSON.stringify(debouncedContent) !== JSON.stringify(document.content)
     ) {
       const saveContent = async () => {
-        setIsSaving(true);
+        setSaveStatus("saving");
         try {
           await updateDocument(document.id, debouncedContent);
+          setSaveStatus("saved");
         } catch (error) {
           console.error("Failed to save:", error);
-          // You might want to show an error toast here
-        } finally {
-          setIsSaving(false);
+          setSaveStatus("error");
         }
       };
 
@@ -64,5 +102,14 @@ export default function DocumentEditor({ document }: { document: Document }) {
     }
   }, [debouncedContent, document.id, document.content]);
 
-  return <EditorContent editor={editor} />;
+  return (
+    <div className="relative">
+      <div className="sticky top-4 z-50 flex justify-end">
+        <div className="rounded-full bg-background/95 px-3 py-1.5 shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-800 backdrop-blur">
+          <SaveStatusIndicator status={saveStatus} />
+        </div>
+      </div>
+      <EditorContent editor={editor} />
+    </div>
+  );
 }
