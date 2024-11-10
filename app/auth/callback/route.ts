@@ -10,11 +10,13 @@ export async function GET(request: Request) {
   const origin = requestUrl.origin;
   const redirectTo = requestUrl.searchParams.get("redirect_to")?.toString();
 
+  // if there is an auth code, exchange it for a session
   if (code) {
     const supabase = await createClient();
     await supabase.auth.exchangeCodeForSession(code);
   }
 
+  // if there is a redirect_to parameter, redirect to it
   if (redirectTo) {
     return NextResponse.redirect(`${origin}${redirectTo}`);
   }
