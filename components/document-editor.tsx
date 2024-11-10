@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Typography from "@tiptap/extension-typography";
@@ -57,7 +57,7 @@ const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
 export default function DocumentEditor({ document }: { document: Document }) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
   const [content, setContent] = useState(document.content);
-  const [debouncedContent] = useDebounce(content, 1000);
+  const [debouncedContent] = useDebounce(content, 2000); // 2 seconds
 
   const editor = useEditor({
     extensions: [
@@ -110,6 +110,55 @@ export default function DocumentEditor({ document }: { document: Document }) {
           <SaveStatusIndicator status={saveStatus} />
         </div>
       </div>
+      {editor && (
+        <BubbleMenu
+          className="flex bg-white text-black rounded-lg shadow-lg p-1 space-x-1"
+          tippyOptions={{ duration: 100 }}
+          editor={editor}
+        >
+          <button
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            className={`p-2 rounded ${editor.isActive("bold") ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray hover:bg-gray-200"}`}
+          >
+            Bold
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            className={`p-2 rounded ${editor.isActive("italic") ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray hover:bg-gray-200"}`}
+          >
+            Italic
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            className={`p-2 rounded ${editor.isActive("strike") ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray hover:bg-gray-200"}`}
+          >
+            Strike
+          </button>
+
+          <button
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 1 }).run()
+            }
+            className={`p-2 rounded ${editor.isActive("heading", { level: 1 }) ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray hover:bg-gray-200"}`}
+          >
+            H1
+          </button>
+          <button
+            onClick={() =>
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+            }
+            className={`p-2 rounded ${editor.isActive("heading", { level: 2 }) ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray hover:bg-gray-200"}`}
+          >
+            H2
+          </button>
+          <button
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            className={`p-2 rounded ${editor.isActive("bulletlist") ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray hover:bg-gray-200"}`}
+          >
+            Bullet list
+          </button>
+        </BubbleMenu>
+      )}
       <EditorContent editor={editor} />
     </div>
   );

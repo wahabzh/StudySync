@@ -25,7 +25,19 @@ const DocumentList = ({ documents }: { documents: Document[] }) => {
           key={document.id}
           className="flex items-center justify-between rounded-lg border p-4"
         >
-          <h2 className="text-lg font-medium">{document.title}</h2>
+          <div className="flex flex-col gap-1">
+            <h2 className="text-lg font-medium">{document.title}</h2>
+            <p className="text-sm text-muted-foreground">
+              Last edited{" "}
+              {new Date(document.updated_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+              })}
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             <Link
               href={`/dashboard/doc/${document.id}`}
