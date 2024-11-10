@@ -69,6 +69,7 @@ export default function DocumentEditor({ document }: { document: Document }) {
       Placeholder.configure({ placeholder: "# Write something..." }),
     ],
     content: document.content,
+    immediatelyRender: false,
     editorProps: {
       attributes: {
         class:
