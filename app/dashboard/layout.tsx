@@ -1,3 +1,5 @@
+"use client";
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
@@ -69,6 +71,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { signOutAction } from "../actions";
+
+import { PomodoroTimer } from "@/components/pomodoro/pomodoro-timer";
 
 const data = {
   user: {
@@ -194,16 +198,11 @@ const data = {
   ],
 };
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   return (
     <SidebarProvider>
       <Sidebar variant="inset">
@@ -269,7 +268,7 @@ export default async function DashboardLayout({
               ))}
             </SidebarMenu>
           </SidebarGroup>
-          <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+          {/* <SidebarGroup className="group-data-[collapsible=icon]:hidden">
             <SidebarGroupLabel>Projects</SidebarGroupLabel>
             <SidebarMenu>
               {data.projects.map((item) => (
@@ -316,7 +315,7 @@ export default async function DashboardLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
-          </SidebarGroup>
+          </SidebarGroup> */}
           <SidebarGroup className="mt-auto">
             <SidebarGroupContent>
               <SidebarMenu>
@@ -335,6 +334,7 @@ export default async function DashboardLayout({
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
+          <PomodoroTimer />
           <SidebarMenu>
             <SidebarMenuItem>
               <DropdownMenu>
@@ -344,17 +344,16 @@ export default async function DashboardLayout({
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage
-                        src={data.user.avatar}
-                        alt={data.user.name}
-                      />
+                      {/* TODO: Add Avatar Image Later */}
                       <AvatarFallback className="rounded-lg">WZ</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">
                         {data.user.name}
                       </span>
-                      <span className="truncate text-xs">{user?.email}</span>
+                      <span className="truncate text-xs">
+                        {data.user.email}
+                      </span>
                     </div>
                     <ChevronsUpDown className="ml-auto size-4" />
                   </SidebarMenuButton>
@@ -368,19 +367,18 @@ export default async function DashboardLayout({
                   <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage
-                          src={data.user.avatar}
-                          alt={data.user.name}
-                        />
+                        {/* TODO: Add Avatar Image Later */}
                         <AvatarFallback className="rounded-lg">
-                          WZ
+                          UN
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">
                           {data.user.name}
                         </span>
-                        <span className="truncate text-xs">{user?.email}</span>
+                        <span className="truncate text-xs">
+                          {data.user.email}
+                        </span>
                       </div>
                     </div>
                   </DropdownMenuLabel>
