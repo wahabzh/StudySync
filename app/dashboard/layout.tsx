@@ -74,36 +74,37 @@ import { signOutAction } from "../actions";
 
 import { PomodoroTimer } from "@/components/pomodoro/pomodoro-timer";
 import { PomodoroProvider } from "@/contexts/pomodoro-context";
+import Link from "next/link";
 
 const data = {
   user: {
-    name: "Wahab",
-    email: "m@example.com",
+    name: "User",
+    email: "user@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
-      title: "Playground",
+      title: "Notes",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "CS 310",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "CS 535",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "DISC 212",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Flashcards",
       url: "#",
       icon: Bot,
       items: [
@@ -122,7 +123,7 @@ const data = {
       ],
     },
     {
-      title: "Documentation",
+      title: "Shared",
       url: "#",
       icon: BookOpen,
       items: [
@@ -212,7 +213,7 @@ export default function DashboardLayout({
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton size="lg" asChild>
-                  <a href="#">
+                  <Link href="/dashboard">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
                       <Command className="size-4" />
                     </div>
@@ -220,7 +221,7 @@ export default function DashboardLayout({
                       <span className="truncate font-semibold">StudySync</span>
                       <span className="truncate text-xs">Student</span>
                     </div>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -300,7 +301,7 @@ export default function DashboardLayout({
                       <Avatar className="h-8 w-8 rounded-lg">
                         {/* TODO: Add Avatar Image Later */}
                         <AvatarFallback className="rounded-lg">
-                          WZ
+                          US
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
@@ -325,7 +326,7 @@ export default function DashboardLayout({
                         <Avatar className="h-8 w-8 rounded-lg">
                           {/* TODO: Add Avatar Image Later */}
                           <AvatarFallback className="rounded-lg">
-                            UN
+                            US
                           </AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
