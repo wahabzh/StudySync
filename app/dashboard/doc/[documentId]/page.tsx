@@ -1,29 +1,41 @@
 import { notFound } from "next/navigation";
 import DocumentEditor from "@/components/document-editor";
+import { Document } from "@/types/database";
+import { createClient } from "@/utils/supabase/server";
 
 async function getDocument(documentId: string) {
-  // TODO: get document by id
-  return null;
+  const supabase = await createClient();
+  const { data: document, error } = await supabase
+    .from("documents")
+    .select("*")
+    .eq("id", documentId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching document", error);
+    return null;
+  }
+
+  return document as Document;
 }
 
 export default async function DocumentPage({
   params,
 }: {
-  params: { documentId: string };
+  params: Promise<{ documentId: string }>;
 }) {
-  const resolvedParams = await params;
-  const document = await getDocument(resolvedParams.documentId);
+  const documentId = (await params).documentId;
+  const document = await getDocument(documentId);
+  if (!document) {
+    return notFound();
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-lg md:text-2xl">Document Name</h1>
+        <h1 className="font-semibold text-lg md:text-2xl">{document.title}</h1>
       </div>
-      {document ? (
-        <DocumentEditor document={document} />
-      ) : (
-        <DocumentEditor document={{ content: "<p>Hello World</p>" }} />
-      )}
+      <DocumentEditor document={document} />
     </div>
   );
 }
