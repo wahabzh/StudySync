@@ -4,12 +4,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { Document } from "@/types/database";
+import { createDocument } from "@/app/actions";
+import NewDocumentDialog from "@/components/new-document-dialog";
 
 const EmptyState = () => {
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-muted-foreground">No documents found.</p>
-      <Button>Create your first document</Button>
+      <NewDocumentDialog onCreate={createDocument} />
     </div>
   );
 };
@@ -68,10 +70,7 @@ export default async function HomePage() {
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-lg md:text-2xl">My Documents</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          New Document
-        </Button>
+        <NewDocumentDialog onCreate={createDocument} />
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
