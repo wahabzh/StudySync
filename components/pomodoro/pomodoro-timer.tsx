@@ -1,4 +1,6 @@
 // components/pomodoro/PomodoroTimer.tsx
+"use client";
+
 import React from "react";
 import { Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,16 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { TimerDisplay } from "./timer-display";
 import { PomodoroSettings } from "./pomodoro-settings";
-import { usePomodoro } from "@/lib/pomodoro/hooks/use-pomodoro";
-
-const initialSettings = {
-  pomodoro: 25,
-  shortBreak: 5,
-  longBreak: 15,
-  longBreakInterval: 4,
-  autoStartBreaks: false,
-  autoStartPomodoros: false,
-};
+import { usePomodoroContext } from "@/contexts/pomodoro-context";
 
 export function PomodoroTimer() {
   const {
@@ -33,7 +26,7 @@ export function PomodoroTimer() {
     toggleTimer,
     resetTimer,
     saveSettings,
-  } = usePomodoro(initialSettings);
+  } = usePomodoroContext();
 
   return (
     <SidebarGroup>
