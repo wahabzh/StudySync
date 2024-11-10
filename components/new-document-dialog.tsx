@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,9 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlusCircle } from "lucide-react";
-import { useState } from "react";
-import { redirect } from "next/navigation";
 
 interface NewDocumentDialogProps {
   onCreate: (title: string) => Promise<string>;
@@ -26,6 +26,7 @@ export default function NewDocumentDialog({
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +34,7 @@ export default function NewDocumentDialog({
     try {
       const documentId = await onCreate(title);
       setOpen(false);
-      redirect(`/dashboard/doc/${documentId}`);
+      router.push(`/dashboard/doc/${documentId}`);
     } catch (error) {
       console.error("Failed to create document:", error);
     } finally {
