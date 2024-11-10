@@ -6,6 +6,7 @@ import { PlusCircle } from "lucide-react";
 import { Document } from "@/types/database";
 import { createDocument } from "@/app/actions";
 import NewDocumentDialog from "@/components/new-document-dialog";
+import { DocumentActions } from "@/components/document-actions";
 
 const EmptyState = () => {
   return (
@@ -25,12 +26,18 @@ const DocumentList = ({ documents }: { documents: Document[] }) => {
           className="flex items-center justify-between rounded-lg border p-4"
         >
           <h2 className="text-lg font-medium">{document.title}</h2>
-          <Link
-            href={`/dashboard/doc/${document.id}`}
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          >
-            Edit
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/dashboard/doc/${document.id}`}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              Edit
+            </Link>
+            <DocumentActions
+              documentId={document.id}
+              documentTitle={document.title}
+            />
+          </div>
         </div>
       ))}
     </div>

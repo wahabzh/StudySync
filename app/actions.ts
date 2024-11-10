@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -190,4 +191,29 @@ export async function updateDocument(
     console.error("Error updating document:", error);
     throw error;
   }
+}
+
+export async function deleteDocument(documentId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Not authenticated");
+  }
+
+  const { error } = await supabase
+    .from("documents")
+    .delete()
+    .eq("id", documentId)
+    .eq("user_id", user.id); // Ensure user owns the document
+
+  if (error) {
+    console.error("Error deleting document:", error);
+    throw error;
+  }
+
+  revalidatePath("/dashboard");
 }
