@@ -29,13 +29,14 @@ const DocumentList = ({ documents }: { documents: Document[] }) => {
             <h2 className="text-lg font-medium">{document.title}</h2>
             <p className="text-sm text-muted-foreground">
               Last edited{" "}
-              {new Date(document.updated_at).toLocaleDateString("en-US", {
+              {new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
                 month: "short",
                 day: "numeric",
-                year: "numeric",
                 hour: "numeric",
                 minute: "numeric",
-              })}
+                hour12: true,
+              }).format(new Date(document.updated_at))}
             </p>
           </div>
           <div className="flex items-center gap-2">
