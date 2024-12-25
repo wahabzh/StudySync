@@ -238,22 +238,20 @@ export default function DocumentSharingMenu() {
                       <SelectItem value="Editor">Editor</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Button
+                    onClick={handleInvite}
+                    disabled={isLoading || !inviteEmail}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Users className="mr-2 h-4 w-4" />
+                    )}
+                    Invite
+                  </Button>
                 </div>
               </div>
             </div>
-            <DialogFooter>
-              <Button
-                onClick={handleInvite}
-                disabled={isLoading || !inviteEmail}
-              >
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Users className="mr-2 h-4 w-4" />
-                )}
-                Invite
-              </Button>
-            </DialogFooter>
           </TabsContent>
           <TabsContent value="manage">
             <div className="space-y-4 py-4">
