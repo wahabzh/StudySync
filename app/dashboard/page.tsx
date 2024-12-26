@@ -64,7 +64,7 @@ const getDocuments = async (userId: string) => {
     const { data: documents, error } = await supabase
         .from("documents")
         .select("*")
-        .eq("user_id", userId)
+        .eq("owner_id", userId)
         .order("updated_at", { ascending: false });
 
     if (error) {

@@ -14,7 +14,7 @@ export type Document = {
   id: string; // Unique identifier for the document
   title: string; // Document title
   content: Record<string, any>; // Document content stored as JSON
-  user_id: string; // Foreign key to profiles.id - owner of document
+  owner_id: string; // Foreign key to profiles.id - owner of document
   created_at: string; // Timestamp when document was created
   updated_at: string; // Timestamp when document was last updated
 };
@@ -33,7 +33,7 @@ export type Database = {
       documents: {
         Row: Document; // Shape of document rows
         Insert: Omit<Document, "id" | "created_at" | "updated_at">; // Fields needed when inserting
-        Update: Partial<Omit<Document, "id" | "user_id">>; // Fields that can be updated
+        Update: Partial<Omit<Document, "id" | "owner_id">>; // Fields that can be updated
       };
     };
   };

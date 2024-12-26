@@ -151,7 +151,7 @@ export async function createDocument(title: string) {
     .insert({
       title,
       content: {},
-      user_id: user.id,
+      owner_id: user.id,
     })
     .select()
     .single();
@@ -185,7 +185,7 @@ export async function updateDocument(
       updated_at: new Date().toISOString(),
     })
     .eq("id", documentId)
-    .eq("user_id", user.id); // Ensure user owns the document
+    .eq("owner_id", user.id); // Ensure user owns the document
 
   if (error) {
     console.error("Error updating document:", error);
@@ -208,7 +208,7 @@ export async function deleteDocument(documentId: string) {
     .from("documents")
     .delete()
     .eq("id", documentId)
-    .eq("user_id", user.id); // Ensure user owns the document
+    .eq("owner_id", user.id); // Ensure user owns the document
 
   if (error) {
     console.error("Error deleting document:", error);
