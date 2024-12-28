@@ -47,13 +47,11 @@ export async function updateCollaborator(
 ) {
   const supabase = await createClient();
 
-  // Get current user
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  // Verify user has permission to update document
   const { data: document } = await supabase
     .from("documents")
     .select("owner_id, editors, viewers")
@@ -61,6 +59,8 @@ export async function updateCollaborator(
     .single();
 
   if (!document) throw new Error("Document not found");
+
+  // Only owners can modify permissions
   if (document.owner_id !== user.id) {
     throw new Error("Only the owner can modify collaborator permissions");
   }

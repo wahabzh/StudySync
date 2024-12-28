@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,19 +13,12 @@ import {
 } from "@/components/ui/select";
 import { Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Collaborator {
-  id: string;
-  email: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  role: "viewer" | "editor";
-}
+import { CollaboratorInfo } from "@/types/collaborator";
 
 interface ManageTabProps {
   documentId: string;
-  viewers: string[];
-  editors: string[];
+  editors: CollaboratorInfo[];
+  viewers: CollaboratorInfo[];
   onUpdatePermission: (
     userId: string,
     newRole: "viewer" | "editor"
@@ -92,22 +85,22 @@ export function ManageTab({
           <p className="text-muted-foreground">No collaborators yet</p>
         ) : (
           <>
-            {editors.map((userId) => (
+            {editors.map((editor) => (
               <CollaboratorRow
-                key={userId}
-                userId={userId}
+                key={editor.id}
+                user={editor}
                 currentRole="editor"
-                isLoading={isLoading === userId}
+                isLoading={isLoading === editor.id}
                 onPermissionChange={handlePermissionChange}
                 onRemove={handleRemove}
               />
             ))}
-            {viewers.map((userId) => (
+            {viewers.map((viewer) => (
               <CollaboratorRow
-                key={userId}
-                userId={userId}
+                key={viewer.id}
+                user={viewer}
                 currentRole="viewer"
-                isLoading={isLoading === userId}
+                isLoading={isLoading === viewer.id}
                 onPermissionChange={handlePermissionChange}
                 onRemove={handleRemove}
               />
@@ -120,7 +113,7 @@ export function ManageTab({
 }
 
 interface CollaboratorRowProps {
-  userId: string;
+  user: CollaboratorInfo;
   currentRole: "viewer" | "editor";
   isLoading: boolean;
   onPermissionChange: (
@@ -131,7 +124,7 @@ interface CollaboratorRowProps {
 }
 
 function CollaboratorRow({
-  userId,
+  user,
   currentRole,
   isLoading,
   onPermissionChange,
@@ -141,18 +134,17 @@ function CollaboratorRow({
     <div className="flex items-center justify-between space-x-4 p-2 rounded-md hover:bg-muted">
       <div className="flex items-center space-x-4">
         <Avatar>
-          <AvatarImage src={`/api/avatar/${userId}`} />
-          <AvatarFallback>U</AvatarFallback>
+          <AvatarFallback>{user.email[0].toUpperCase()}</AvatarFallback>
         </Avatar>
         <div>
-          <p className="text-sm font-medium leading-none">{userId}</p>
+          <p className="text-sm font-medium leading-none">{user.email}</p>
         </div>
       </div>
       <div className="flex items-center space-x-2">
         <Select
           value={currentRole}
           onValueChange={(value: "viewer" | "editor") =>
-            onPermissionChange(userId, value)
+            onPermissionChange(user.id, value)
           }
           disabled={isLoading}
         >
@@ -167,7 +159,7 @@ function CollaboratorRow({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onRemove(userId)}
+          onClick={() => onRemove(user.id)}
           disabled={isLoading}
         >
           {isLoading ? (

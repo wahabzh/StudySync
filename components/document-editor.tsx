@@ -54,7 +54,15 @@ const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
   );
 };
 
-export default function DocumentEditor({ document }: { document: Document }) {
+interface DocumentEditorProps {
+  document: Document;
+  canEdit: boolean;
+}
+
+export default function DocumentEditor({
+  document,
+  canEdit,
+}: DocumentEditorProps) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
   const [content, setContent] = useState(document.content);
   const [debouncedContent] = useDebounce(content, 2000); // 2 seconds

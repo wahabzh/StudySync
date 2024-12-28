@@ -2,47 +2,19 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Switch } from "@/components/ui/switch";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 import { Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ShareTab } from "./share-tab";
 import { ManageTab } from "./manage-tab";
-
-// icons
 import {
-  UserPlus,
-  Users,
-  Globe,
-  Lock,
-  Trash2,
-  Check,
-  X,
-  Loader2,
-} from "lucide-react";
-
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DocumentStatus } from "@/types/database";
 import {
   updateDocumentStatus,
@@ -50,23 +22,31 @@ import {
   removeCollaborator,
   inviteUser,
 } from "@/app/document";
+import { CollaboratorInfo } from "@/types/collaborator";
 
 interface DocumentSharingMenuProps {
   documentId: string;
   status: DocumentStatus;
-  editors: string[];
-  viewers: string[];
+  editorInfo: CollaboratorInfo[];
+  viewerInfo: CollaboratorInfo[];
+  userAccess: "none" | "view" | "edit" | "owner";
 }
 
 export default function DocumentSharingMenu({
   documentId,
   status,
-  editors,
-  viewers,
+  editorInfo,
+  viewerInfo,
+  userAccess,
 }: DocumentSharingMenuProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Only show sharing options if user is owner or editor
+  if (userAccess !== "owner" && userAccess !== "edit") {
+    return null;
+  }
 
   const handleStatusChange = async (newStatus: DocumentStatus) => {
     try {
@@ -75,7 +55,11 @@ export default function DocumentSharingMenu({
       await updateDocumentStatus(documentId, newStatus);
       toast({
         title: "Status updated",
-        description: `Document is now ${newStatus === "anyone-with-link" ? "accessible via link" : "invite-only"}`,
+        description: `Document is now ${
+          newStatus === "anyone-with-link"
+            ? "accessible via link"
+            : "invite-only"
+        }`,
       });
     } catch (error) {
       setError(
@@ -167,13 +151,14 @@ export default function DocumentSharingMenu({
               status={status}
               onStatusChange={handleStatusChange}
               onInviteUser={handleInviteUser}
+              isOwner={userAccess === "owner"}
             />
           </TabsContent>
           <TabsContent value="manage">
             <ManageTab
               documentId={documentId}
-              editors={editors}
-              viewers={viewers}
+              editors={editorInfo}
+              viewers={viewerInfo}
               onUpdatePermission={handleUpdatePermission}
               onRemoveCollaborator={handleRemoveCollaborator}
             />
