@@ -7,6 +7,16 @@ import { CollaboratorInfo } from "@/types/collaborator";
 import { createClient } from "@/utils/supabase/server";
 import { getUserAccessLevel } from "@/utils/permissions";
 
+import { Check, Cloud, CloudOff, Loader2, EyeIcon } from "lucide-react";
+const ViewOnlyBadge = () => {
+  return (
+    <div className="flex items-center gap-2 text-sm text-gray-500 bg-background/95 px-3 py-1.5 rounded-full shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-800 backdrop-blur">
+      <EyeIcon className="h-4 w-4" />
+      <span className="hidden sm:inline">View only</span>
+    </div>
+  );
+};
+
 interface DocumentWithCollaborators {
   document: Document;
   viewerInfo: CollaboratorInfo[];
@@ -88,23 +98,25 @@ export default async function DocumentPage({
   }
 
   const { document, viewerInfo, editorInfo, userAccess } = data;
+  const canEdit = userAccess === "owner" || userAccess === "edit";
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-lg md:text-2xl">{document.title}</h1>
-        <DocumentSharingMenu
-          documentId={document.id}
-          status={document.status}
-          editorInfo={editorInfo}
-          viewerInfo={viewerInfo}
-          userAccess={userAccess}
-        />
+        {canEdit ? (
+          <DocumentSharingMenu
+            documentId={document.id}
+            status={document.share_status}
+            editorInfo={editorInfo}
+            viewerInfo={viewerInfo}
+            userAccess={userAccess}
+          />
+        ) : (
+          <ViewOnlyBadge />
+        )}
       </div>
-      <DocumentEditor
-        document={document}
-        canEdit={userAccess === "owner" || userAccess === "edit"}
-      />
+      <DocumentEditor document={document} canEdit={canEdit} />
     </div>
   );
 }

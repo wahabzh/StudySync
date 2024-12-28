@@ -9,7 +9,7 @@ import { Document } from "@/types/database";
 import { useCallback, useEffect, useState } from "react";
 import { updateDocument } from "@/app/actions";
 import { useDebounce } from "use-debounce";
-import { Check, Cloud, CloudOff, Loader2 } from "lucide-react";
+import { Check, Cloud, CloudOff, Loader2, EyeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
@@ -65,9 +65,10 @@ export default function DocumentEditor({
 }: DocumentEditorProps) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
   const [content, setContent] = useState(document.content);
-  const [debouncedContent] = useDebounce(content, 2000); // 2 seconds
+  const [debouncedContent] = useDebounce(content, 1000); // 1 second
 
   const editor = useEditor({
+    editable: canEdit,
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
@@ -114,9 +115,11 @@ export default function DocumentEditor({
   return (
     <div className="relative">
       <div className="sticky top-4 z-50 flex justify-end">
-        <div className="rounded-full bg-background/95 px-3 py-1.5 shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-800 backdrop-blur">
-          <SaveStatusIndicator status={saveStatus} />
-        </div>
+        {canEdit && (
+          <div className="rounded-full bg-background/95 px-3 py-1.5 shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-800 backdrop-blur">
+            <SaveStatusIndicator status={saveStatus} />
+          </div>
+        )}
       </div>
       {editor && (
         <BubbleMenu

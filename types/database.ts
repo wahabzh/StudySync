@@ -19,7 +19,7 @@ export type Document = {
   owner_id: string; // Foreign key to profiles.id - owner of document
   created_at: string; // Timestamp when document was created
   updated_at: string; // Timestamp when document was last updated
-  status: DocumentStatus;
+  share_status: DocumentStatus;
   viewers: string[] | null;
   editors: string[] | null;
   is_published?: boolean; // for community features

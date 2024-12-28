@@ -43,11 +43,6 @@ export default function DocumentSharingMenu({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Only show sharing options if user is owner or editor
-  if (userAccess !== "owner" && userAccess !== "edit") {
-    return null;
-  }
-
   const handleStatusChange = async (newStatus: DocumentStatus) => {
     try {
       setIsLoading(true);

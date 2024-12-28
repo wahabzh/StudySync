@@ -32,7 +32,7 @@ export async function updateDocumentStatus(
   // Update document status
   const { error } = await supabase
     .from("documents")
-    .update({ status: newStatus })
+    .update({ share_status: newStatus })
     .eq("id", documentId);
 
   if (error) throw error;
