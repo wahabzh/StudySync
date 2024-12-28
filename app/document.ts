@@ -178,7 +178,7 @@ export async function inviteUser(
 
   if (!document) throw new Error("Document not found");
   if (document.owner_id === invited_id) {
-    throw new Error("You cannot the owner");
+    throw new Error("You cannot invite the owner");
   }
   if (document.owner_id !== user.id && !document.editors?.includes(user.id)) {
     throw new Error("Unauthorized");
