@@ -4,6 +4,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -17,7 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2, Check } from "lucide-react";
 import { useState } from "react";
 import { deleteDocument } from "@/app/actions";
 import { useRouter } from "next/navigation";
@@ -25,9 +26,18 @@ import { useRouter } from "next/navigation";
 interface DocumentActionsProps {
   documentId: string;
   documentTitle: string;
+  userAccess?: "none" | "view" | "edit" | "owner";
+  onSelect?: () => void;
+  isSelected?: boolean;
 }
 
-export function DocumentActions({ documentId, documentTitle }: DocumentActionsProps) {
+export function DocumentActions({
+  documentId,
+  documentTitle,
+  userAccess = "owner",
+  onSelect,
+  isSelected = false,
+}: DocumentActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -55,23 +65,37 @@ export function DocumentActions({ documentId, documentTitle }: DocumentActionsPr
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            className="text-destructive focus:text-destructive data-[highlighted]:text-destructive-foreground data-[highlighted]:bg-destructive"
-            onClick={() => setShowDeleteDialog(true)}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
+          {onSelect && (
+            <>
+              <DropdownMenuItem onClick={onSelect}>
+                <Check
+                  className={`mr-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"}`}
+                />
+                Select
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          {userAccess === "owner" && (
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive data-[highlighted]:text-destructive-foreground data-[highlighted]:bg-destructive"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* Delete Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete &quot;{documentTitle}&quot; and remove all of its
-              contents from our servers.
+              This will permanently delete &quot;{documentTitle}&quot; and
+              remove all of its contents from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -88,4 +112,4 @@ export function DocumentActions({ documentId, documentTitle }: DocumentActionsPr
       </AlertDialog>
     </>
   );
-} 
+}

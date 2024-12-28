@@ -1,22 +1,15 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Share2, Lock } from "lucide-react";
+import { Share2, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { DocumentActions } from "@/components/document-actions";
 
 interface DocumentCardProps {
   id: string;
@@ -36,7 +29,7 @@ export function DocumentCard({
   isSharedWithOthers = false,
 }: DocumentCardProps) {
   return (
-    <Card className="flex flex-col h-full transition-all hover:shadow-md">
+    <Card className="group flex flex-col h-full transition-all hover:shadow-md">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div className="space-y-1">
           <div className="flex flex-wrap gap-2">
@@ -68,39 +61,27 @@ export function DocumentCard({
             )}
           </div>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Link href={`/dashboard/doc/${id}`} className="flex w-full">
-                Open
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>Share</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <DocumentActions documentId={id} documentTitle={title} />
       </CardHeader>
-      <CardContent>
-        <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
-        {preview && (
-          <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
-            {preview}
+      <Link href={`/dashboard/doc/${id}`} className="flex-1">
+        <CardContent>
+          <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+          {preview && (
+            <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
+              {preview}
+            </p>
+          )}
+        </CardContent>
+        <CardFooter className="mt-auto pt-4 flex justify-between items-center">
+          <p className="text-xs text-muted-foreground">
+            Last edited {lastEdited}
           </p>
-        )}
-      </CardContent>
-      <CardFooter className="mt-auto pt-4">
-        <p className="text-xs text-muted-foreground">
-          Last edited {lastEdited}
-        </p>
-      </CardFooter>
+          <span className="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+            Open document
+            <ArrowRight className="h-3 w-3" />
+          </span>
+        </CardFooter>
+      </Link>
     </Card>
   );
 }

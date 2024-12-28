@@ -55,21 +55,28 @@ const getDocuments = async (
   const supabase = await createClient();
   let query = supabase.from("documents").select("*");
 
-  // Apply filters
-  if (filters.includes("shared_with_me")) {
-    query = query.contains("editors", [userId]).or(`viewers.cs.{${userId}}`);
-  }
-  if (filters.includes("shared_with_others")) {
-    query = query
-      .eq("owner_id", userId)
-      .or(`share_status.eq.anyone-with-link,editors.neq.{},viewers.neq.{}`);
-  }
-  if (filters.includes("private")) {
-    query = query
-      .eq("owner_id", userId)
-      .eq("share_status", "invite-only")
-      .is("editors", null)
-      .is("viewers", null);
+  // First, get all documents user has access to
+  query = query.or(
+    `owner_id.eq.${userId},editors.cs.{${userId}},viewers.cs.{${userId}}`
+  );
+
+  // Then apply filters if any are selected
+  if (filters.length > 0) {
+    if (filters.includes("shared_with_me")) {
+      query = query.not("owner_id", "eq", userId);
+    }
+    if (filters.includes("shared_with_others")) {
+      query = query
+        .eq("owner_id", userId)
+        .or("share_status.eq.anyone-with-link,editors.neq.{},viewers.neq.{}");
+    }
+    if (filters.includes("private")) {
+      query = query
+        .eq("owner_id", userId)
+        .eq("share_status", "invite-only")
+        .is("editors", null)
+        .is("viewers", null);
+    }
   }
 
   // Apply search
@@ -77,9 +84,16 @@ const getDocuments = async (
     query = query.ilike("title", `%${search}%`);
   }
 
-  // Apply sorting
+  // Apply sorting - map sort values to actual column names
   const [field, direction] = sort.split("_");
-  query = query.order(field, { ascending: direction === "asc" });
+  const sortField =
+    field === "updated"
+      ? "updated_at"
+      : field === "created"
+        ? "created_at"
+        : field;
+
+  query = query.order(sortField, { ascending: direction === "asc" });
 
   const { data: documents, error } = await query;
 
@@ -91,13 +105,11 @@ const getDocuments = async (
   return documents as Document[];
 };
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: { search?: string; filters?: string; sort?: string };
+export default async function HomePage(props: {
+  searchParams: Promise<{ search?: string; filters?: string; sort?: string }>;
 }) {
-  await searchParams
-    const supabase = await createClient();
+  const searchParams = await props.searchParams;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

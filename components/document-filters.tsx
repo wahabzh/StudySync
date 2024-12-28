@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Search, X } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useSearchParams } from "next/navigation";
 
 interface DocumentFiltersProps {
   onSearch: (query: string) => void;
@@ -26,9 +28,25 @@ export function DocumentFilters({
   onSortChange,
   activeFilters,
 }: DocumentFiltersProps) {
-  const removeFilter = (filter: string) => {
-    onFilterChange(activeFilters.filter((f) => f !== filter));
-  };
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || ""
+  );
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+
+  // Handle search debouncing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Only trigger the search callback when the debounced value changes
+  useEffect(() => {
+    onSearch(debouncedSearchQuery);
+  }, [debouncedSearchQuery, onSearch]);
 
   return (
     <div className="space-y-4">
@@ -38,11 +56,15 @@ export function DocumentFilters({
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search documents..."
-              onChange={(e) => onSearch(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8"
             />
           </div>
-          <Select onValueChange={onSortChange}>
+          <Select
+            defaultValue={searchParams.get("sort") || "updated_desc"}
+            onValueChange={onSortChange}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
@@ -53,22 +75,19 @@ export function DocumentFilters({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-left gap-2">
-          <ToggleGroup type="multiple" variant="outline">
-            <ToggleGroupItem value="shared_with_me" aria-label="Shared with me">
-              Shared with me
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="shared_with_others"
-              aria-label="Shared with others"
-            >
-              Shared with others
-            </ToggleGroupItem>
-            <ToggleGroupItem value="private" aria-label="Private">
-              Private
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
+        <ToggleGroup
+          type="multiple"
+          value={activeFilters}
+          onValueChange={onFilterChange}
+        >
+          <ToggleGroupItem value="shared_with_me">
+            Shared with me
+          </ToggleGroupItem>
+          <ToggleGroupItem value="shared_with_others">
+            Shared with others
+          </ToggleGroupItem>
+          <ToggleGroupItem value="private">Private</ToggleGroupItem>
+        </ToggleGroup>
       </div>
       {activeFilters.length > 0 && (
         <div className="flex flex-wrap gap-2">
@@ -79,7 +98,9 @@ export function DocumentFilters({
                 variant="ghost"
                 size="icon"
                 className="h-4 w-4 ml-1 p-0"
-                onClick={() => removeFilter(filter)}
+                onClick={() =>
+                  onFilterChange(activeFilters.filter((f) => f !== filter))
+                }
               >
                 <X className="h-3 w-3" />
               </Button>
