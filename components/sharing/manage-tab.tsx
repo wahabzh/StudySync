@@ -131,13 +131,13 @@ function CollaboratorRow({
   onRemove,
 }: CollaboratorRowProps) {
   return (
-    <div className="flex items-center justify-between space-x-4 p-2 rounded-md hover:bg-muted">
+    <div className="flex items-center justify-between space-x-4 p-2 rounded-md hover:bg-muted w-full">
       <div className="flex items-center space-x-4">
         <Avatar>
           <AvatarFallback>{user.email[0].toUpperCase()}</AvatarFallback>
         </Avatar>
-        <div>
-          <p className="text-sm font-medium leading-none">{user.email}</p>
+        <div className="max-w-[140px]">
+          <p className="text-sm font-medium leading-none truncate">{user.email}</p>
         </div>
       </div>
       <div className="flex items-center space-x-2">
