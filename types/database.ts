@@ -1,5 +1,7 @@
 // This file defines TypeScript types for our Supabase database schema
 
+export type DocumentStatus = "invite-only" | "anyone-with-link";
+
 // Profile type represents a user profile in the 'profiles' table
 export type Profile = {
   id: string; // Unique identifier for the profile
@@ -17,6 +19,10 @@ export type Document = {
   owner_id: string; // Foreign key to profiles.id - owner of document
   created_at: string; // Timestamp when document was created
   updated_at: string; // Timestamp when document was last updated
+  status: DocumentStatus;
+  viewers: string[] | null;
+  editors: string[] | null;
+  is_published?: boolean; // for community features
 };
 
 // Database type defines the full database schema for type safety with Supabase
