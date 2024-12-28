@@ -78,9 +78,9 @@ async function getDocumentWithCollaborators(documentId: string) {
 export default async function DocumentPage({
   params,
 }: {
-  params: { documentId: string };
+  params: Promise<{ documentId: string }>;
 }) {
-  const { documentId } = await params;
+  const documentId = (await params).documentId;
   const data = await getDocumentWithCollaborators(documentId);
 
   if (!data) {
