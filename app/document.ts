@@ -4,6 +4,8 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { DocumentStatus } from "@/types/database";
+import { Resend } from "resend";
+import { InviteEmailTemplate } from "@/components/email-templates/collab-invite";
 
 export async function updateDocumentStatus(
   documentId: string,
@@ -184,18 +186,22 @@ export async function inviteUser(
     throw new Error("Unauthorized");
   }
 
+  // Check if user is already a collaborator
+  if (document.editors?.includes(invited_id)) {
+    throw new Error("User is already an editor");
+  }
+  if (document.viewers?.includes(invited_id)) {
+    throw new Error("User is already a viewer");
+  }
+
   // Update appropriate array
   const newEditors = [...(document.editors || [])];
   const newViewers = [...(document.viewers || [])];
 
   if (role === "editor") {
-    if (!newEditors.includes(invited_id)) {
-      newEditors.push(invited_id);
-    }
+    newEditors.push(invited_id);
   } else {
-    if (!newViewers.includes(invited_id)) {
-      newViewers.push(invited_id);
-    }
+    newViewers.push(invited_id);
   }
 
   // Update document
@@ -208,6 +214,30 @@ export async function inviteUser(
     .eq("id", documentId);
 
   if (error) throw error;
+
+  // Send email
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "Acme <no-reply@studysync.site>",
+      to: [email],
+      subject: "You've been invited to collaborate on a document",
+      react: InviteEmailTemplate({
+        documentLink: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/doc/${documentId}`,
+        role: role,
+      }),
+    });
+
+    if (error) {
+      console.error("Error sending email:", error);
+      throw new Error("Failed to send email");
+    }
+
+    console.log("Email sent successfully:", data);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw new Error("Failed to send email");
+  }
 
   revalidatePath(`/dashboard/doc/${documentId}`);
 }
