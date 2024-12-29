@@ -66,7 +66,7 @@ export function DocumentFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="owned">Owned by me</SelectItem>
-              <SelectItem value="shared">Shared with me</SelectItem>
+              <SelectItem value="shared">Shared</SelectItem>
               <SelectItem value="published">Community</SelectItem>
             </SelectContent>
           </Select>

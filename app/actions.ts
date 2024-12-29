@@ -187,7 +187,6 @@ export async function updateDocument(
       updated_at: new Date().toISOString(),
     })
     .eq("id", documentId)
-    .eq("owner_id", user.id); // Ensure user owns the document
 
   if (error) {
     console.error("Error updating document:", error);
@@ -243,7 +242,7 @@ export async function getDocuments(
   // Filter
   if (filter === "owned") query = query.eq("owner_id", userId);
   else if (filter === "shared")
-    query = query.or(`editors.cs.{${userId}},viewers.cs.{${userId}}`);
+    query = query.or(`share_status.eq.anyone-with-link,editors.cs.{${userId}},viewers.cs.{${userId}}`);
   else query = query.eq("share_status", filter);
 
   // Search
