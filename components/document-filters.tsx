@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -55,7 +55,7 @@ export function DocumentFilters({
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="created_desc">Recent</SelectItem>
+              <SelectItem value="created_desc">Recently Added</SelectItem>
               <SelectItem value="updated_desc">Last Updated</SelectItem>
               <SelectItem value="title_asc">Title A-Z</SelectItem>
             </SelectContent>
@@ -66,7 +66,7 @@ export function DocumentFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="owned">Owned by me</SelectItem>
-              <SelectItem value="shared">Shared</SelectItem>
+              <SelectItem value="shared">Shared with me</SelectItem>
               <SelectItem value="published">Community</SelectItem>
             </SelectContent>
           </Select>
