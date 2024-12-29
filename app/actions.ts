@@ -242,7 +242,7 @@ export async function getDocuments(
   // Filter
   if (filter === "owned") query = query.eq("owner_id", userId);
   else if (filter === "shared")
-    query = query.or(`share_status.eq.anyone-with-link,editors.cs.{${userId}},viewers.cs.{${userId}}`);
+    query = query.or(`editors.cs.{${userId}},viewers.cs.{${userId}}`);
   else query = query.eq("share_status", filter);
 
   // Search

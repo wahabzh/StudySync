@@ -37,7 +37,7 @@ const DocumentGrid = ({
             addSuffix: true,
           })}
           isOwned={document.owner_id === userId}
-          isShared={document.share_status === "invite-only" || document.share_status === "anyone-with-link"}
+          isShared={(document.editors?.includes(userId) || false) || (document.viewers?.includes(userId) || false)}
           isPublished={document.share_status === "published"}
         />
       ))}
