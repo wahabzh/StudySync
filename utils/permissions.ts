@@ -9,8 +9,12 @@ export function getUserAccessLevel(
   if (!userId) return "none";
   if (document.owner_id === userId) return "owner";
   if (document.editors?.includes(userId)) return "edit";
-  if (document.viewers?.includes(userId)) return "view";
-  if (document.share_status === "anyone-with-link") return "view";
+  if (
+    document.viewers?.includes(userId) ||
+    document.share_status === "anyone-with-link" ||
+    document.share_status === "published"
+  )
+    return "view";
   return "none";
 }
 

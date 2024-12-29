@@ -4,6 +4,7 @@ import DocumentEditor from "@/components/document-editor";
 import { Button } from "@/components/ui/button";
 import { Document } from "@/types/database";
 import DocumentSharingMenu from "@/components/sharing/document-sharing-menu";
+import PublishMenu from "@/components/publish-menu";
 import { CollaboratorInfo } from "@/types/collaborator";
 import { createClient } from "@/utils/supabase/server";
 import { AccessLevel, getUserAccessLevel } from "@/utils/permissions";
@@ -49,40 +50,6 @@ export default async function DocumentPage({
   const { document, viewerInfo, editorInfo, userAccess } = data;
   const canEdit = userAccess === "owner" || userAccess === "edit";
 
-  const handlePublish = async () => {
-    try {
-      await updateDocumentStatus(documentId, "published");
-      toast({
-        title: "Document published!",
-        description: "Your document has been published in the community.",
-      });
-      redirect(`/doc/${documentId}`);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to publish document",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleUnpublish = async () => {
-    try {
-      await updateDocumentStatus(documentId, "invite-only");
-      toast({
-        title: "Document unpublished!",
-        description: "Your document is no longer published in the community.",
-      });
-      redirect(`/doc/${documentId}`);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to unpublish document",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <div className="flex items-center justify-between">
@@ -99,32 +66,7 @@ export default async function DocumentPage({
           ) : (
             <ViewOnlyBadge />
           )}
-          {userAccess === "owner" ? (
-            document.share_status === "published" ? (
-              <Button
-                variant="outline"
-                className="bg-red-600 text-white hover:bg-red-700"
-                // onClick={handleUnpublish}
-              >
-                <FileX2 className="mr-2 h-4 w-4" />
-                Unpublish
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="bg-cyan-600 text-white hover:bg-cyan-700"
-                // onClick={handlePublish}
-              >
-                <FileCheck2 className="mr-2 h-4 w-4" />
-                Publish
-              </Button>
-            )
-          ) : document.share_status === "published" ? (
-            <Button variant="outline" className="text-cyan-600">
-              <BookOpenCheck className="mr-2 h-4 w-4" />
-              Published
-            </Button>
-          ) : null}
+          <PublishMenu documentId={document.id} userAccess={userAccess} status={document.share_status} />
         </div>
       </div>
       <DocumentEditor document={document} canEdit={canEdit} />
