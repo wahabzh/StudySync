@@ -6,6 +6,8 @@ import { cookies } from "next/headers";
 import { DocumentStatus } from "@/types/database";
 import { Resend } from "resend";
 import { InviteEmailTemplate } from "@/components/email-templates/collab-invite";
+import { CollaboratorInfo } from "@/types/collaborator";
+import { getUserAccessLevel } from "@/utils/permissions";
 
 export async function updateDocumentStatus(
   documentId: string,
@@ -194,6 +196,30 @@ export async function inviteUser(
     throw new Error("User is already a viewer");
   }
 
+  // Send email
+  const resend = new Resend(process.env.NEXT_PUBLIC_RESEND_API_KEY);
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "Team Study Sync <no-reply@studysync.site>",
+      to: [email],
+      subject: "You've been invited to collaborate on a document!",
+      react: InviteEmailTemplate({
+        documentLink: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/doc/${documentId}`,
+        role: role,
+      }),
+    });
+
+    if (error) {
+      console.error("Error sending email:", error);
+      throw new Error("Failed to send email");
+    }
+
+    console.log("Email sent successfully:", data);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw new Error("Failed to send email");
+  }
+
   // Update appropriate array
   const newEditors = [...(document.editors || [])];
   const newViewers = [...(document.viewers || [])];
@@ -215,29 +241,66 @@ export async function inviteUser(
 
   if (error) throw error;
 
-  // Send email
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  try {
-    const { data, error } = await resend.emails.send({
-      from: "Acme <no-reply@studysync.site>",
-      to: [email],
-      subject: "You've been invited to collaborate on a document",
-      react: InviteEmailTemplate({
-        documentLink: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/doc/${documentId}`,
-        role: role,
-      }),
-    });
+  revalidatePath(`/dashboard/doc/${documentId}`);
+}
 
-    if (error) {
-      console.error("Error sending email:", error);
-      throw new Error("Failed to send email");
-    }
+export async function getDocumentWithCollaborators(documentId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    console.log("Email sent successfully:", data);
-  } catch (error) {
-    console.error("Error sending email:", error);
-    throw new Error("Failed to send email");
+  if (!user) {
+    return null;
   }
 
-  revalidatePath(`/dashboard/doc/${documentId}`);
+  // Fetch document
+  const { data: document, error: docError } = await supabase
+    .from("documents")
+    .select("*")
+    .eq("id", documentId)
+    .single();
+
+  if (docError || !document) {
+    return null;
+  }
+
+  // Check user's access level
+  const accessLevel = getUserAccessLevel(document, user.id);
+  if (accessLevel === "none") {
+    return null;
+  }
+
+  const { data, error } = await supabase.rpc(
+    "get_all_email_and_ids_from_auth_users"
+  );
+
+  if (error) throw error;
+  if (!data || !data[0]?.id)
+    throw new Error("Error fetching user details from DB");
+
+  //  for user ids in viewers, get corresponding email from data, and then add email and id to viewerInfo
+  let viewerInfo: CollaboratorInfo[] = [];
+  for (const viewerId of document.viewers || []) {
+    const viewer = data.find((user: any) => user.id === viewerId);
+    if (viewer) {
+      viewerInfo.push({ id: viewer.id, email: viewer.email });
+    }
+  }
+
+  //  for user ids in editors, get corresponding email from data, and then add email and id to editorInfo
+  let editorInfo: CollaboratorInfo[] = [];
+  for (const editorId of document.editors || []) {
+    const editor = data.find((user: any) => user.id === editorId);
+    if (editor) {
+      editorInfo.push({ id: editor.id, email: editor.email });
+    }
+  }
+
+  return {
+    document,
+    viewerInfo,
+    editorInfo,
+    userAccess: accessLevel,
+  };
 }

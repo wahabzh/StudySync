@@ -1,6 +1,6 @@
 // This file defines TypeScript types for our Supabase database schema
 
-export type DocumentStatus = "invite-only" | "anyone-with-link";
+export type DocumentStatus = "invite-only" | "anyone-with-link" | "published";
 
 // Profile type represents a user profile in the 'profiles' table
 export type Profile = {

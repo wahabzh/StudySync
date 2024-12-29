@@ -123,7 +123,7 @@ export default function DocumentSharingMenu({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="bg-green-600 text-white hover:bg-green-700">
           <Share2 className="mr-2 h-4 w-4" />
           Share
         </Button>
@@ -138,7 +138,7 @@ export default function DocumentSharingMenu({
         <Tabs defaultValue="share" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="share">Share</TabsTrigger>
-            <TabsTrigger value="manage">Manage</TabsTrigger>
+            {userAccess == "owner" && <TabsTrigger value="manage">Manage</TabsTrigger>}
           </TabsList>
           <TabsContent value="share">
             <ShareTab
@@ -149,7 +149,7 @@ export default function DocumentSharingMenu({
               isOwner={userAccess === "owner"}
             />
           </TabsContent>
-          <TabsContent value="manage">
+          {userAccess == "owner" && <TabsContent value="manage">
             <ManageTab
               documentId={documentId}
               editors={editorInfo}
@@ -157,10 +157,10 @@ export default function DocumentSharingMenu({
               onUpdatePermission={handleUpdatePermission}
               onRemoveCollaborator={handleRemoveCollaborator}
             />
-          </TabsContent>
+          </TabsContent>}
         </Tabs>
         {error && (
-          <div className="mt-4 p-2 bg-destructive/15 text-destructive rounded-md">
+          <div className="mt-4 p-2 bg-destructive/30 text-red-500 text-destructive rounded-md">
             {error}
           </div>
         )}
