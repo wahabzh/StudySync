@@ -248,7 +248,7 @@ export async function getDocuments(
 
   // Search
   if (search) {
-    query = query.ilike("title", `%${search}%`);
+    query = query.ilike("title", `%${search}%`);  // ilike is case-insensitive, like is case-sensitive
   }
 
   // Sort

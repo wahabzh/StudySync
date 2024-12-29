@@ -48,14 +48,14 @@ export default async function DocumentPage({
   }
 
   const { document, viewerInfo, editorInfo, userAccess } = data;
-  const canEdit = userAccess === "owner" || userAccess === "edit";
+  const canShare = userAccess === "owner" || userAccess === "edit";
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-lg md:text-2xl">{document.title}</h1>
         <div className="flex items-center gap-2">
-          {canEdit ? (
+          {canShare ? (
             <DocumentSharingMenu
               documentId={document.id}
               status={document.share_status}
@@ -69,7 +69,7 @@ export default async function DocumentPage({
           <PublishMenu documentId={document.id} userAccess={userAccess} status={document.share_status} />
         </div>
       </div>
-      <DocumentEditor document={document} canEdit={canEdit} />
+      <DocumentEditor document={document} canEdit={canShare && document.share_status !== "published"} />
     </div>
   );
 }

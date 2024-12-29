@@ -38,7 +38,7 @@ const DocumentGrid = ({
           })}
           isOwned={document.owner_id === userId}
           isShared={document.share_status === "invite-only"}
-          isPublished={document.share_status === "anyone-with-link"}
+          isPublished={document.share_status === "published"}
         />
       ))}
     </div>
