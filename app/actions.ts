@@ -5,6 +5,8 @@ import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { Document } from "@/types/database";
+import { doc } from "prettier";
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -216,4 +218,54 @@ export async function deleteDocument(documentId: string) {
   }
 
   revalidatePath("/dashboard");
+}
+
+export async function getUserId() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return redirect("/sign-in");
+  } else return user.id;
+}
+
+export async function getDocuments(
+  userId: string,
+  search: string,
+  sort: string,
+  filter: string
+) {
+  const supabase = await createClient();
+  let query = supabase.from("documents").select("*");
+
+  // Filter
+  if (filter === "owned") query = query.eq("owner_id", userId);
+  else if (filter === "shared")
+    query = query.or(`editors.cs.{${userId}},viewers.cs.{${userId}}`);
+  else query = query.eq("share_status", filter);
+
+  // Search
+  if (search) {
+    query = query.ilike("title", `%${search}%`);
+  }
+
+  // Sort
+  if (sort === "created_desc")
+    query = query.order("created_at", { ascending: false });
+  else if (sort === "updated_desc")
+    query = query.order("updated_at", { ascending: false });
+  else query = query.order("title", { ascending: true });
+
+  const { data: documents, error } = await query;
+  
+  console.log(userId, search, sort, filter);
+
+  if (error) {
+    console.error("Error fetching documents:", error);
+    return [] as Document[];
+  }
+
+  return documents as Document[];
 }

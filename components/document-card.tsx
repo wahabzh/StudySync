@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Share2, Lock, ArrowRight } from "lucide-react";
+import { BookOpenCheck, Share2, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { DocumentActions } from "@/components/document-actions";
 
@@ -16,8 +16,9 @@ interface DocumentCardProps {
   title: string;
   preview?: string;
   lastEdited: string;
-  isSharedWithMe?: boolean;
-  isSharedWithOthers?: boolean;
+  isOwned: boolean;
+  isShared: boolean;
+  isPublished: boolean;
 }
 
 export function DocumentCard({
@@ -25,38 +26,40 @@ export function DocumentCard({
   title,
   preview,
   lastEdited,
-  isSharedWithMe = false,
-  isSharedWithOthers = false,
+  isOwned,
+  isShared,
+  isPublished,
 }: DocumentCardProps) {
   return (
     <Card className="group flex flex-col h-full transition-all hover:shadow-md">
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div className="space-y-1">
           <div className="flex flex-wrap gap-2">
-            {isSharedWithMe && (
+            {isOwned && (
               <Badge
                 variant="secondary"
-                className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+                className="bg-blue-500/10 text-red-500 hover:bg-blue-500/20"
               >
-                <Share2 className="mr-1 h-3 w-3" />
-                Shared With Me
+                <Lock className="mr-1 h-3 w-3" />
+                Owned
               </Badge>
             )}
-            {isSharedWithOthers ? (
+            {isShared && (
               <Badge
                 variant="secondary"
                 className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
               >
                 <Share2 className="mr-1 h-3 w-3" />
-                Shared With Others
+                Shared
               </Badge>
-            ) : (
+            )}
+            {isPublished && (
               <Badge
                 variant="secondary"
-                className="bg-gray-500/10 text-gray-500 hover:bg-gray-500/20"
+                className="bg-gray-500/10 text-blue-500 hover:bg-gray-500/20"
               >
-                <Lock className="mr-1 h-3 w-3" />
-                Private
+                <BookOpenCheck className="mr-1 h-3 w-3" />
+                Published
               </Badge>
             )}
           </div>

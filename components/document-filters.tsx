@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,40 +13,29 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Search, X } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useSearchParams } from "next/navigation";
+import { getDocuments } from "@/app/actions";
+import { Document } from "@/types/database";
 
 interface DocumentFiltersProps {
-  onSearch: (query: string) => void;
-  onFilterChange: (filters: string[]) => void;
-  onSortChange: (sort: string) => void;
-  activeFilters: string[];
+  setDocuments: React.Dispatch<React.SetStateAction<Document[]>>;
+  userId: string;
 }
 
 export function DocumentFilters({
-  onSearch,
-  onFilterChange,
-  onSortChange,
-  activeFilters,
+  setDocuments,
+  userId,
 }: DocumentFiltersProps) {
-  const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || ""
-  );
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sort, setSort] = useState("updated_desc");
+  const [filter, setFilter] = useState<string>("owned");
 
-  // Handle search debouncing
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  // Only trigger the search callback when the debounced value changes
-  useEffect(() => {
-    onSearch(debouncedSearchQuery);
-  }, [debouncedSearchQuery, onSearch]);
+    const fetchDocuments = async () => {
+      const documents = await getDocuments(userId, searchQuery, sort, filter);
+      setDocuments(documents);
+    };
+    fetchDocuments();
+  }, [searchQuery, sort, filter]);
 
   return (
     <div className="space-y-4">
@@ -61,61 +50,28 @@ export function DocumentFilters({
               className="pl-8"
             />
           </div>
-          <Select
-            defaultValue={searchParams.get("sort") || "updated_desc"}
-            onValueChange={onSortChange}
-          >
+          <Select defaultValue={sort} onValueChange={setSort}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="created_desc">Recent</SelectItem>
               <SelectItem value="updated_desc">Last Updated</SelectItem>
-              <SelectItem value="created_desc">Create Date</SelectItem>
               <SelectItem value="title_asc">Title A-Z</SelectItem>
             </SelectContent>
           </Select>
+          <Select defaultValue={filter} onValueChange={setFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="owned">Owned by me</SelectItem>
+              <SelectItem value="shared">Shared with me</SelectItem>
+              <SelectItem value="published">Community</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <ToggleGroup
-          type="multiple"
-          value={activeFilters}
-          onValueChange={onFilterChange}
-        >
-          <ToggleGroupItem value="shared_with_me">
-            Shared with me
-          </ToggleGroupItem>
-          <ToggleGroupItem value="shared_with_others">
-            Shared with others
-          </ToggleGroupItem>
-          <ToggleGroupItem value="private">Private</ToggleGroupItem>
-        </ToggleGroup>
       </div>
-      {activeFilters.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {activeFilters.map((filter) => (
-            <Badge key={filter} variant="secondary">
-              {filter.split("_").join(" ")}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-4 w-4 ml-1 p-0"
-                onClick={() =>
-                  onFilterChange(activeFilters.filter((f) => f !== filter))
-                }
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </Badge>
-          ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7"
-            onClick={() => onFilterChange([])}
-          >
-            Clear all
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
