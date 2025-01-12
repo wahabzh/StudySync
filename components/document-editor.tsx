@@ -1,6 +1,11 @@
 "use client";
 
+import ReactDOM from "react-dom/client";
 import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import { TiptapCollabProvider } from "@hocuspocus/provider";
+import * as Y from "yjs";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Typography from "@tiptap/extension-typography";
@@ -55,16 +60,22 @@ const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
 };
 
 interface DocumentEditorProps {
-  document: Document;
+  doc: Document;
   canEdit: boolean;
 }
 
-export default function DocumentEditor({
-  document,
-  canEdit,
-}: DocumentEditorProps) {
+const ydoc = new Y.Doc();
+const provider = new TiptapCollabProvider({
+  name: "socket-1", // Unique doc identifier for syncing
+  appId: "ok0161xm", // Cloud Dashboard AppID or `baseURL` for on-premises
+  token:
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzY2ODgxMjYsIm5iZiI6MTczNjY4ODEyNiwiZXhwIjoxNzM2Nzc0NTI2LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiJvazAxNjF4bSJ9.fx-4wT9bjn7ar2OKmwVI_Gu-DsWVwvjUMOtSbZjiiIE", // JWT token
+  document: ydoc,
+});
+
+export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
-  const [content, setContent] = useState(document.content);
+  const [content, setContent] = useState(doc.content);
   const [debouncedContent] = useDebounce(content, 1000); // 1 second
 
   const editor = useEditor({
@@ -76,8 +87,32 @@ export default function DocumentEditor({
       Typography,
       Highlight,
       Placeholder.configure({ placeholder: "# Write something..." }),
+      Collaboration.configure({
+        document: ydoc,
+      }),
+      CollaborationCursor.configure({
+        provider,
+        user: {
+          name: "User",
+          color: "#3F6D2D",
+        },
+        render: (user) => {
+          const cursor = document.createElement("span");
+          cursor.className = `absolute z-10 border-l-2 h-[1.2em] ml-[-1px]`;
+          cursor.style.borderColor = user.color;
+
+          const label = document.createElement("div");
+          label.className = `absolute top-[-1.5em] left-[-1px] bg-opacity-90 text-white text-xs px-1.5 py-0.5 rounded`;
+          label.style.backgroundColor = user.color;
+
+          label.appendChild(document.createTextNode(user.name));
+          cursor.appendChild(label);
+
+          return cursor;
+        },
+      }),
     ],
-    content: document.content,
+    content: doc.content,
     immediatelyRender: false,
     editorProps: {
       attributes: {
@@ -95,12 +130,12 @@ export default function DocumentEditor({
   useEffect(() => {
     if (
       debouncedContent &&
-      JSON.stringify(debouncedContent) !== JSON.stringify(document.content)
+      JSON.stringify(debouncedContent) !== JSON.stringify(doc.content)
     ) {
       const saveContent = async () => {
         setSaveStatus("saving");
         try {
-          await updateDocument(document.id, debouncedContent);
+          await updateDocument(doc.id, debouncedContent);
           setSaveStatus("saved");
         } catch (error) {
           console.error("Failed to save:", error);
@@ -110,7 +145,7 @@ export default function DocumentEditor({
 
       saveContent();
     }
-  }, [debouncedContent, document.id, document.content]);
+  }, [debouncedContent, doc.id, doc.content]);
 
   return (
     <div className="relative">

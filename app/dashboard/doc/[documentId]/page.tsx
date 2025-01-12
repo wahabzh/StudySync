@@ -69,7 +69,7 @@ export default async function DocumentPage({
           <PublishMenu documentId={document.id} userAccess={userAccess} status={document.share_status} />
         </div>
       </div>
-      <DocumentEditor document={document} canEdit={canShare && document.share_status !== "published"} />
+      <DocumentEditor doc={document} canEdit={canShare && document.share_status !== "published"} />
     </div>
   );
 }

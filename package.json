@@ -29,6 +29,7 @@
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@tiptap/extension-collaboration": "^2.9.1",
+    "@tiptap/extension-collaboration-cursor": "^2.11.2",
     "@tiptap/extension-highlight": "^2.9.1",
     "@tiptap/extension-placeholder": "^2.9.1",
     "@tiptap/extension-typography": "^2.9.1",
@@ -53,7 +54,7 @@
     "use-sound": "^4.0.3",
     "y-prosemirror": "^1.2.12",
     "y-protocols": "^1.0.6",
-    "yjs": "^13.6.20"
+    "yjs": "13.6.20"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",
