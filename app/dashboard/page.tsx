@@ -3,7 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { Document } from "@/types/database";
-import { createDocument, getUserId } from "@/app/actions";
+import { createDocument, getUser } from "@/app/actions";
 import NewDocumentDialog from "@/components/new-document-dialog";
 import { DocumentCard } from "@/components/document-card";
 import { DocumentFilters } from "@/components/document-filters";
@@ -50,7 +50,10 @@ export default function HomePage() {
   const [documents, setDocuments] = useState<Document[]>([]);
 
   useEffect(() => {
-    getUserId().then((id) => setUserId(id));
+    getUser().then(({ id, username }) => {
+      setUserId(id);
+      sessionStorage.setItem('username', username);
+    });
   }, []);
 
   return (

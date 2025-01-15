@@ -186,7 +186,7 @@ export async function updateDocument(
       content,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", documentId)
+    .eq("id", documentId);
 
   if (error) {
     console.error("Error updating document:", error);
@@ -219,7 +219,7 @@ export async function deleteDocument(documentId: string) {
   revalidatePath("/dashboard");
 }
 
-export async function getUserId() {
+export async function getUser() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -227,7 +227,16 @@ export async function getUserId() {
 
   if (!user) {
     return redirect("/sign-in");
-  } else return user.id;
+  } else {
+    const { data: username, error } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .single();
+
+    if (error || !username) throw error;
+    return { id: user.id, username: username.username };
+  }
 }
 
 export async function getDocuments(
@@ -247,7 +256,7 @@ export async function getDocuments(
 
   // Search
   if (search) {
-    query = query.ilike("title", `%${search}%`);  // ilike is case-insensitive, like is case-sensitive
+    query = query.ilike("title", `%${search}%`); // ilike is case-insensitive, like is case-sensitive
   }
 
   // Sort
@@ -258,7 +267,7 @@ export async function getDocuments(
   else query = query.order("title", { ascending: true });
 
   const { data: documents, error } = await query;
-  
+
   console.log(userId, search, sort, filter);
 
   if (error) {
