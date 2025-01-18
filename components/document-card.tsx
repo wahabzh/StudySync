@@ -19,6 +19,7 @@ interface DocumentCardProps {
   isOwned: boolean;
   isShared: boolean;
   isPublished: boolean;
+  userId: string
 }
 
 export function DocumentCard({
@@ -29,6 +30,7 @@ export function DocumentCard({
   isOwned,
   isShared,
   isPublished,
+  userId
 }: DocumentCardProps) {
   return (
     <Card className="group flex flex-col h-full transition-all hover:shadow-md">
@@ -66,7 +68,7 @@ export function DocumentCard({
         </div>
         <DocumentActions documentId={id} documentTitle={title} />
       </CardHeader>
-      <Link href={`/dashboard/doc/${id}`} className="flex-1">
+      <Link href={userId === "0" ? `/guest/doc/${id}` : `/dashboard/doc/${id}`} className="flex-1">
         <CardContent>
           <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
           {preview && (

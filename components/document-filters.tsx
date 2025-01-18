@@ -30,6 +30,7 @@ export function DocumentFilters({
   const [filter, setFilter] = useState<string>("owned");
 
   useEffect(() => {
+    if (userId === "0") setFilter("published");
     const fetchDocuments = async () => {
       const documents = await getDocuments(userId, searchQuery, sort, filter);
       setDocuments(documents);
@@ -60,7 +61,7 @@ export function DocumentFilters({
               <SelectItem value="title_asc">Title A-Z</SelectItem>
             </SelectContent>
           </Select>
-          <Select defaultValue={filter} onValueChange={setFilter}>
+          {userId !== "0" && (<Select defaultValue={filter} onValueChange={setFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by..." />
             </SelectTrigger>
@@ -69,7 +70,7 @@ export function DocumentFilters({
               <SelectItem value="shared">Shared with me</SelectItem>
               <SelectItem value="published">Community</SelectItem>
             </SelectContent>
-          </Select>
+          </Select>)}
         </div>
       </div>
     </div>

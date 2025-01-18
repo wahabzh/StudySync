@@ -249,7 +249,8 @@ export async function getDocuments(
   let query = supabase.from("documents").select("*");
 
   // Filter
-  if (filter === "owned") query = query.eq("owner_id", userId);
+  if (userId==="0") query = query.eq("share_status", filter);
+  else if (filter === "owned") query = query.eq("owner_id", userId);
   else if (filter === "shared")
     query = query.or(`editors.cs.{${userId}},viewers.cs.{${userId}}`);
   else query = query.eq("share_status", filter);

@@ -18,6 +18,9 @@ export default async function Index() {
           <Button asChild variant="outline" size="lg">
             <Link href="/sign-in">Sign In</Link>
           </Button>
+          <Button asChild size="lg">
+            <Link href="guest">View As Guest</Link>
+          </Button>
         </div>
       </div>
     </main>
