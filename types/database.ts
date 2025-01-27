@@ -7,6 +7,10 @@ export type Profile = {
   id: string; // Unique identifier for the profile
   display_name: string | null; // User's display name (optional)
   avatar_url: string | null; // URL to user's avatar image (optional)
+  points: number | null;
+  streak: number | null;
+  custom_user_goal: number | null;
+  progress_on_custom: | null;
   created_at: string; // Timestamp when profile was created
   updated_at: string; // Timestamp when profile was last updated
 };
