@@ -278,3 +278,14 @@ export async function getDocuments(
 
   return documents as Document[];
 }
+
+export async function getDashboardData() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  //console.log(user);
+  if (!user) {
+    return redirect("/sign-in");
+  } else return user;
+}

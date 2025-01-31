@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Document } from "@/types/database";
 import { createDocument, getUser } from "@/app/actions";
 import NewDocumentDialog from "@/components/new-document-dialog";
+import StatsDialog from "@/components/stats-dialog-box";
 import { DocumentCard } from "@/components/document-card";
 import { DocumentFilters } from "@/components/document-filters";
 import { formatDistanceToNow } from "date-fns";
@@ -61,7 +62,10 @@ export default function HomePage() {
     (userId && <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-lg md:text-2xl">My Documents</h1>
-        <NewDocumentDialog onCreate={createDocument} />
+        <div className="flex gap-2">
+          <NewDocumentDialog onCreate={createDocument} />
+          <StatsDialog />
+        </div>
       </div>
       <DocumentFilters setDocuments={setDocuments} userId={userId} />
       <div className="flex flex-col gap-4">

@@ -9,6 +9,7 @@ export type Profile = {
   avatar_url: string | null; // URL to user's avatar image (optional)
   points: number | null;
   streak: number | null;
+  username: string | null;
   custom_user_goal: number | null;
   progress_on_custom: | null;
   created_at: string; // Timestamp when profile was created
