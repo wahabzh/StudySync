@@ -133,13 +133,6 @@ export default function StatsDialog() {
           <p>
             <strong>Rank:</strong> {leaderboardData.userRank}
           </p>
-          <p>
-            <strong>Points:</strong> {leaderboardData.points}
-          </p>
-          <p>
-            <strong>League:</strong> {leaderboardData.userLeague.symbol}{" "}
-            {leaderboardData.userLeague.name}
-          </p>
         </div>
       </DialogContent>
     </Dialog>

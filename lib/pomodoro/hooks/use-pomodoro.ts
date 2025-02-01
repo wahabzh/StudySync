@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { TimerState, Settings } from "../types";
 import { useSound } from "use-sound";
 import { toast } from "@/hooks/use-toast";
+import { addPoints } from "@/app/gamification";
 
 export function usePomodoro(initialSettings: Settings) {
   const [settings, setSettings] = useState<Settings>(initialSettings);
@@ -19,17 +20,28 @@ export function usePomodoro(initialSettings: Settings) {
   const handleTimerComplete = useCallback(() => {
     playDing();
     if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("Pomodoro Timer", {
-        body: `Your ${timer.mode} session has ended!`,
-        icon: "/favicon.ico",
-      });
+      if (timer.mode === "pomodoro"){
+        new Notification("Pomodoro Timer", {
+          body: `Your ${timer.mode} session has ended! and you have been awarded ${settings.pomodoro} points for this pomodoro`,
+          icon: "/favicon.ico",
+          
+        });
+      }else{
+        new Notification("Pomodoro Timer", {
+          body: `Your ${timer.mode} session has ended!`,
+          icon: "/favicon.ico",
+          
+        });
+      }
     }
     if (timer.mode === "pomodoro") {
       setCompletedPomodoros((prev) => prev + 1);
       if (completedPomodoros + 1 >= settings.longBreakInterval) {
+        addPoints(settings.pomodoro);
         switchMode("longBreak");
         setCompletedPomodoros(0);
       } else {
+        addPoints(settings.pomodoro);
         switchMode("shortBreak");
       }
     } else {

@@ -67,3 +67,43 @@ export async function getLeaderBoardInfo() {
     userLeague: getLeague(profile?.points),
   };
 }
+
+export async function addPoints(points: number) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    console.error("User not authenticated");
+    return { success: false, message: "User not authenticated" };
+  }
+
+  // Fetch the user's current points
+  const { data: profile, error: fetchError } = await supabase
+    .from("profiles")
+    .select("points")
+    .eq("id", user.id)
+    .single();
+
+  if (fetchError) {
+    console.error("Error fetching user points:", fetchError);
+    return { success: false, message: "Error fetching user points" };
+  }
+
+  const newPoints = (profile?.points || 0) + points; // Add new points
+
+  // Update the points column for the user
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ points: newPoints })
+    .eq("id", user.id);
+
+  if (updateError) {
+    console.error("Error updating points:", updateError);
+    return { success: false, message: "Error updating points" };
+  }
+
+  return { success: true, newPoints, message: "Points updated successfully" };
+}
+
