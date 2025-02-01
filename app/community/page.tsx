@@ -46,7 +46,7 @@ const CommunityDocumentGrid = ({ documents }: { documents: Document[] }) => {
         {documents.map((document) => (
             <CommunityDocumentCard key={document.id} id={document.id} title={document.title} lastEdited={formatDistanceToNow(new Date(document.updated_at), {
                 addSuffix: true,
-            })} claps={20} />
+            })} claps={document.clap_count || 0} />
         ))}
     </div>
     );

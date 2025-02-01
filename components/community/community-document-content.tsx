@@ -3,19 +3,64 @@ import { Document } from "@/types/database";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import { format } from "date-fns";
-import { Calendar, FileText, Clock } from "lucide-react";
+import { Calendar, FileText, Clock, HandHeartIcon, ChevronRight } from "lucide-react";
+import { useTransition } from "react";
+import { toggleDocumentClap } from "@/app/community/community-actions";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast"
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 
 interface CommunityDocumentContentProps {
-    document: Document;
+    document: Document & { has_clapped: boolean };
 }
 
 export const CommunityDocumentContent = ({ document }: CommunityDocumentContentProps) => {
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
     const editor = useCreateBlockNote({
         initialContent: document.content,
     });
 
+    const handleClap = () => {
+        startTransition(async () => {
+            const { error } = await toggleDocumentClap(document.id);
+            if (error) {
+                toast({
+                    title: "Oops!",
+                    description: error,
+                });
+            }
+        });
+    };
+
     return (
         <article className="max-w-4xl mx-auto px-4 py-12">
+            <Breadcrumb className="mb-6">
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <ChevronRight className="h-4 w-4" />
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/community">Community</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <ChevronRight className="h-4 w-4" />
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink>{document.title}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+
             <header className="mb-12 space-y-4">
                 <div className="flex items-center gap-3 text-muted-foreground">
                     <FileText className="h-5 w-5" />
@@ -39,6 +84,20 @@ export const CommunityDocumentContent = ({ document }: CommunityDocumentContentP
                             {format(document.updated_at, "h:mm a")}
                         </time>
                     </div>
+
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <Button
+                        onClick={handleClap}
+                        variant={document.has_clapped ? "default" : "outline"}
+                        size="sm"
+                        className="gap-2"
+                        disabled={isPending}
+                    >
+                        <HandHeartIcon className="h-4 w-4" />
+                        <span>{document.clap_count || 0}</span>
+                    </Button>
                 </div>
             </header>
 

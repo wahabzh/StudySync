@@ -28,6 +28,15 @@ export type Document = {
   viewers: string[] | null;
   editors: string[] | null;
   is_published?: boolean; // for community features
+  clap_count: number; // Add this new field
+};
+
+// Add new type for document claps
+export type DocumentClap = {
+  id: string;
+  document_id: string;
+  user_id: string;
+  created_at: string;
 };
 
 // Database type defines the full database schema for type safety with Supabase
@@ -45,6 +54,12 @@ export type Database = {
         Row: Document; // Shape of document rows
         Insert: Omit<Document, "id" | "created_at" | "updated_at">; // Fields needed when inserting
         Update: Partial<Omit<Document, "id" | "owner_id">>; // Fields that can be updated
+      };
+      // Add document_claps table
+      document_claps: {
+        Row: DocumentClap;
+        Insert: Omit<DocumentClap, "id" | "created_at">;
+        Update: Partial<Omit<DocumentClap, "id">>;
       };
     };
   };
