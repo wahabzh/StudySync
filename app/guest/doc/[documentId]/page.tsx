@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import * as React from "react";
-import DocumentEditor from "@/components/document-editor";
+import { DocumentEditor } from "@/components/editor/dynamic-editor";
 import { Button } from "@/components/ui/button";
 import { Document } from "@/types/database";
 import DocumentSharingMenu from "@/components/sharing/document-sharing-menu";
@@ -69,7 +69,7 @@ export default async function DocumentPage({
           <PublishMenu documentId={document.id} userAccess={userAccess} status={document.share_status} />
         </div>
       </div>
-      <DocumentEditor document={document} canEdit={canShare && document.share_status !== "published"} />
+      <DocumentEditor doc={document} canEdit={canShare && document.share_status !== "published"} />
     </div>
   );
 }
