@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import * as React from "react";
-import DocumentEditor from "@/components/document-editor";
+import { DocumentEditor } from "@/components/editor/dynamic-editor";
 import { Button } from "@/components/ui/button";
 import { Document } from "@/types/database";
 import DocumentSharingMenu from "@/components/sharing/document-sharing-menu";
