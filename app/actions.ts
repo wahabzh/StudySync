@@ -152,7 +152,7 @@ export async function createDocument(title: string) {
     .from("documents")
     .insert({
       title,
-      content: {},
+      content: [{}], // start with an empty array
       owner_id: user.id,
     })
     .select()
@@ -249,7 +249,7 @@ export async function getDocuments(
   let query = supabase.from("documents").select("*");
 
   // Filter
-  if (userId==="0") query = query.eq("share_status", filter);
+  if (userId === "0") query = query.eq("share_status", filter);
   else if (filter === "owned") query = query.eq("owner_id", userId);
   else if (filter === "shared")
     query = query.or(`editors.cs.{${userId}},viewers.cs.{${userId}}`);

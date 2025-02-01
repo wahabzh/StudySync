@@ -19,7 +19,7 @@ export default async function Index() {
             <Link href="/sign-in">Sign In</Link>
           </Button>
           <Button asChild size="lg">
-            <Link href="guest">View As Guest</Link>
+            <Link href="/community">Browse Community</Link>
           </Button>
         </div>
       </div>

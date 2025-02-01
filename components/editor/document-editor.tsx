@@ -18,8 +18,8 @@ import {
   UnnestBlockButton,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
+import { BlockNoteView } from "@blocknote/shadcn";
+import "@blocknote/shadcn/style.css";
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
@@ -196,62 +196,62 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
           }
         />
 
-<FormattingToolbarController
-                formattingToolbar={() => (
-                    <FormattingToolbar>
-                        <BlockTypeSelect key={"blockTypeSelect"} />
+        <FormattingToolbarController
+          formattingToolbar={() => (
+            <FormattingToolbar>
+              <BlockTypeSelect key={"blockTypeSelect"} />
 
-                        {/* custom buttons */}
-                        <ContinueWritingButton key={"continueWritingButton"} />
+              {/* custom buttons */}
+              <ContinueWritingButton key={"continueWritingButton"} />
 
-                        {/* default buttons */}
-                        <FileCaptionButton key={"fileCaptionButton"} />
-                        <FileReplaceButton key={"replaceFileButton"} />
+              {/* default buttons */}
+              <FileCaptionButton key={"fileCaptionButton"} />
+              <FileReplaceButton key={"replaceFileButton"} />
 
-                        <BasicTextStyleButton
-                            basicTextStyle={"bold"}
-                            key={"boldStyleButton"}
-                        />
-                        <BasicTextStyleButton
-                            basicTextStyle={"italic"}
-                            key={"italicStyleButton"}
-                        />
-                        <BasicTextStyleButton
-                            basicTextStyle={"underline"}
-                            key={"underlineStyleButton"}
-                        />
-                        <BasicTextStyleButton
-                            basicTextStyle={"strike"}
-                            key={"strikeStyleButton"}
-                        />
-                        {/* Extra button to toggle code styles */}
-                        <BasicTextStyleButton
-                            key={"codeStyleButton"}
-                            basicTextStyle={"code"}
-                        />
+              <BasicTextStyleButton
+                basicTextStyle={"bold"}
+                key={"boldStyleButton"}
+              />
+              <BasicTextStyleButton
+                basicTextStyle={"italic"}
+                key={"italicStyleButton"}
+              />
+              <BasicTextStyleButton
+                basicTextStyle={"underline"}
+                key={"underlineStyleButton"}
+              />
+              <BasicTextStyleButton
+                basicTextStyle={"strike"}
+                key={"strikeStyleButton"}
+              />
+              {/* Extra button to toggle code styles */}
+              <BasicTextStyleButton
+                key={"codeStyleButton"}
+                basicTextStyle={"code"}
+              />
 
-                        <TextAlignButton
-                            textAlignment={"left"}
-                            key={"textAlignLeftButton"}
-                        />
-                        <TextAlignButton
-                            textAlignment={"center"}
-                            key={"textAlignCenterButton"}
-                        />
-                        <TextAlignButton
-                            textAlignment={"right"}
-                            key={"textAlignRightButton"}
-                        />
+              <TextAlignButton
+                textAlignment={"left"}
+                key={"textAlignLeftButton"}
+              />
+              <TextAlignButton
+                textAlignment={"center"}
+                key={"textAlignCenterButton"}
+              />
+              <TextAlignButton
+                textAlignment={"right"}
+                key={"textAlignRightButton"}
+              />
 
-                        <ColorStyleButton key={"colorStyleButton"} />
+              <ColorStyleButton key={"colorStyleButton"} />
 
-                        <NestBlockButton key={"nestBlockButton"} />
-                        <UnnestBlockButton key={"unnestBlockButton"} />
+              <NestBlockButton key={"nestBlockButton"} />
+              <UnnestBlockButton key={"unnestBlockButton"} />
 
-                        <CreateLinkButton key={"createLinkButton"} />
-                    </FormattingToolbar>
-                )}
-            />
+              <CreateLinkButton key={"createLinkButton"} />
+            </FormattingToolbar>
+          )}
+        />
       </BlockNoteView>
     </div>
   );
