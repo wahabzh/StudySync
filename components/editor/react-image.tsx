@@ -1,27 +1,8 @@
-// "use client";
-
-// import { createBlockSpec, InlineContent, defaultProps } from "@blocknote/core";
-
-// import * as React from "react";
-
-// const CustomImageBlock = createBlockSpec({
-//     type: "image",
-//     propSchema: {
-//         ...defaultProps
-//     },
-//     content: "none",
-// },
-//     {
-//         render: ({ block, contentRef }) => {
-//             return <div></div>
-//         }
-//     });
-import { ImageBlock } from "@blocknote/react";
-
 import { BlockNoteEditor, defaultProps } from "@blocknote/core";
 import { createReactBlockSpec, ReactImageBlock } from "@blocknote/react";
-import { Button } from "@/components/ui/button";
 import { Image } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { performOCR, askAIAboutImage } from "@/app/ai";
 
 export const ReactImage = createReactBlockSpec(
     {
@@ -58,22 +39,12 @@ export const ReactImage = createReactBlockSpec(
 );
 
 const getText = async (editor: BlockNoteEditor<any, any, any>, imageUrl: string) => {
-    // AI call here
-    // TODO
-    console.log(imageUrl);
-
     try {
-        const response = await fetch('/api/ocr', {
-            method: 'POST',
-            body: JSON.stringify({ url: imageUrl }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to process the image.');
+        const data = await performOCR(imageUrl);
+        if (!data.text) {
+            throw new Error('No text detected in the image.');
         }
 
-        const data = await response.json();
-        
         // insert the text into the editor
         editor.insertBlocks(
             [
@@ -94,15 +65,18 @@ const getText = async (editor: BlockNoteEditor<any, any, any>, imageUrl: string)
 // ask ai fn, inserts some placeholder text beloe the image for now
 const askAI = async (editor: BlockNoteEditor<any, any, any>, imageUrl: string) => {
     // AI call here
-    // TODO
     console.log(imageUrl);
+    const response = await askAIAboutImage(imageUrl);
+    if (!response) {
+        throw new Error('Failed to ask AI about the image.');
+    }
 
     // insert the text into the editor
     editor.insertBlocks(
         [
             {
                 type: "paragraph",
-                content: "AI Analysis: This image appears to be...",
+                content: response,
             },
         ],
         editor.getTextCursorPosition().block,
