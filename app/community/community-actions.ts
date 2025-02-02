@@ -6,7 +6,6 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { Document } from "@/types/database";
-import { ServerBlockNoteEditor } from "@blocknote/server-util";
 
 export async function getCommunityDocuments(
     search: string,
