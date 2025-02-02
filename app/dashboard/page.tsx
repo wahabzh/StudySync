@@ -10,6 +10,8 @@ import { DocumentCard } from "@/components/document-card";
 import { DocumentFilters } from "@/components/document-filters";
 import { formatDistanceToNow } from "date-fns";
 import { useEffect, useState } from "react";
+import CongratsDialog from "@/components/log-in-reward";
+import { checkDailyReward } from "@/app/gamification";
 
 const EmptyState = () => {
   return (
@@ -50,31 +52,35 @@ const DocumentGrid = ({
 export default function HomePage() {
   const [userId, setUserId] = useState<string>("");   // after refresh fix
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [showCongrats, setShowCongrats] = useState(false);
 
   useEffect(() => {
-    getUser().then(({ id, username }) => {
+    getUser().then(async ({ id, username }) => {
       setUserId(id);
-      sessionStorage.setItem('username', username);
+      sessionStorage.setItem("username", username);
+      const shouldShow = await checkDailyReward(id);
+      setShowCongrats(shouldShow);
     });
   }, []);
 
   return (
-    (userId && <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-lg md:text-2xl">My Documents</h1>
-        <div className="flex gap-2">
-          <NewDocumentDialog onCreate={createDocument} />
-          <StatsDialog />
+    userId && (
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+        {/* Congrats Dialog */}
+        <CongratsDialog open={showCongrats} setOpen={setShowCongrats} />
+
+        <div className="flex items-center justify-between">
+          <h1 className="font-semibold text-lg md:text-2xl">My Documents</h1>
+          <div className="flex gap-2">
+            <NewDocumentDialog onCreate={createDocument} />
+            <StatsDialog />
+          </div>
+        </div>
+        <DocumentFilters setDocuments={setDocuments} userId={userId} />
+        <div className="flex flex-col gap-4">
+          {documents.length === 0 ? <EmptyState /> : <DocumentGrid documents={documents} userId={userId} />}
         </div>
       </div>
-      <DocumentFilters setDocuments={setDocuments} userId={userId} />
-      <div className="flex flex-col gap-4">
-        {documents.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <DocumentGrid documents={documents} userId={userId} />
-        )}
-      </div>
-    </div>)
+    )
   );
 }
