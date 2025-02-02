@@ -84,12 +84,12 @@ interface DocumentEditorProps {
   canEdit: boolean;
 }
 
-const ydoc = new Y.Doc();
 
 export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
   const [content, setContent] = useState(doc.content);
   const [debouncedContent] = useDebounce(content, 1000); // 1 second
+  const ydoc = useMemo(() => new Y.Doc(), [doc.id]);
 
   const provider = useMemo(() => {
     return new TiptapCollabProvider({
