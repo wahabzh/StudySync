@@ -107,3 +107,34 @@ export async function addPoints(points: number) {
   return { success: true, newPoints, message: "Points updated successfully" };
 }
 
+export async function checkDailyReward(userId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    console.error("User not authenticated");
+    return false;
+  }
+
+  const { data, error: fetchError } = await supabase
+    .from("profiles")
+    .select("daily_goal, points")
+    .eq("id", user.id)
+    .single();
+
+  if (fetchError || !data) {
+    return false;
+  }
+
+  if (!data.daily_goal) {
+    await supabase
+      .from("profiles")
+      .update({ daily_goal: true, points: data.points + 10 })
+      .eq("id", user.id);
+    return true;
+  }
+
+  return false;
+}
