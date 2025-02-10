@@ -37,7 +37,7 @@ export function PomodoroSettings({ settings, onSave }: PomodoroSettingsProps) {
           <Slider
             className="w-full h-4"
             value={[localSettings.pomodoro]}
-            min={1}
+            min={0.1}
             max={60}
             step={1}
             onValueChange={([value]) =>
@@ -57,7 +57,7 @@ export function PomodoroSettings({ settings, onSave }: PomodoroSettingsProps) {
           <Slider
             className="w-full h-4"
             value={[localSettings.shortBreak]}
-            min={1}
+            min={0.1}
             max={15}
             step={1}
             onValueChange={([value]) =>
@@ -77,7 +77,7 @@ export function PomodoroSettings({ settings, onSave }: PomodoroSettingsProps) {
           <Slider
             className="w-full h-4"
             value={[localSettings.longBreak]}
-            min={1}
+            min={0.1}
             max={30}
             step={1}
             onValueChange={([value]) =>

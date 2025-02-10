@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { leaderBoardInfo } from "@/types/leaderBoardInfo";
 
 
+
 function getLeague(points: number) {
   if (points >= 15000) return { name: "Platinum", symbol: "🏆" };
   if (points >= 10000) return { name: "Gold", symbol: "🥇" };
@@ -48,7 +49,7 @@ export async function getLeaderBoardInfo() {
 
   const { data: profile, error: docError } = await supabase
   .from("profiles") // Ensure the correct lowercase table name
-  .select("username, points")
+  .select("username, points, streak")
   .eq("id", user.id) // Filter where id = user.id
   .single(); // Ensure we get only one result
 
@@ -64,6 +65,7 @@ export async function getLeaderBoardInfo() {
     userRank: userRank || "N/A",
     username: profile?.username || "Unknown",
     points: profile?.points || 0,
+    streak: profile?.streak || 0,
     userLeague: getLeague(profile?.points),
   };
 }
@@ -80,9 +82,9 @@ export async function addPoints(points: number) {
   }
 
   // Fetch the user's current points
-  const { data: profile, error: fetchError } = await supabase
+  const { data, error: fetchError } = await supabase
     .from("profiles")
-    .select("points")
+    .select("points, last_pomodoro, streak")
     .eq("id", user.id)
     .single();
 
@@ -91,12 +93,43 @@ export async function addPoints(points: number) {
     return { success: false, message: "Error fetching user points" };
   }
 
-  const newPoints = (profile?.points || 0) + points; // Add new points
+  const newPoints = (data.points || 0) + points; // Add new points
+
+
+  const fetchedDate = new Date(data.last_pomodoro);
+  const now = new Date();
+  
+  // Function to strip time and get only the date part
+  const getDateWithoutTime = (date: Date): Date => {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+  
+  // Strip time from both dates
+  const fetchedDateOnly = getDateWithoutTime(fetchedDate);
+  const nowDateOnly = getDateWithoutTime(now);
+  
+  // Calculate the difference in milliseconds
+  const diffInMilliseconds = nowDateOnly.getTime() - fetchedDateOnly.getTime();
+  
+  // Convert milliseconds to days
+  const diffInDays = diffInMilliseconds / (1000 * 60 * 60 * 24);
+  
+  if (diffInDays >= 1 && data.streak < 2) {
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ streak: data.streak + 1 })
+      .eq("id", user.id);
+      
+      if (updateError) {
+        console.error("Error updating points:", updateError);
+        return { success: false, message: "Error updating points" };
+      }
+  };
 
   // Update the points column for the user
   const { error: updateError } = await supabase
     .from("profiles")
-    .update({ points: newPoints })
+    .update({ points: newPoints, last_pomodoro: now })
     .eq("id", user.id);
 
   if (updateError) {
@@ -120,12 +153,30 @@ export async function checkDailyReward(userId: string): Promise<boolean> {
 
   const { data, error: fetchError } = await supabase
     .from("profiles")
-    .select("daily_goal, points")
+    .select("daily_goal, points, last_pomodoro, streak")
     .eq("id", user.id)
     .single();
 
   if (fetchError || !data) {
     return false;
+  }
+
+  if (data.last_pomodoro) {
+    const fetchedDate = new Date(data.last_pomodoro);
+
+    const now = new Date();
+
+    const diffInMilliseconds = now.getTime() - fetchedDate.getTime();
+
+    const diffInDays = diffInMilliseconds / (1000 * 60 * 60 * 24);
+
+    if (diffInDays >= 1) {
+      await supabase
+        .from("profiles")
+        .update({ streak: 0 })
+        .eq("id", user.id);
+    }
+
   }
 
   if (!data.daily_goal) {

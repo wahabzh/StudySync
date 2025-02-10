@@ -10,6 +10,7 @@ export interface Settings {
   shortBreak: number;
   longBreak: number;
   longBreakInterval: number;
+  goal: number,
   autoStartBreaks: boolean;
   autoStartPomodoros: boolean;
 }
