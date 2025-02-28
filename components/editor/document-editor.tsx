@@ -25,7 +25,7 @@ import {
   defaultBlockSpecs,
   filterSuggestionItems,
 } from "@blocknote/core";
-import { ReactImage, insertReactImage } from "./react-image";
+import { ReactImage, insertReactImage, uploadLocalImage} from "./react-image";
 import { TiptapCollabProvider } from "@hocuspocus/provider";
 import * as Y from "yjs";
 import { Document } from "@/types/database";
@@ -190,6 +190,7 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
               [
                 ...getDefaultReactSlashMenuItems(editor),
                 insertReactImage(editor),
+                uploadLocalImage(editor),
               ],
               query
             )

@@ -1,8 +1,12 @@
+"use client";
+
 import { BlockNoteEditor, defaultProps } from "@blocknote/core";
 import { createReactBlockSpec, ReactImageBlock } from "@blocknote/react";
 import { Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { performOCR, askAIAboutImage } from "@/app/ai";
+
+import { uploadImage } from "@/app/document"; // Import the server action
 
 export const ReactImage = createReactBlockSpec(
     {
@@ -112,5 +116,55 @@ export const insertReactImage = (editor: BlockNoteEditor<any, any, any>) => ({
         "picture",
         "media",
     ],
+    group: "Media2",
+});
+
+export const uploadLocalImage = (editor: BlockNoteEditor<any, any, any>) => ({
+    title: "Upload Local Image",
+    onItemClick: async () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.onchange = async (event: Event) => {
+            const file = (event.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                // Call the server action
+                const result = await uploadImage(formData);
+
+                if (result?.error) {
+                    alert(result.error);
+                    return;
+                }
+
+                // Insert uploaded image into BlockNote editor
+                editor.insertBlocks(
+                    [
+                        {
+                            type: "reactImage",
+                            props: {
+                                src: result?.url,
+                            },
+                        },
+                    ],
+                    editor.getTextCursorPosition().block,
+                    "after"
+                );
+            } catch (error) {
+                console.error("Upload failed:", error);
+                alert("Image upload failed. Please try again.");
+            }
+        };
+
+        input.click();
+    },
+    subtext: "Upload an image from your device",
+    icon: <Image />,
+    aliases: ["upload", "local image", "photo", "picture", "media"],
     group: "Media2",
 });

@@ -304,3 +304,54 @@ export async function getDocumentWithCollaborators(documentId: string) {
     userAccess: accessLevel,
   };
 }
+
+export async function uploadImage(formData: FormData) {
+  //"use server";
+
+  // Get user from Supabase auth
+  const supabase = await createClient();
+  const {
+      data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+      return null;
+  }
+
+  const file = formData.get("image") as File;
+  if (!file) {
+      return { error: "No file uploaded" };
+  }
+
+  try {
+      const fileName = `${user.id}/${Date.now()}-${file.name}`;
+      
+      // Convert File to Blob for upload
+      const arrayBuffer = await file.arrayBuffer();
+      const fileBlob = new Blob([arrayBuffer], { type: file.type });
+
+      // Upload to Supabase
+      const { data, error } = await supabase.storage
+          .from("File Uploads") // Change this to your actual bucket name
+          .upload(fileName, fileBlob, { upsert: true });
+      console.log(data);
+      if (error) throw error;
+
+      // Get the public URL
+      const { data: publicUrl } = supabase.storage
+          .from("File Uploads")
+          .getPublicUrl(fileName);
+
+      if (!publicUrl.publicUrl) {
+          throw new Error("Failed to get public URL.");
+      }
+
+      // Revalidate cache if needed
+      //revalidatePath("/");  
+
+      return { url: publicUrl.publicUrl };
+  } catch (error) {
+      console.error("Upload failed:", error);
+      return { error: "Image upload failed. Please try again." };
+  }
+}
