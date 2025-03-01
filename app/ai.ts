@@ -92,7 +92,7 @@ export async function continueWriting(selectedText: string, documentMarkdown: st
  * @param documentContent The content of the document
  * @returns The ID of the created flashcard deck
  */
-export async function generateFlashcardsFromDocument(documentId: string, documentContent: string) {
+export async function generateFlashcardsFromDocument(documentId: string, documentMarkdown: string) {
     try {
         // This is a placeholder implementation
         // In a real implementation, we would:
@@ -100,11 +100,12 @@ export async function generateFlashcardsFromDocument(documentId: string, documen
         // 2. Generate question-answer pairs
         // 3. Create a new flashcard deck with these pairs
 
+
         // For now, we'll create a static deck with placeholder cards
         const { saveFlashcardDeckWithCards } = await import('./flashcards');
 
         // Extract a title from the first few characters of the document
-        const title = documentContent.slice(0, 30).trim() + "...";
+        const title = documentMarkdown.slice(0, 30).trim() + "...";
 
         // Create a deck with some placeholder cards
         const { deckId } = await saveFlashcardDeckWithCards(
