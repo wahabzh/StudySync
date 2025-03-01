@@ -66,7 +66,6 @@ export function CardEditor({ card, index, onChange, onRemove, canRemove }: CardE
                             variant="ghost"
                             size="icon"
                             onClick={onRemove}
-                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
                             <Trash2 className="h-4 w-4" />
                         </Button>

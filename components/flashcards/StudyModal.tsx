@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getFlashcardDeck, getFlashcards } from "@/app/flashcards";
 import { Flashcard, FlashcardDeck } from "@/types/database";
 import { FlashcardView } from "./FlashcardView";
-import { ChevronLeft, ChevronRight, Loader2, Trophy } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Trophy, ArrowLeftIcon, ArrowRightIcon, Keyboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function StudyModal() {
@@ -175,8 +175,20 @@ export function StudyModal() {
                                     </Button>
                                 </div>
 
-                                <div className="text-xs text-center text-muted-foreground mt-2">
-                                    Keyboard shortcuts: Space (flip), ← (previous), → (next)
+                                <div className="text-xs text-center text-muted-foreground mt-2 flex items-center justify-center gap-4">
+
+                                    <div className="flex items-center gap-1">
+                                        <ArrowLeftIcon className="h-3 w-3" />
+                                        <span>Previous</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Keyboard className="h-3 w-3" />
+                                        <span>Space to show ans</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <ArrowRightIcon className="h-3 w-3" />
+                                        <span>Next</span>
+                                    </div>
                                 </div>
                             </>
                         )}
