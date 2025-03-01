@@ -11,7 +11,7 @@ export type Profile = {
   streak: number | null;
   username: string | null;
   custom_user_goal: number | null;
-  progress_on_custom: | null;
+  progress_on_custom: number | null;
   created_at: string; // Timestamp when profile was created
   updated_at: string; // Timestamp when profile was last updated
 };
@@ -39,6 +39,27 @@ export type DocumentClap = {
   created_at: string;
 };
 
+// Flashcard type represents an individual flashcard
+export type Flashcard = {
+  id: string; // Unique identifier for the flashcard
+  deck_id: string; // Foreign key to flashcard_decks.id
+  question: string; // Question text
+  answer: string; // Answer text
+  position: number; // Position in the deck for ordering
+  created_at: string;
+  updated_at: string;
+};
+
+// FlashcardDeck type represents a collection of flashcards
+export type FlashcardDeck = {
+  id: string; // Unique identifier for the deck
+  title: string; // Deck title
+  description: string | null; // Optional description
+  owner_id: string; // Foreign key to profiles.id - owner of the deck
+  created_at: string;
+  updated_at: string;
+};
+
 // Database type defines the full database schema for type safety with Supabase
 export type Database = {
   public: {
@@ -60,6 +81,18 @@ export type Database = {
         Row: DocumentClap;
         Insert: Omit<DocumentClap, "id" | "created_at">;
         Update: Partial<Omit<DocumentClap, "id">>;
+      };
+      // Add flashcard_decks table
+      flashcard_decks: {
+        Row: FlashcardDeck;
+        Insert: Omit<FlashcardDeck, "id" | "created_at" | "updated_at">;
+        Update: Partial<Omit<FlashcardDeck, "id" | "owner_id">>;
+      };
+      // Add flashcards table
+      flashcards: {
+        Row: Flashcard;
+        Insert: Omit<Flashcard, "id" | "created_at" | "updated_at">;
+        Update: Partial<Omit<Flashcard, "id" | "deck_id">>;
       };
     };
   };
