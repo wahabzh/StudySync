@@ -428,4 +428,136 @@ export async function generateFlashcardsFromDocument(
         success: false,
         message: "Flashcard generation from documents is not yet implemented"
     };
+}
+
+/**
+ * Save a flashcard deck with its cards in a single operation
+ * This handles both creation and updates
+ */
+export async function saveFlashcardDeckWithCards(
+    deckData: { id?: string; title: string; description?: string },
+    cards: { id?: string; question: string; answer: string; position: number }[]
+) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        throw new Error("Not authenticated");
+    }
+
+    let deckId: string;
+
+    // Step 1: Create or update the deck
+    if (deckData.id) {
+        // Update existing deck
+        const { error: updateError } = await supabase
+            .from("flashcard_decks")
+            .update({
+                title: deckData.title,
+                description: deckData.description || null,
+            })
+            .eq("id", deckData.id)
+            .eq("owner_id", user.id);
+
+        if (updateError) {
+            console.error("Error updating flashcard deck:", updateError);
+            throw updateError;
+        }
+
+        deckId = deckData.id;
+    } else {
+        // Create new deck
+        const { data: newDeck, error: createError } = await supabase
+            .from("flashcard_decks")
+            .insert({
+                title: deckData.title,
+                description: deckData.description || null,
+                owner_id: user.id,
+            })
+            .select()
+            .single();
+
+        if (createError) {
+            console.error("Error creating flashcard deck:", createError);
+            throw createError;
+        }
+
+        deckId = newDeck.id;
+
+        // Award points for creating a new deck
+        await addPoints(10);
+    }
+
+    // Step 2: Get existing cards for this deck
+    const { data: existingCards, error: fetchError } = await supabase
+        .from("flashcards")
+        .select("id")
+        .eq("deck_id", deckId);
+
+    if (fetchError) {
+        console.error("Error fetching existing flashcards:", fetchError);
+        throw fetchError;
+    }
+
+    // Step 3: Determine which cards to delete
+    const existingCardIds = new Set(existingCards.map(card => card.id));
+    const newCardIds = new Set(cards.filter(card => card.id).map(card => card.id));
+
+    const cardsToDelete = Array.from(existingCardIds).filter(id => !newCardIds.has(id));
+
+    // Step 4: Delete cards that are no longer present
+    if (cardsToDelete.length > 0) {
+        const { error: deleteError } = await supabase
+            .from("flashcards")
+            .delete()
+            .in("id", cardsToDelete);
+
+        if (deleteError) {
+            console.error("Error deleting flashcards:", deleteError);
+            throw deleteError;
+        }
+    }
+
+    // Step 5: Update existing cards and create new ones
+    for (const card of cards) {
+        if (card.id && existingCardIds.has(card.id)) {
+            // Update existing card
+            const { error: updateError } = await supabase
+                .from("flashcards")
+                .update({
+                    question: card.question,
+                    answer: card.answer,
+                    position: card.position,
+                })
+                .eq("id", card.id)
+                .eq("deck_id", deckId);
+
+            if (updateError) {
+                console.error("Error updating flashcard:", updateError);
+                throw updateError;
+            }
+        } else {
+            // Create new card
+            const { error: createError } = await supabase
+                .from("flashcards")
+                .insert({
+                    deck_id: deckId,
+                    question: card.question,
+                    answer: card.answer,
+                    position: card.position,
+                });
+
+            if (createError) {
+                console.error("Error creating flashcard:", createError);
+                throw createError;
+            }
+
+            // Award points for each new flashcard
+            await addPoints(2);
+        }
+    }
+
+    revalidatePath("/dashboard/decks");
+
+    return { deckId };
 } 
