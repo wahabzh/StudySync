@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CardEditor } from "./CardEditor";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { PlusCircle, Loader2, X } from "lucide-react";
+import { PlusCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function DeckFormModal() {
@@ -176,14 +176,6 @@ export function DeckFormModal() {
                     <DialogTitle>
                         {editDeckId ? "Edit Flashcard Deck" : "Create Flashcard Deck"}
                     </DialogTitle>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-4 top-4"
-                        onClick={handleClose}
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
                 </DialogHeader>
 
                 {loading ? (

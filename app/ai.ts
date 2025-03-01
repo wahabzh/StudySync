@@ -85,3 +85,55 @@ export async function continueWriting(selectedText: string, documentMarkdown: st
     });
     return result.text;
 }
+
+/**
+ * Generate flashcards from document content
+ * @param documentId The ID of the document to generate flashcards from
+ * @param documentContent The content of the document
+ * @returns The ID of the created flashcard deck
+ */
+export async function generateFlashcardsFromDocument(documentId: string, documentContent: string) {
+    try {
+        // This is a placeholder implementation
+        // In a real implementation, we would:
+        // 1. Use AI to extract key concepts from the document
+        // 2. Generate question-answer pairs
+        // 3. Create a new flashcard deck with these pairs
+
+        // For now, we'll create a static deck with placeholder cards
+        const { saveFlashcardDeckWithCards } = await import('./flashcards');
+
+        // Extract a title from the first few characters of the document
+        const title = documentContent.slice(0, 30).trim() + "...";
+
+        // Create a deck with some placeholder cards
+        const { deckId } = await saveFlashcardDeckWithCards(
+            {
+                title: `AI Generated: ${title}`,
+                description: `Automatically generated from document ${documentId}`
+            },
+            [
+                {
+                    question: "What is the main topic of this document?",
+                    answer: "This is a placeholder answer. In the real implementation, AI would analyze the document content.",
+                    position: 0
+                },
+                {
+                    question: "What are the key concepts mentioned?",
+                    answer: "This is a placeholder answer. The AI would extract key concepts from the document.",
+                    position: 1
+                },
+                {
+                    question: "How does this relate to the course material?",
+                    answer: "This is a placeholder answer. The AI would try to connect the document to relevant course material.",
+                    position: 2
+                }
+            ]
+        );
+
+        return { deckId };
+    } catch (error) {
+        console.error("Error generating flashcards:", error);
+        throw new Error("Failed to generate flashcards from document");
+    }
+}

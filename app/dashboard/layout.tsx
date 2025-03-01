@@ -84,66 +84,15 @@ const data = {
   },
   navMain: [
     {
-      title: "Notes",
-      url: "#",
+      title: "Documents",
+      url: "/dashboard",
       icon: SquareTerminal,
       isActive: true,
-      items: [
-        {
-          title: "CS 310",
-          url: "#",
-        },
-        {
-          title: "CS 535",
-          url: "#",
-        },
-        {
-          title: "DISC 212",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Flashcards",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Shared",
-      url: "#",
+      url: "/dashboard/decks",
       icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Settings",
@@ -238,10 +187,10 @@ export default function DashboardLayout({
                   >
                     <SidebarMenuItem>
                       <SidebarMenuButton asChild tooltip={item.title}>
-                        <a href={item.url}>
+                        <Link href={item.url}>
                           <item.icon />
                           <span>{item.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                       {item.items?.length ? (
                         <>
@@ -256,9 +205,9 @@ export default function DashboardLayout({
                               {item.items?.map((subItem) => (
                                 <SidebarMenuSubItem key={subItem.title}>
                                   <SidebarMenuSubButton asChild>
-                                    <a href={subItem.url}>
+                                    <Link href={subItem.url}>
                                       <span>{subItem.title}</span>
-                                    </a>
+                                    </Link>
                                   </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
                               ))}

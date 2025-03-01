@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getFlashcardDeck, getFlashcards } from "@/app/flashcards";
 import { Flashcard, FlashcardDeck } from "@/types/database";
 import { FlashcardView } from "./FlashcardView";
-import { ChevronLeft, ChevronRight, Loader2, X, Trophy } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Trophy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function StudyModal() {
@@ -115,17 +115,9 @@ export function StudyModal() {
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
-                    <DialogTitle className="pr-8">
+                    <DialogTitle>
                         {deck ? deck.title : "Study Flashcards"}
                     </DialogTitle>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-4 top-4"
-                        onClick={handleClose}
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
                 </DialogHeader>
 
                 {loading ? (
