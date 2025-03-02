@@ -2,8 +2,8 @@
 
 import { ImageAnnotatorClient } from '@google-cloud/vision';
 import { google } from '@ai-sdk/google';
-import { generateText } from 'ai';
-
+import { generateText, generateObject } from 'ai';
+import { z } from 'zod';
 
 export async function performOCR(url: string) {
     try {
@@ -86,50 +86,108 @@ export async function continueWriting(selectedText: string, documentMarkdown: st
     return result.text;
 }
 
+// /**
+//  * Generate flashcards from document content
+//  * @param documentId The ID of the document to generate flashcards from
+//  * @param documentContent The content of the document
+//  * @returns The ID of the created flashcard deck
+//  */
+// export async function generateFlashcardsFromDocument(documentId: string, documentMarkdown: string) {
+//     try {
+//         // This is a placeholder implementation
+//         // In a real implementation, we would:
+//         // 1. Use AI to extract key concepts from the document
+//         // 2. Generate question-answer pairs
+//         // 3. Create a new flashcard deck with these pairs
+
+
+//         // For now, we'll create a static deck with placeholder cards
+//         const { saveFlashcardDeckWithCards } = await import('./flashcards');
+
+//         // Extract a title from the first few characters of the document
+//         const title = documentMarkdown.slice(0, 30).trim() + "...";
+
+//         // Create a deck with some placeholder cards
+//         const { deckId } = await saveFlashcardDeckWithCards(
+//             {
+//                 title: `AI Generated: ${title}`,
+//                 description: `Automatically generated from document ${documentId}`
+//             },
+//             [
+//                 {
+//                     question: documentMarkdown, // testing
+//                     answer: "This is a placeholder answer. In the real implementation, AI would analyze the document content.",
+//                     position: 0
+//                 },
+//                 {
+//                     question: "What are the key concepts mentioned?",
+//                     answer: "This is a placeholder answer. The AI would extract key concepts from the document.",
+//                     position: 1
+//                 },
+//                 {
+//                     question: "How does this relate to the course material?",
+//                     answer: "This is a placeholder answer. The AI would try to connect the document to relevant course material.",
+//                     position: 2
+//                 }
+//             ]
+//         );
+
+//         return { deckId };
+//     } catch (error) {
+//         console.error("Error generating flashcards:", error);
+//         throw new Error("Failed to generate flashcards from document");
+//     }
+// }
+
+// Define the card schema outside the function to reduce nesting
+const CardSchema = z.object({
+    question: z.string().describe("A specific question about a concept in the document"),
+    answer: z.string().describe("A concise but complete answer to the question"),
+    position: z.number().describe("The position of this card in the deck, starting from 0")
+});
+
+// Define the flashcard deck schema separately
+const FlashcardDeckSchema = z.object({
+    title: z.string().describe("A concise title for the flashcard deck based on the document content"),
+    description: z.string().describe("A brief description of what this flashcard deck covers"),
+    cards: z.array(CardSchema).min(1).max(10).describe("An array of 1-10 flashcards covering the key concepts in the document")
+});
+
+// Type for the generated object
+type FlashcardDeck = z.infer<typeof FlashcardDeckSchema>;
+
 /**
  * Generate flashcards from document content
  * @param documentId The ID of the document to generate flashcards from
- * @param documentContent The content of the document
+ * @param documentMarkdown The content of the document
  * @returns The ID of the created flashcard deck
  */
 export async function generateFlashcardsFromDocument(documentId: string, documentMarkdown: string) {
     try {
-        // This is a placeholder implementation
-        // In a real implementation, we would:
-        // 1. Use AI to extract key concepts from the document
-        // 2. Generate question-answer pairs
-        // 3. Create a new flashcard deck with these pairs
+        // Truncate document if it's too long
+        const truncatedContent = documentMarkdown.length > 6000
+            ? documentMarkdown.slice(0, 6000) + "..."
+            : documentMarkdown;
 
+        // Generate structured flashcards using AI with type assertion
+        const result = await generateObject({
+            model: google('gemini-1.5-flash-latest'),
+            schema: FlashcardDeckSchema,
+            prompt: `Create flashcards from this document: ${truncatedContent}`
+        });
 
-        // For now, we'll create a static deck with placeholder cards
+        // Use type assertion to help TypeScript
+        const object = result.object as FlashcardDeck;
+
+        // Save the generated flashcards
         const { saveFlashcardDeckWithCards } = await import('./flashcards');
 
-        // Extract a title from the first few characters of the document
-        const title = documentMarkdown.slice(0, 30).trim() + "...";
-
-        // Create a deck with some placeholder cards
         const { deckId } = await saveFlashcardDeckWithCards(
             {
-                title: `AI Generated: ${title}`,
-                description: `Automatically generated from document ${documentId}`
+                title: object.title,
+                description: object.description
             },
-            [
-                {
-                    question: documentMarkdown, // testing
-                    answer: "This is a placeholder answer. In the real implementation, AI would analyze the document content.",
-                    position: 0
-                },
-                {
-                    question: "What are the key concepts mentioned?",
-                    answer: "This is a placeholder answer. The AI would extract key concepts from the document.",
-                    position: 1
-                },
-                {
-                    question: "How does this relate to the course material?",
-                    answer: "This is a placeholder answer. The AI would try to connect the document to relevant course material.",
-                    position: 2
-                }
-            ]
+            object.cards
         );
 
         return { deckId };
