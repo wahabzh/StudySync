@@ -8,6 +8,7 @@ import { Resend } from "resend";
 import { InviteEmailTemplate } from "@/components/email-templates/collab-invite";
 import { CollaboratorInfo } from "@/types/collaborator";
 import { getUserAccessLevel } from "@/utils/permissions";
+import { convertBlocksToMarkdown } from "@/utils/blockNoteConverter";
 
 export async function updateDocumentStatus(
   documentId: string,
@@ -311,47 +312,83 @@ export async function uploadImage(formData: FormData) {
   // Get user from Supabase auth
   const supabase = await createClient();
   const {
-      data: { user },
+    data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-      return null;
+    return null;
   }
 
   const file = formData.get("image") as File;
   if (!file) {
-      return { error: "No file uploaded" };
+    return { error: "No file uploaded" };
   }
 
   try {
-      const fileName = `${user.id}/${Date.now()}-${file.name}`;
-      
-      // Convert File to Blob for upload
-      const arrayBuffer = await file.arrayBuffer();
-      const fileBlob = new Blob([arrayBuffer], { type: file.type });
+    const fileName = `${user.id}/${Date.now()}-${file.name}`;
 
-      // Upload to Supabase
-      const { data, error } = await supabase.storage
-          .from("File Uploads") // Change this to your actual bucket name
-          .upload(fileName, fileBlob, { upsert: true });
-      console.log(data);
-      if (error) throw error;
+    // Convert File to Blob for upload
+    const arrayBuffer = await file.arrayBuffer();
+    const fileBlob = new Blob([arrayBuffer], { type: file.type });
 
-      // Get the public URL
-      const { data: publicUrl } = supabase.storage
-          .from("File Uploads")
-          .getPublicUrl(fileName);
+    // Upload to Supabase
+    const { data, error } = await supabase.storage
+      .from("File Uploads") // Change this to your actual bucket name
+      .upload(fileName, fileBlob, { upsert: true });
+    console.log(data);
+    if (error) throw error;
 
-      if (!publicUrl.publicUrl) {
-          throw new Error("Failed to get public URL.");
-      }
+    // Get the public URL
+    const { data: publicUrl } = supabase.storage
+      .from("File Uploads")
+      .getPublicUrl(fileName);
 
-      // Revalidate cache if needed
-      //revalidatePath("/");  
+    if (!publicUrl.publicUrl) {
+      throw new Error("Failed to get public URL.");
+    }
 
-      return { url: publicUrl.publicUrl };
+    // Revalidate cache if needed
+    //revalidatePath("/");  
+
+    return { url: publicUrl.publicUrl };
   } catch (error) {
-      console.error("Upload failed:", error);
-      return { error: "Image upload failed. Please try again." };
+    console.error("Upload failed:", error);
+    return { error: "Image upload failed. Please try again." };
   }
+}
+
+/**
+ * Get the content of a document as plain text
+ */
+export async function getDocumentContentById(documentId: string) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("Not authenticated");
+  }
+
+  // Get the document
+  const { data: document, error } = await supabase
+    .from("documents")
+    .select("content")
+    .eq("id", documentId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching document content:", error);
+    throw error;
+  }
+
+  // // Parse the JSON content
+  // let parsedContent;
+  // try {
+  //   parsedContent = JSON.parse(document?.content || '[]');
+  // } catch (e) {
+  //   console.error("Error parsing document content:", e);
+  //   return "";
+  // }
+
+  // Convert to markdown 
+  return convertBlocksToMarkdown(document?.content || []);
 }

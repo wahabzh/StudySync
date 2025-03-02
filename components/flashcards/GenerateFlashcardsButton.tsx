@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2 } from "lucide-react";
 import { generateFlashcardsFromDocument } from "@/app/ai";
 import { useToast } from "@/hooks/use-toast";
-import { getDocumentWithCollaborators } from "@/app/document";
-
+import { getDocumentContentById } from "@/app/document";
 
 interface GenerateFlashcardsButtonProps {
     documentId: string;
@@ -24,12 +23,10 @@ export default function GenerateFlashcardsButton({ documentId }: GenerateFlashca
             // In a real implementation, we would get the document content
             // For now, we'll just pass a placeholder
             const placeholderContent = "This is a sample document content for testing flashcard generation.";
-            const data = await getDocumentWithCollaborators(documentId);
-            if (!data) {
-                throw new Error("Document not found");
-            }
-            const { document } = data;
-            const { deckId } = await generateFlashcardsFromDocument(documentId, placeholderContent);
+           
+            const documentMarkdown = await getDocumentContentById(documentId);
+
+            const { deckId } = await generateFlashcardsFromDocument(documentId, documentMarkdown);
 
             toast({
                 title: "Flashcards generated!",

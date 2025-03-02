@@ -115,7 +115,7 @@ export async function generateFlashcardsFromDocument(documentId: string, documen
             },
             [
                 {
-                    question: "What is the main topic of this document?",
+                    question: documentMarkdown, // testing
                     answer: "This is a placeholder answer. In the real implementation, AI would analyze the document content.",
                     position: 0
                 },
