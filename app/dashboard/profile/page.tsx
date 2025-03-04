@@ -7,9 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { updateProfile, getUser } from "@/app/actions";
-import { SubmitButton } from "@/components/submit-button";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
     const [username, setUsername] = useState("");
@@ -21,6 +21,7 @@ export default function ProfilePage() {
     const [initialValues, setInitialValues] = useState({ username, email, description, avatarUrl });
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -43,17 +44,22 @@ export default function ProfilePage() {
     }, []);
 
     function handleCancel(e: React.MouseEvent) {
+        setIsLoading(true);
         e.preventDefault();
         setUsername(initialValues.username);
         setEmail(initialValues.email);
         setDescription(initialValues.description);
-        setPassword(".......")
+        setPassword(".......");
         setAvatarUrl(initialValues.avatarUrl);
         setAvatarFile(null);
 
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
+
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 500);
     }
 
     function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -64,9 +70,12 @@ export default function ProfilePage() {
         }
     }
 
-    function handleConfirmSubmit() {
-        setIsDialogOpen(false);
-        formRef.current?.requestSubmit(); 
+    async function handleConfirmSubmit() {
+        setIsLoading(true);
+        formRef.current?.requestSubmit();
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 500);
     }
 
     return (
@@ -100,8 +109,8 @@ export default function ProfilePage() {
                             <Textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter description" />
                         </div>
                         <div className="flex justify-end space-x-4">
-                            <Button variant="outline" type="button" onClick={handleCancel}>
-                                Cancel
+                            <Button variant="outline" type="button" onClick={handleCancel} disabled={isLoading}>
+                            {isLoading ? <Loader2 className="animate-spin mr-2" /> : "Cancel"}
                             </Button>
                             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                 <DialogTrigger asChild>
@@ -113,10 +122,12 @@ export default function ProfilePage() {
                                     </DialogHeader>
                                     <p>Are you sure you want to save these changes?</p>
                                     <DialogFooter>
-                                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                        <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
                                             Cancel
                                         </Button>
-                                        <Button onClick={handleConfirmSubmit}>Confirm</Button>
+                                        <Button onClick={handleConfirmSubmit} disabled={isLoading}>
+                                            {isLoading ? <Loader2 className="animate-spin mr-2" /> : "Confirm"}
+                                        </Button>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
