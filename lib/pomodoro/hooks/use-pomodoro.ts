@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback } from "react";
 import { TimerState, Settings } from "../types";
 import { useSound } from "use-sound";
 import { toast } from "@/hooks/use-toast";
-import { addPoints } from "@/app/gamification";
+import { addPoints, updateCustomGoalProgress } from "@/app/gamification";
+import { savePomodoroGoal } from "@/app/actions";
 
 export function usePomodoro(initialSettings: Settings) {
   const [settings, setSettings] = useState<Settings>(initialSettings);
@@ -37,11 +38,17 @@ export function usePomodoro(initialSettings: Settings) {
     if (timer.mode === "pomodoro") {
       setCompletedPomodoros((prev) => prev + 1);
       if (completedPomodoros + 1 >= settings.longBreakInterval) {
-        addPoints(settings.pomodoro);
+        addPoints(settings.pomodoro*10);
+        if (settings.userGoal != null){
+          updateCustomGoalProgress(settings.userGoal)
+        }
         switchMode("longBreak");
         setCompletedPomodoros(0);
       } else {
-        addPoints(settings.pomodoro);
+        addPoints(settings.pomodoro*10);
+        if (settings.userGoal != null){
+          updateCustomGoalProgress(settings.userGoal)
+        }
         switchMode("shortBreak");
       }
     } else {
@@ -99,13 +106,23 @@ export function usePomodoro(initialSettings: Settings) {
   };
 
   // Save settings
-  const saveSettings = (newSettings: Settings) => {
-    setSettings(newSettings);
-    setTimer((prev) => ({
-      ...prev,
-      timeLeft: newSettings[prev.mode] * 60,
-      isRunning: false,
-    }));
+    const saveSettings = async (newSettings: Settings) => {
+      // Update local state
+      setSettings(newSettings);
+      setTimer((prev) => ({
+        ...prev,
+        timeLeft: newSettings[prev.mode] * 60,
+        isRunning: false,
+      }));
+  
+     // 2) If there's a numeric userGoal, call the server function
+     if (typeof newSettings.userGoal === "number") {
+      const result = await savePomodoroGoal(newSettings.userGoal);
+      if (!result.success) {
+        console.error("Failed to update user goal:", result.message);
+      }
+    }
+    
     toast({
       title: "Settings saved",
       description: "Your timer settings have been updated.",
