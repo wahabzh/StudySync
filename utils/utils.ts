@@ -9,10 +9,11 @@ import jwt from "jsonwebtoken";
  * @returns {never} This function doesn't return as it triggers a redirect.
  */
 export function encodedRedirect(
-  type: "error" | "success",
+  type: "error" | "success" | null,
   path: string,
   message: string,
 ) {
+  if (type==null) return redirect(`${path}`)
   return redirect(`${path}?${type}=${encodeURIComponent(message)}`);
 }
 

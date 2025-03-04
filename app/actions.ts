@@ -228,14 +228,20 @@ export async function getUser() {
   if (!user) {
     return redirect("/sign-in");
   } else {
-    const { data: username, error } = await supabase
+    const { data: profile, error } = await supabase
       .from("profiles")
-      .select("username")
+      .select("username, avatar_url, description")
       .eq("id", user.id)
       .single();
 
-    if (error || !username) throw error;
-    return { id: user.id, username: username.username };
+    if (error || !profile) throw error;
+    return { 
+      id: user.id, 
+      email: user.email,
+      username: profile.username, 
+      avatar_url: profile.avatar_url, 
+      description: profile.description 
+    };
   }
 }
 
@@ -288,4 +294,58 @@ export async function getDashboardData() {
   if (!user) {
     return redirect("/sign-in");
   } else return user;
+}
+
+export const updateProfile = async (formData: FormData) => {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) return encodedRedirect(
+    "error",
+    "/",
+    "User not authenticated"
+  );
+
+  /*let avatar_url = null;
+  
+  if (avatarFile) {
+    const fileExt = avatarFile.name.split(".").pop();
+    const filePath = `avatars/${user.id}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, avatarFile, {
+      upsert: true,
+    });
+
+    if (uploadError) return { error: uploadError.message };
+
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    avatar_url = data.publicUrl;
+  }*/
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ username: formData.get("username")?.toString(), 
+      description: formData.get("description")?.toString(), 
+      avatar_url: formData.get("avatar_url")?.toString() })
+    .eq("id", user?.id);
+
+  if (error) return encodedRedirect(
+    "error",
+    "/dashboard/profile",
+    "Error retrieving data"
+  );
+
+  if (formData.get("email")) {
+    const { error: authError } = await supabase.auth.updateUser({ email: formData.get("email")?.toString()});
+    if (authError) return encodedRedirect(
+    "error",
+    "/",
+    `${authError.message}`
+  );
+  }
+  
+  return encodedRedirect(
+    null,
+    "/dashboard/profile",
+    ""
+  );
 }
