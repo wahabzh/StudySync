@@ -306,26 +306,38 @@ export const updateProfile = async (formData: FormData) => {
     "User not authenticated"
   );
 
-  /*let avatar_url = null;
+  const avatarFile = formData.get("avatar_file") as File;
   
-  if (avatarFile) {
-    const fileExt = avatarFile.name.split(".").pop();
-    const filePath = `avatars/${user.id}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, avatarFile, {
+  if (avatarFile && avatarFile.size > 0) {
+    const filePath = `avatars/${user.id}.${avatarFile.name}`;
+    const { error: uploadError } = await supabase.storage.from("Avatars").upload(filePath, avatarFile, {
       upsert: true,
     });
 
-    if (uploadError) return { error: uploadError.message };
+     if (uploadError) return encodedRedirect(
+      "error",
+      "/",
+      `${uploadError.message}`
+    );
 
-    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
-    avatar_url = data.publicUrl;
-  }*/
+    const { data } = supabase.storage.from("Avatars").getPublicUrl(filePath);
+    const avatar_url = data.publicUrl;
+    const { error } = await supabase
+    .from("profiles")
+    .update({avatar_url})
+    .eq("id", user?.id);
+
+    if (error) return encodedRedirect(
+      "error",
+      "/dashboard/profile",
+      "Error uploading file"
+    );
+  }
 
   const { error } = await supabase
     .from("profiles")
     .update({ username: formData.get("username")?.toString(), 
-      description: formData.get("description")?.toString(), 
-      avatar_url: formData.get("avatar_url")?.toString() })
+      description: formData.get("description")?.toString(),})
     .eq("id", user?.id);
 
   if (error) return encodedRedirect(

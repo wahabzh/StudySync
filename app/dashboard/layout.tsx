@@ -123,8 +123,8 @@ const data = {
       ],
     },
     {
-      title: "Shared",
-      url: "#",
+      title: "Profile",
+      url: "/dashboard/profile",
       icon: BookOpen,
       items: [
         {
