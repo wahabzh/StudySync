@@ -10,6 +10,7 @@ import { updateProfile, getUser } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProfilePage() {
     const [username, setUsername] = useState("");
@@ -24,24 +25,26 @@ export default function ProfilePage() {
     const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const formRef = useRef<HTMLFormElement | null>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
-        async function fetchProfile() {
-            const userData = await getUser();
-            setUsername(userData.username || "");
-            setEmail(userData.email || "");
-            setDescription(userData.description || "");
-            setAvatarUrl(userData.avatar_url || "");
-
-            setInitialValues({
-                username: userData.username || "",
-                email: userData.email || "",
-                description: userData.description || "",
-                avatarUrl: userData.avatar_url || "",
-            });
-        }
         fetchProfile();
     }, []);
+
+    async function fetchProfile() {
+        const userData = await getUser();
+        setUsername(userData.username || "");
+        setEmail(userData.email || "");
+        setDescription(userData.description || "");
+        setAvatarUrl(userData.avatar_url || "");
+
+        setInitialValues({
+            username: userData.username || "",
+            email: userData.email || "",
+            description: userData.description || "",
+            avatarUrl: userData.avatar_url || "",
+        });
+    }
 
     function handleCancel(e: React.MouseEvent) {
         setIsLoading(true);
@@ -56,10 +59,7 @@ export default function ProfilePage() {
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
-
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 500);
+        setIsLoading(false);
     }
 
     function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -73,9 +73,19 @@ export default function ProfilePage() {
     async function handleConfirmSubmit() {
         setIsLoading(true);
         formRef.current?.requestSubmit();
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 500);
+
+        await fetchProfile();
+
+        setIsLoading(false);
+        setIsDialogOpen(false);
+
+        toast({
+            title: "Profile Updated",
+            description: "Your profile has been successfully updated.",
+            duration: 3000,
+            className: "bottom-right-toast",
+        });
+        setIsLoading(false);
     }
 
     return (
@@ -100,17 +110,17 @@ export default function ProfilePage() {
                             <Label>Email</Label>
                             <Input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter email" required />
                         </div>
-                        <div>
+                        {/*<div>
                             <Label>Password</Label>
                             <Input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter password" required />
-                        </div>
+                        </div>*/}
                         <div>
                             <Label>Description</Label>
                             <Textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter description" />
                         </div>
                         <div className="flex justify-end space-x-4">
                             <Button variant="outline" type="button" onClick={handleCancel} disabled={isLoading}>
-                            {isLoading ? <Loader2 className="animate-spin mr-2" /> : "Cancel"}
+                                {isLoading ? <Loader2 className="animate-spin mr-2" /> : "Cancel"}
                             </Button>
                             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                 <DialogTrigger asChild>

@@ -393,9 +393,9 @@ export const updateProfile = async (formData: FormData) => {
   );
   }
   
-  return encodedRedirect(
+  /*return encodedRedirect(
     null,
     "/dashboard/profile",
     ""
-  );
+  );*/
 }
