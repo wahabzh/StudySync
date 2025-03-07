@@ -29,6 +29,7 @@ type Player = {
 type LeaderboardData = {
   username: string;
   points: number;
+  streak: number;
   topPlayers: Player[];
   userRank: string | number;
   userLeague: League;
@@ -48,6 +49,7 @@ export default function StatsDialog() {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData>({
     username: "",
     points: 0,
+    streak: 0,
     topPlayers: [],
     userRank: "N/A",
     userLeague: { name: "", symbol: "" },
@@ -72,6 +74,7 @@ export default function StatsDialog() {
           setLeaderboardData({
             username: data.username || "",
             points: data.points || 0,
+            streak: data.streak || 0,
             topPlayers: data.topPlayers || [],
             userRank: data.userRank || "N/A",
             userLeague: data.userLeague || { name: "", symbol: "" },
@@ -101,6 +104,9 @@ export default function StatsDialog() {
           </p>
           <p>
             <strong>Points:</strong> {leaderboardData.points ?? "Loading..."}
+          </p>
+          <p>
+            <strong>Streaks:</strong> {leaderboardData.streak ?? "Loading..."}
           </p>
           <p>
             <strong>League:</strong> {leaderboardData.userLeague.symbol}{" "}

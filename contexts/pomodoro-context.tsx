@@ -2,12 +2,17 @@
 
 import React, { createContext, useContext } from "react";
 import { usePomodoro } from "@/lib/pomodoro/hooks/use-pomodoro";
+import { Goal } from "lucide-react";
+import { createClient } from "@/utils/supabase/server";
+
 
 const initialSettings = {
   pomodoro: 25,
   shortBreak: 5,
   longBreak: 15,
   longBreakInterval: 4,
+  userGoal: 0,
+  progressOnCustom: 0,
   autoStartBreaks: false,
   autoStartPomodoros: false,
 };
@@ -33,3 +38,5 @@ export function usePomodoroContext() {
   }
   return context;
 } 
+
+

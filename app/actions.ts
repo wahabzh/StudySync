@@ -228,14 +228,14 @@ export async function getUser() {
   if (!user) {
     return redirect("/sign-in");
   } else {
-    const { data: username, error } = await supabase
+    const { data: profile, error } = await supabase
       .from("profiles")
-      .select("username")
+      .select("username, progress_on_custom, custom_user_goal")
       .eq("id", user.id)
       .single();
 
-    if (error || !username) throw error;
-    return { id: user.id, username: username.username };
+    if (error || !profile) throw error;
+    return { id: user.id, username: profile.username, custom_user_goal: profile?.custom_user_goal || 0, progress_on_custom: profile?.progress_on_custom || 0,};
   }
 }
 
@@ -289,3 +289,60 @@ export async function getDashboardData() {
     return redirect("/sign-in");
   } else return user;
 }
+
+export async function savePomodoroGoal(userGoal: number) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (!user || userError) {
+    return { success: false, message: "User not authenticated." };
+  }
+
+  // Optional: Validate the goal
+  const allowedGoals = [0, 1, 2, 3];
+  if (!allowedGoals.includes(userGoal)) {
+    return { success: false, message: "Invalid goal selected." };
+  }
+  // Prepare update data: if userGoal is 0, reset progress_on_custom to 0
+  const updateData: Record<string, any> = { custom_user_goal: userGoal };
+  if (userGoal === 0) {
+    updateData.progress_on_custom = 0;
+  }
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update(updateData)
+    .eq("id", user.id);
+
+  if (updateError) {
+    console.error("Error updating custom_user_goal:", updateError);
+    return { success: false, message: "Database update error." };
+  }
+
+  return { success: true, message: "Pomodoro goal saved successfully!" };
+}
+
+// export async function updateProgressOnCustom(newValue: number) {
+//   const supabase = await createClient();
+
+//   const {
+//     data: { user },
+//     error: userError,
+//   } = await supabase.auth.getUser();
+
+//   if (!user || userError) {
+//       return { success: false, message: "User not authenticated." };
+//     }
+//   const { data, error } = await supabase
+//     .from("profiles")
+//     .update({ progress_on_custom: newValue})
+//     .eq("id", user.id); // Ensure you have access to the current user's id
+//   if (error) {
+//     return { success: false, message: error.message };
+//   }
+//   return { success: true, data };
+// }
