@@ -75,85 +75,178 @@ import { signOutAction } from "../actions";
 import { PomodoroTimer } from "@/components/pomodoro/pomodoro-timer";
 import { PomodoroProvider } from "@/contexts/pomodoro-context";
 import Link from "next/link";
-
-const data = {
-  user: {
-    name: "User",
-    email: "user@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Documents",
-      url: "/dashboard",
-      icon: SquareTerminal,
-      isActive: true,
-    },
-    {
-      title: "Flashcards",
-      url: "/dashboard/decks",
-      icon: BookOpen,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-};
+import { User } from "@supabase/supabase-js";
+import { getDashboardData,getUserDocumentsLatestTenSideBar , getSharedDocumentsLatestTenSideBar } from "@/app/sidebar";
+import { useEffect, useState } from "react";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [CurUser, setUserId] = useState<User | null>(null);
+  const [UserNotes, setUserNotes] = useState([
+    {
+      title: "Notes",
+      url: "#",
+      icon: SquareTerminal,
+      isActive: true,
+      items: [], // Initially empty, will be populated dynamically
+    },
+    // Other sections like Flashcards, Shared, etc.
+  ]);
+
+  const [SharedNotes, setSharedNotes] = useState([
+    {
+      title: "Notes",
+      url: "#",
+      icon: SquareTerminal,
+      isActive: true,
+      items: [], // Initially empty, will be populated dynamically
+    },
+    // Other sections like Flashcards, Shared, etc.
+  ]);
+
+  useEffect(() => {
+    // Fetch user data
+    getDashboardData()
+      .then((data) => {
+        if (data) setUserId(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (CurUser) {
+      // Fetch latest ten documents for the user
+      getUserDocumentsLatestTenSideBar(CurUser.id)
+        .then((documents) => {
+          const formattedNotes = documents.map((doc) => ({
+            title: doc.title,
+            url: `/dashboard/doc/${doc.id}`,
+            icon: ChevronRight, // Default or appropriate icon
+            isActive: false,    // Default inactive state
+            items: [],          // No nested items for notes
+          }));
+          setUserNotes(formattedNotes);
+        })
+        .catch((error) => console.error("Error fetching documents:", error));
+    }
+  }, [CurUser]);
+
+  useEffect(() => {
+    if (CurUser) {
+      // Fetch latest ten documents for the user
+      getSharedDocumentsLatestTenSideBar(CurUser.id)
+        .then((documents) => {
+          const formattedNotes = documents.map((doc) => ({
+            title: doc.title,
+            url: `/dashboard/doc/${doc.id}`,
+            icon: ChevronRight, // Default or appropriate icon
+            isActive: false,    // Default inactive state
+            items: [],          // No nested items for notes
+          }));
+          setSharedNotes(formattedNotes);
+        })
+        .catch((error) => console.error("Error fetching documents:", error));
+    }
+  }, [CurUser]);
+
+  const data = {
+    user: {
+      name: "User",
+      email: CurUser?.email,
+      avatar: "/avatars/shadcn.jpg",
+    },
+    navMain: [
+      {
+        title: "Notes",
+        url: "#",
+        icon: SquareTerminal,
+        isActive: false,
+        items: UserNotes,
+      },
+      // {
+      //   title: "Flashcards",
+      //   url: "#",
+      //   icon: Bot,
+      //   items: [
+      //     {
+      //       title: "Genesis",
+      //       url: "#",
+      //     },
+      //     {
+      //       title: "Explorer",
+      //       url: "#",
+      //     },
+      //     {
+      //       title: "Quantum",
+      //       url: "#",
+      //     },
+      //   ],
+      // },
+      {
+        title: "Shared",
+        url: "#",
+        icon: BookOpen,
+        items: SharedNotes,
+      },
+      // {
+      //   title: "Settings",
+      //   url: "#",
+      //   icon: Settings2,
+      //   items: [
+      //     {
+      //       title: "General",
+      //       url: "#",
+      //     },
+      //     {
+      //       title: "Team",
+      //       url: "#",
+      //     },
+      //     {
+      //       title: "Billing",
+      //       url: "#",
+      //     },
+      //     {
+      //       title: "Limits",
+      //       url: "#",
+      //     },
+      //   ],
+      // },
+    ],
+    // navSecondary: [
+    //   {
+    //     title: "Support",
+    //     url: "#",
+    //     icon: LifeBuoy,
+    //   },
+    //   {
+    //     title: "Feedback",
+    //     url: "#",
+    //     icon: Send,
+    //   },
+    // ],
+    // projects: [
+    //   {
+    //     name: "Design Engineering",
+    //     url: "#",
+    //     icon: Frame,
+    //   },
+    //   {
+    //     name: "Sales & Marketing",
+    //     url: "#",
+    //     icon: PieChart,
+    //   },
+    //   {
+    //     name: "Travel",
+    //     url: "#",
+    //     icon: Map,
+    //   },
+    // ],
+  };
   return (
     <PomodoroProvider>
       <SidebarProvider>
@@ -177,7 +270,7 @@ export default function DashboardLayout({
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Platform</SidebarGroupLabel>
+              <SidebarGroupLabel>Quick Access</SidebarGroupLabel>
               <SidebarMenu>
                 {data.navMain.map((item) => (
                   <Collapsible
@@ -223,7 +316,7 @@ export default function DashboardLayout({
             <SidebarGroup className="mt-auto">
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {data.navSecondary.map((item) => (
+                  {/* {data.navSecondary.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild size="sm">
                         <a href={item.url}>
@@ -232,7 +325,7 @@ export default function DashboardLayout({
                         </a>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                  ))}
+                  ))} */}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -255,10 +348,10 @@ export default function DashboardLayout({
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">
-                          {data.user.name}
+                          {CurUser?.email}
                         </span>
                         <span className="truncate text-xs">
-                          {data.user.email}
+                          {CurUser?.email}
                         </span>
                       </div>
                       <ChevronsUpDown className="ml-auto size-4" />
@@ -288,7 +381,7 @@ export default function DashboardLayout({
                         </div>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+                    {/*<DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuItem>
                         <Sparkles />
@@ -310,7 +403,7 @@ export default function DashboardLayout({
                         Notifications
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator />*/}
                     <DropdownMenuItem onSelect={signOutAction}>
                       <LogOut />
                       Log out
