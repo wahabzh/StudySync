@@ -14,6 +14,7 @@ export type Profile = {
   progress_on_custom: number | null;
   created_at: string; // Timestamp when profile was created
   updated_at: string; // Timestamp when profile was last updated
+  description: string;
 };
 
 // Document type represents a document in the 'documents' table

@@ -79,6 +79,8 @@ import { User } from "@supabase/supabase-js";
 import { getDashboardData,getUserDocumentsLatestTenSideBar , getSharedDocumentsLatestTenSideBar } from "@/app/sidebar";
 import { useEffect, useState } from "react";
 
+// profile tab
+
 export default function DashboardLayout({
   children,
 }: {
