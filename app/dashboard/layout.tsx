@@ -80,8 +80,9 @@ import { PomodoroTimer } from "@/components/pomodoro/pomodoro-timer";
 import { PomodoroProvider } from "@/contexts/pomodoro-context";
 import Link from "next/link";
 import { User } from "@supabase/supabase-js";
-import { getDashboardData,getUserDocumentsLatestTenSideBar , getSharedDocumentsLatestTenSideBar } from "@/app/sidebar";
+import { getDashboardData, getUserDocumentsLatestTenSideBar, getSharedDocumentsLatestTenSideBar } from "@/app/sidebar";
 import { useEffect, useState } from "react";
+import { getUser } from "@/app/actions";
 
 // profile tab
 
@@ -91,6 +92,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [CurUser, setUserId] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<{
+    username?: string;
+    avatar_url?: string;
+  }>({});
   const [UserNotes, setUserNotes] = useState([
     {
       title: "Notes",
@@ -126,6 +131,18 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (CurUser) {
+      // Fetch user profile data
+      getUser()
+        .then((userData) => {
+          setUserProfile({
+            username: userData.username,
+            avatar_url: userData.avatar_url
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching user profile:", error);
+        });
+
       // Fetch latest ten documents for the user
       getUserDocumentsLatestTenSideBar(CurUser.id)
         .then((documents) => {
@@ -162,9 +179,9 @@ export default function DashboardLayout({
 
   const data = {
     user: {
-      name: "User",
+      name: userProfile.username || CurUser?.email?.split('@')[0] || "User",
       email: CurUser?.email,
-      avatar: "/avatars/shadcn.jpg",
+      avatar: userProfile.avatar_url || "/avatars/shadcn.jpg",
     },
     navMain: [
       {
@@ -312,17 +329,20 @@ export default function DashboardLayout({
                       className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                     >
                       <Avatar className="h-8 w-8 rounded-lg">
-                        {/* TODO: Add Avatar Image Later */}
-                        <AvatarFallback className="rounded-lg">
-                          US
-                        </AvatarFallback>
+                        {userProfile.avatar_url ? (
+                          <AvatarImage src={userProfile.avatar_url} className="rounded-lg" />
+                        ) : (
+                          <AvatarFallback className="rounded-lg">
+                            {data.user.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        )}
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">
-                          {CurUser?.email}
+                          {data.user.name}
                         </span>
                         <span className="truncate text-xs">
-                          {CurUser?.email}
+                          {data.user.email}
                         </span>
                       </div>
                       <ChevronsUpDown className="ml-auto size-4" />
@@ -337,10 +357,13 @@ export default function DashboardLayout({
                     <DropdownMenuLabel className="p-0 font-normal">
                       <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                         <Avatar className="h-8 w-8 rounded-lg">
-                          {/* TODO: Add Avatar Image Later */}
-                          <AvatarFallback className="rounded-lg">
-                            US
-                          </AvatarFallback>
+                          {userProfile.avatar_url ? (
+                            <AvatarImage src={userProfile.avatar_url} className="rounded-lg" />
+                          ) : (
+                            <AvatarFallback className="rounded-lg">
+                              {data.user.name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          )}
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
                           <span className="truncate font-semibold">
