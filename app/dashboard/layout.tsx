@@ -83,6 +83,8 @@ import { User } from "@supabase/supabase-js";
 import { getDashboardData, getUserDocumentsLatestTenSideBar, getSharedDocumentsLatestTenSideBar } from "@/app/sidebar";
 import { useEffect, useState } from "react";
 import { getUser } from "@/app/actions";
+import { usePathname } from "next/navigation";
+import React from "react";
 
 // profile tab
 
@@ -117,6 +119,58 @@ export default function DashboardLayout({
     },
     // Other sections like Flashcards, Shared, etc.
   ]);
+
+  const pathname = usePathname();
+
+  // Generate breadcrumb items based on the current path
+  const getBreadcrumbItems = () => {
+    const paths = pathname.split('/').filter(Boolean);
+
+    // Default breadcrumb for dashboard
+    if (paths.length === 1 && paths[0] === 'dashboard') {
+      return [{ label: 'Dashboard', href: '/dashboard', current: true }];
+    }
+
+    const breadcrumbs = [
+      { label: 'Dashboard', href: '/dashboard', current: false }
+    ];
+
+    let currentPath = '/dashboard';
+
+    // Skip 'dashboard' as it's already added
+    for (let i = 1; i < paths.length; i++) {
+      const path = paths[i];
+      currentPath += `/${path}`;
+
+      // Handle document IDs
+      if (path === 'doc' && i < paths.length - 1) {
+        breadcrumbs.push({
+          label: 'Document',
+          href: currentPath + `/${paths[i + 1]}`,
+          current: i === paths.length - 2
+        });
+        i++; // Skip the ID in the next iteration
+        continue;
+      }
+
+      // Handle special cases
+      let label = path.charAt(0).toUpperCase() + path.slice(1);
+
+      if (path === 'decks') label = 'Flashcards';
+      if (path === 'community') label = 'Community';
+      if (path === 'profile') label = 'Settings';
+
+      breadcrumbs.push({
+        label,
+        href: currentPath,
+        current: i === paths.length - 1
+      });
+    }
+
+    return breadcrumbs;
+  };
+
+  const breadcrumbItems = getBreadcrumbItems();
 
   useEffect(() => {
     // Fetch user data
@@ -392,15 +446,22 @@ export default function DashboardLayout({
               <Separator orientation="vertical" className="mr-2 h-4" />
               <Breadcrumb>
                 <BreadcrumbList>
-                  <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="#">
-                      Building Your Application
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                  </BreadcrumbItem>
+                  {breadcrumbItems.map((item, index) => (
+                    <React.Fragment key={item.href}>
+                      <BreadcrumbItem>
+                        {item.current ? (
+                          <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink href={item.href}>
+                            {item.label}
+                          </BreadcrumbLink>
+                        )}
+                      </BreadcrumbItem>
+                      {index < breadcrumbItems.length - 1 && (
+                        <BreadcrumbSeparator />
+                      )}
+                    </React.Fragment>
+                  ))}
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
