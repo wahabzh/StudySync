@@ -11,7 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useTransition } from "react";
-import { toggleDocumentClap } from "@/app/community/community-actions";
+import { toggleDocumentClap } from "@/app/community-actions";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -33,7 +33,7 @@ export const CommunityDocumentContent = ({
 }: CommunityDocumentContentProps) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  console.log("document", document.content); // Debugging
+  // console.log("document", document.content); // Debugging
   const editor = useCreateBlockNote({
     initialContent: document.content,
     schema: BlockNoteSchema.create({
@@ -63,13 +63,21 @@ export const CommunityDocumentContent = ({
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
+            <button onClick={() => window.history.back()}>
+              <BreadcrumbLink>Back</BreadcrumbLink>
+            </button>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
             <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
             <ChevronRight className="h-4 w-4" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/community">Community</BreadcrumbLink>
+            <BreadcrumbLink>Community</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
             <ChevronRight className="h-4 w-4" />

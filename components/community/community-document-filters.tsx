@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { type Document } from "@/types/database";
-import { getCommunityDocuments } from "@/app/community/community-actions";
+import { getCommunityDocuments } from "@/app/community-actions";
 import { Input } from "@/components/ui/input";
 import {
     Select,

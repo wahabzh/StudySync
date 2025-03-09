@@ -19,12 +19,16 @@ import {
   Map,
   MoreHorizontal,
   PieChart,
+  Pin,
   Send,
+  Settings,
   Settings2,
   Share,
   Sparkles,
   SquareTerminal,
   Trash2,
+  Users,
+  Zap,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -170,84 +174,49 @@ export default function DashboardLayout({
         isActive: false,
         items: UserNotes,
       },
-      // {
-      //   title: "Flashcards",
-      //   url: "#",
-      //   icon: Bot,
-      //   items: [
-      //     {
-      //       title: "Genesis",
-      //       url: "#",
-      //     },
-      //     {
-      //       title: "Explorer",
-      //       url: "#",
-      //     },
-      //     {
-      //       title: "Quantum",
-      //       url: "#",
-      //     },
-      //   ],
-      // },
       {
         title: "Shared",
         url: "#",
         icon: BookOpen,
         items: SharedNotes,
       },
-      // {
-      //   title: "Settings",
-      //   url: "#",
-      //   icon: Settings2,
-      //   items: [
-      //     {
-      //       title: "General",
-      //       url: "#",
-      //     },
-      //     {
-      //       title: "Team",
-      //       url: "#",
-      //     },
-      //     {
-      //       title: "Billing",
-      //       url: "#",
-      //     },
-      //     {
-      //       title: "Limits",
-      //       url: "#",
-      //     },
-      //   ],
-      // },
+      {
+        title: "Bookmarked",
+        url: "#",
+        icon: Pin,
+        items: [
+          {
+            title: "Genesis",
+            url: "#",
+          },
+          {
+            title: "Explorer",
+            url: "#",
+          },
+          {
+            title: "Quantum",
+            url: "#",
+          },
+        ],
+      },
     ],
-    // navSecondary: [
-    //   {
-    //     title: "Support",
-    //     url: "#",
-    //     icon: LifeBuoy,
-    //   },
-    //   {
-    //     title: "Feedback",
-    //     url: "#",
-    //     icon: Send,
-    //   },
-    // ],
-    // projects: [
-    //   {
-    //     name: "Design Engineering",
-    //     url: "#",
-    //     icon: Frame,
-    //   },
-    //   {
-    //     name: "Sales & Marketing",
-    //     url: "#",
-    //     icon: PieChart,
-    //   },
-    //   {
-    //     name: "Travel",
-    //     url: "#",
-    //     icon: Map,
-    //   },
-    // ],
+    navSecondary: [
+      {
+        title: "Flashcards",
+        url: "/dashboard/decks",
+        icon: Zap,
+      },
+      {
+        title: "Community",
+        url: "/dashboard/community",
+        icon: Users,
+      },
+      {
+        title: "Settings",
+        url: "/dashboard/profile",
+        icon: Settings,
+      },
+    ],
   };
   return (
     <PomodoroProvider>
@@ -318,7 +287,7 @@ export default function DashboardLayout({
             <SidebarGroup className="mt-auto">
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {/* {data.navSecondary.map((item) => (
+                  {data.navSecondary.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild size="sm">
                         <a href={item.url}>
@@ -327,7 +296,7 @@ export default function DashboardLayout({
                         </a>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                  ))} */}
+                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -383,29 +352,6 @@ export default function DashboardLayout({
                         </div>
                       </div>
                     </DropdownMenuLabel>
-                    {/*<DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <Sparkles />
-                        Upgrade to Pro
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <BadgeCheck />
-                        Account
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <CreditCard />
-                        Billing
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Bell />
-                        Notifications
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />*/}
                     <DropdownMenuItem onSelect={signOutAction}>
                       <LogOut />
                       Log out

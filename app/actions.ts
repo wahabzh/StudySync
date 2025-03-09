@@ -277,7 +277,7 @@ export async function getDocuments(
 
   const { data: documents, error } = await query;
 
-  console.log(userId, search, sort, filter);
+  // console.log(userId, search, sort, filter);
 
   if (error) {
     console.error("Error fetching documents:", error);

@@ -17,7 +17,7 @@ export async function getDashboardData() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log(user);
+    // console.log(user);
     if (!user) {
       return redirect("/sign-in");
     } else return user;
@@ -41,7 +41,7 @@ export async function getDashboardData() {
       console.error("Error fetching latest ten documents:", error);
       return [] as Document[];
     }
-    console.log(documents);
+    // console.log(documents);
   
     return documents as Document[];
   }
@@ -64,7 +64,7 @@ export async function getDashboardData() {
       console.error("Error fetching latest ten documents:", error);
       return [] as Document[];
     }
-    console.log(documents);
+    // console.log(documents);
   
     return documents as Document[];
   }

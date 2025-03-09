@@ -68,7 +68,7 @@ export function DocumentFilters({
             <SelectContent>
               <SelectItem value="owned">Owned by me</SelectItem>
               <SelectItem value="shared">Shared with me</SelectItem>
-              <SelectItem value="published">Community</SelectItem>
+              {/* <SelectItem value="published">Community</SelectItem> */}
             </SelectContent>
           </Select>)}
         </div>
