@@ -5,8 +5,8 @@ export type DocumentStatus = "invite-only" | "anyone-with-link" | "published";
 // Profile type represents a user profile in the 'profiles' table
 export type Profile = {
   id: string; // Unique identifier for the profile
-  display_name: string | null; // User's display name (optional)
   avatar_url: string | null; // URL to user's avatar image (optional)
+  email: string; // User's email address
   points: number | null;
   streak: number | null;
   username: string | null;

@@ -27,6 +27,7 @@ import {
   Sparkles,
   SquareTerminal,
   Trash2,
+  User,
   Users,
   Zap,
 } from "lucide-react";
@@ -79,8 +80,12 @@ import { signOutAction } from "../actions";
 import { PomodoroTimer } from "@/components/pomodoro/pomodoro-timer";
 import { PomodoroProvider } from "@/contexts/pomodoro-context";
 import Link from "next/link";
-import { User } from "@supabase/supabase-js";
-import { getDashboardData,getUserDocumentsLatestTenSideBar , getSharedDocumentsLatestTenSideBar } from "@/app/sidebar";
+import { Profile } from "@/types/database";
+import {
+  getProfileData,
+  getUserDocumentsLatestTenSideBar,
+  getSharedDocumentsLatestTenSideBar,
+} from "@/app/sidebar";
 import { useEffect, useState } from "react";
 
 // profile tab
@@ -90,7 +95,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [CurUser, setUserId] = useState<User | null>(null);
+  const [CurUser, setUser] = useState<Profile | null>(null);
   const [UserNotes, setUserNotes] = useState([
     {
       title: "Notes",
@@ -115,9 +120,9 @@ export default function DashboardLayout({
 
   useEffect(() => {
     // Fetch user data
-    getDashboardData()
+    getProfileData()
       .then((data) => {
-        if (data) setUserId(data);
+        if (data) setUser(data);
       })
       .catch((error) => {
         console.error("Error fetching user data:", error);
@@ -133,8 +138,8 @@ export default function DashboardLayout({
             title: doc.title,
             url: `/dashboard/doc/${doc.id}`,
             icon: ChevronRight, // Default or appropriate icon
-            isActive: false,    // Default inactive state
-            items: [],          // No nested items for notes
+            isActive: false, // Default inactive state
+            items: [], // No nested items for notes
           }));
           setUserNotes(formattedNotes);
         })
@@ -151,8 +156,8 @@ export default function DashboardLayout({
             title: doc.title,
             url: `/dashboard/doc/${doc.id}`,
             icon: ChevronRight, // Default or appropriate icon
-            isActive: false,    // Default inactive state
-            items: [],          // No nested items for notes
+            isActive: false, // Default inactive state
+            items: [], // No nested items for notes
           }));
           setSharedNotes(formattedNotes);
         })
@@ -162,7 +167,7 @@ export default function DashboardLayout({
 
   const data = {
     user: {
-      name: "User",
+      name: CurUser?.username,
       email: CurUser?.email,
       avatar: "/avatars/shadcn.jpg",
     },
@@ -312,18 +317,21 @@ export default function DashboardLayout({
                       className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                     >
                       <Avatar className="h-8 w-8 rounded-lg">
-                        {/* TODO: Add Avatar Image Later */}
+                        <AvatarImage
+                          src={CurUser?.avatar_url || "default.jpg"}
+                          alt="User"
+                        />
                         <AvatarFallback className="rounded-lg">
-                          US
+                          <User />
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">
-                          {CurUser?.email}
+                          {CurUser?.username}
                         </span>
-                        <span className="truncate text-xs">
+                        {/* <span className="truncate text-xs">
                           {CurUser?.email}
-                        </span>
+                        </span> */}
                       </div>
                       <ChevronsUpDown className="ml-auto size-4" />
                     </SidebarMenuButton>
@@ -337,17 +345,20 @@ export default function DashboardLayout({
                     <DropdownMenuLabel className="p-0 font-normal">
                       <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                         <Avatar className="h-8 w-8 rounded-lg">
-                          {/* TODO: Add Avatar Image Later */}
+                          <AvatarImage
+                            src={CurUser?.avatar_url || "default.jpg"}
+                            alt="User"
+                          />
                           <AvatarFallback className="rounded-lg">
-                            US
+                            <User />
                           </AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
                           <span className="truncate font-semibold">
-                            {data.user.name}
+                            {CurUser?.username}
                           </span>
                           <span className="truncate text-xs">
-                            {data.user.email}
+                            {CurUser?.email}
                           </span>
                         </div>
                       </div>

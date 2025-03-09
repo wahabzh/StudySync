@@ -58,7 +58,7 @@ export async function getLeaderBoardInfo() {
     league: getLeague(player.points),
   }));
 
-  console.log(topPlayers)
+  // console.log(topPlayers)
 
   return {
     topPlayers: formattedTopPlayers,
