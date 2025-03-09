@@ -13,6 +13,8 @@ import { useEffect, useState } from "react";
 import CongratsDialog from "@/components/log-in-reward";
 import { checkDailyReward } from "@/app/gamification";
 import { usePomodoroContext } from "@/contexts/pomodoro-context";
+import { Progress } from "@/components/ui/progress";
+import { Trophy } from "lucide-react";
 
 const EmptyState = () => {
   return (
@@ -51,32 +53,33 @@ const DocumentGrid = ({
 };
 
 function GoalProgressBar() {
-  const pomodoroState = usePomodoroContext(); // for custom_user_goal
-  const goal = pomodoroState.settings.userGoal ?? 0; // Default to 0 if null
-  const progress = pomodoroState.settings.progressOnCustom ?? 0; // Default to 0 if null
+  const pomodoroState = usePomodoroContext();
+  const goal = pomodoroState.settings.userGoal ?? 0;
+  const progress = pomodoroState.settings.progressOnCustom ?? 0;
 
-  let percentage = 0;
-  let progressBarColor = "bg-muted"; // Default to grey color
+  // Calculate percentage, ensuring it doesn't exceed 100%
+  const percentage = goal > 0 ? Math.min(100, Math.round((progress / goal) * 100)) : 0;
 
-  if (goal !== 0) {
-    percentage = Math.min(100, (progress / goal) * 100);
-    progressBarColor = "bg-green-500"; // Change to green color if goal is set
+  // Don't show if no goal is set
+  if (goal === 0) {
+    return null;
   }
 
   return (
-    <div className="flex items-center">
-      {/* Outer bar */}
-      <div className="relative w-[500px] h-5 bg-muted rounded-full overflow-hidden">
-        {/* Filled portion */}
-        <div
-          className={`absolute left-0 top-0 h-full ${progressBarColor}`}
-          style={{ width: `${percentage}%` }}
-        />
+    <div className="flex flex-col items-center space-y-2 w-full max-w-md">
+      <div className="flex items-center justify-between w-full space-x-1">
+        <span className="text-sm font-medium">Daily Goal Progress</span>
+        <div className="flex items-center gap-1.5">
+          {percentage >= 100 && (
+            <Trophy className="h-4 w-4 text-green-500" />
+          )}
+          <span className="text-sm font-medium">
+            {`${progress}/${goal}`}
+          </span>
+        </div>
       </div>
-      {/* Label to the right of the bar */}
-      <span className="ml-2 text-xs text-muted-foreground">
-        {progress}/{goal}
-      </span>
+
+      <Progress value={percentage} className="h-2.5 w-full" />
     </div>
   );
 }
@@ -112,21 +115,20 @@ export default function HomePage() {
         <CongratsDialog open={showCongrats} setOpen={setShowCongrats} userId={userId} />
 
         {/* Header Section */}
-        <div className="flex items-center">
-          {/* Left: Title */}
-          <h1 className="flex-none text-lg md:text-2xl font-semibold">
-            My Documents
-          </h1>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <h1 className="text-2xl font-semibold tracking-tight">My Documents</h1>
 
-          {/* Middle: Progress Bar (centered) */}
-          <div className="flex-1 flex justify-center">
-            <GoalProgressBar></GoalProgressBar>
-          </div>
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            {/* Progress Bar - Only show if goal is set */}
+            {pomodoroState.settings?.userGoal && pomodoroState.settings?.userGoal > 0 && (
+              <GoalProgressBar />
+            )}
 
-          {/* Right: Buttons */}
-          <div className="flex-none flex gap-2">
-            <NewDocumentDialog onCreate={createDocument} />
-            <StatsDialog />
+            {/* Action Buttons */}
+            <div className="flex gap-2 self-end md:self-auto">
+              <NewDocumentDialog onCreate={createDocument} />
+              <StatsDialog />
+            </div>
           </div>
         </div>
 
