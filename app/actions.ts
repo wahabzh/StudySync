@@ -8,6 +8,9 @@ import { revalidatePath } from "next/cache";
 import { Document } from "@/types/database";
 import { doc } from "prettier";
 
+// Maximum file size in bytes (800KB)
+const MAX_FILE_SIZE = 800 * 1024;
+
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
@@ -235,11 +238,11 @@ export async function getUser() {
       .single();
 
     if (error || !profile) throw error;
-    return { 
-      id: user.id, 
+    return {
+      id: user.id,
       email: user.email,
-      username: profile.username, 
-      avatar_url: profile.avatar_url, 
+      username: profile.username,
+      avatar_url: profile.avatar_url,
       description: profile.description,
       custom_user_goal: profile?.custom_user_goal || 0,
       progress_on_custom: profile?.progress_on_custom || 0
@@ -337,7 +340,7 @@ export async function savePomodoroGoal(userGoal: number) {
 export const updateProfile = async (formData: FormData) => {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   if (!user) return encodedRedirect(
     "error",
     "/",
@@ -345,14 +348,23 @@ export const updateProfile = async (formData: FormData) => {
   );
 
   const avatarFile = formData.get("avatar_file") as File;
-  
+
   if (avatarFile && avatarFile.size > 0) {
+    // Check file size
+    if (avatarFile.size > MAX_FILE_SIZE) {
+      return encodedRedirect(
+        "error",
+        "/dashboard/profile",
+        `File size exceeds 800KB. Current size: ${(avatarFile.size / 1024).toFixed(2)}KB`
+      );
+    }
+
     const filePath = `avatars/${user.id}.${avatarFile.name}`;
     const { error: uploadError } = await supabase.storage.from("Avatars").upload(filePath, avatarFile, {
       upsert: true,
     });
 
-     if (uploadError) return encodedRedirect(
+    if (uploadError) return encodedRedirect(
       "error",
       "/",
       `${uploadError.message}`
@@ -361,9 +373,9 @@ export const updateProfile = async (formData: FormData) => {
     const { data } = supabase.storage.from("Avatars").getPublicUrl(filePath);
     const avatar_url = data.publicUrl;
     const { error } = await supabase
-    .from("profiles")
-    .update({avatar_url})
-    .eq("id", user?.id);
+      .from("profiles")
+      .update({ avatar_url })
+      .eq("id", user?.id);
 
     if (error) return encodedRedirect(
       "error",
@@ -374,8 +386,10 @@ export const updateProfile = async (formData: FormData) => {
 
   const { error } = await supabase
     .from("profiles")
-    .update({ username: formData.get("username")?.toString(), 
-      description: formData.get("description")?.toString(),})
+    .update({
+      username: formData.get("username")?.toString(),
+      description: formData.get("description")?.toString(),
+    })
     .eq("id", user?.id);
 
   if (error) return encodedRedirect(
@@ -385,14 +399,14 @@ export const updateProfile = async (formData: FormData) => {
   );
 
   if (formData.get("email")) {
-    const { error: authError } = await supabase.auth.updateUser({ email: formData.get("email")?.toString()});
+    const { error: authError } = await supabase.auth.updateUser({ email: formData.get("email")?.toString() });
     if (authError) return encodedRedirect(
-    "error",
-    "/",
-    `${authError.message}`
-  );
+      "error",
+      "/",
+      `${authError.message}`
+    );
   }
-  
+
   /*return encodedRedirect(
     null,
     "/dashboard/profile",
