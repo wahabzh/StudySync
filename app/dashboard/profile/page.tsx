@@ -195,7 +195,7 @@ export default function ProfilePage() {
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        {/* <div className="space-y-2">
                             <Label htmlFor="email" className="flex items-center gap-2">
                                 <Mail className="h-4 w-4" />
                                 Email
@@ -208,7 +208,7 @@ export default function ProfilePage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
                             />
-                        </div>
+                        </div> */}
 
                         <div className="space-y-2">
                             <Label htmlFor="description" className="flex items-center gap-2">
