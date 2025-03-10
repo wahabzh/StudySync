@@ -120,9 +120,9 @@ export default function HomePage() {
 
           <div className="flex flex-col md:flex-row items-center gap-4">
             {/* Progress Bar - Only show if goal is set */}
-            {pomodoroState.settings?.userGoal && pomodoroState.settings?.userGoal > 0 && (
+            {/* {pomodoroState.settings?.userGoal && pomodoroState.settings?.userGoal > 0 && (
               <GoalProgressBar />
-            )}
+            )} */}
 
             {/* Action Buttons */}
             <div className="flex gap-2 self-end md:self-auto">
