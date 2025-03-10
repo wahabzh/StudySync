@@ -24,7 +24,7 @@ export const ReactImage = createReactBlockSpec(
             return (
                 <div className="relative">
                     <div className="absolute right-2 top-2 flex gap-2">
-                        <Button className="w-20 bg-primary text-white" onClick={() => askAI(editor, block.props.src)}>Ask AI</Button>
+                        {/* <Button className="w-20 bg-primary text-white" onClick={() => askAI(editor, block.props.src)}>Ask AI</Button> */}
                         <Button className="w-20 bg-primary text-white" onClick={() => getText(editor, block.props.src)}>Get Text</Button>
                     </div>
                     <div className="flex flex-col">

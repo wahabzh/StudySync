@@ -37,11 +37,11 @@ export default function GenerateFlashcardsButton({ documentId }: GenerateFlashca
             router.push(`/dashboard/decks?edit=${deckId}`);
         } catch (error) {
             console.error("Error generating flashcards:", error);
-            toast({
-                variant: "destructive",
-                title: "Generation failed",
-                description: "Failed to generate flashcards. Please try again.",
-            });
+            // toast({
+            //     variant: "destructive",
+            //     title: "Generation failed",
+            //     description: "Failed to generate flashcards. Please try again.",
+            // });
         } finally {
             setIsGenerating(false);
         }
