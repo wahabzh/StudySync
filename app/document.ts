@@ -205,7 +205,7 @@ export async function inviteUser(
       to: [email],
       subject: "You've been invited to collaborate on a document!",
       react: InviteEmailTemplate({
-        documentLink: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/doc/${documentId}`,
+        documentLink: `https://studysync.site/dashboard/doc/${documentId}`,
         role: role,
       }),
     });
