@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { set } from "date-fns";
+import { revalidatePath } from "next/cache";
 
 export default function ProfilePage() {
   const [username, setUsername] = useState("");
@@ -32,6 +34,15 @@ export default function ProfilePage() {
     description,
     avatarUrl,
   });
+
+  const disableUpdate =
+    !username ||
+    !email ||
+    (!password &&
+      username === initialValues.username &&
+      email === initialValues.email &&
+      description === initialValues.description &&
+      avatarUrl === initialValues.avatarUrl);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -92,6 +103,12 @@ export default function ProfilePage() {
         duration: 3000,
         className: "bottom-right-toast",
       });
+      setInitialValues({
+        username,
+        email,
+        description,
+        avatarUrl,
+      });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -99,6 +116,7 @@ export default function ProfilePage() {
         variant: "destructive",
       });
     } finally {
+      setPassword("");
       setIsLoading(false);
       setIsDialogOpen(false);
     }
@@ -130,22 +148,22 @@ export default function ProfilePage() {
             <div>
               <Label>Username</Label>
               <Input
+                className={username ? "" : "border-red-500"}
                 name="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter username"
-                required
+                placeholder="Enter new username"
               />
             </div>
             <div>
               <Label>Email</Label>
               <Input
+                className={email ? "" : "border-red-500"}
                 type="email"
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter email"
-                required
+                placeholder="Enter new email"
               />
             </div>
             <div>
@@ -155,8 +173,7 @@ export default function ProfilePage() {
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                required
+                placeholder="Enter new password"
               />
             </div>
             <div>
@@ -183,7 +200,9 @@ export default function ProfilePage() {
               </Button>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button type="button">Update Profile</Button>
+                  <Button type="button" disabled={disableUpdate}>
+                    Update Profile
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>

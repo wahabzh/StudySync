@@ -369,7 +369,7 @@ export const updateProfile = async (formData: FormData) => {
   if (formData.get("email")) {
     const { error: authError } = await supabase.auth.updateUser({
       email: formData.get("email")?.toString(),
-      password: formData.get("password")?.toString(),
+      password: formData.get("password")?.toString() || undefined,
     });
     if (authError) throw authError;
   }
