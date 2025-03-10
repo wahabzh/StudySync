@@ -305,7 +305,7 @@ export async function savePomodoroGoal(userGoal: number) {
   }
 
   // Optional: Validate the goal
-  const allowedGoals = [0, 1, 2, 3];
+  const allowedGoals = [0, 3, 5, 7];
   if (!allowedGoals.includes(userGoal)) {
     return { success: false, message: "Invalid goal selected." };
   }
