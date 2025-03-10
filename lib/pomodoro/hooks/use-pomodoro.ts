@@ -123,10 +123,10 @@ export function usePomodoro(initialSettings: Settings) {
       }
     }
     
-    toast({
-      title: "Settings saved",
-      description: "Your timer settings have been updated.",
-    });
+    // toast({
+    //   title: "Settings saved",
+    //   description: "Your timer settings have been updated.",
+    // });
   };
 
   // Request notification permission
