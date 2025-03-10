@@ -46,6 +46,6 @@ A modern collaborative learning platform built with cutting-edge technologies:
    pnpm dev
    ```
 
-6. **View the App**
+6. **Open the App**
    
    Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
