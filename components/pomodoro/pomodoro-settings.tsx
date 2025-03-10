@@ -212,7 +212,7 @@ export function PomodoroSettings({ settings, onSave }: PomodoroSettingsProps) {
             </span>
           </div>
           <div className="flex justify-around gap-2">
-            {[1, 2, 3].map((goal) => {
+            {[3, 5, 7].map((goal) => {
               const isSelected = localSettings.userGoal === goal;
               return (
                 <Button
