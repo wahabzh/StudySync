@@ -25,7 +25,7 @@ export default function CongratsDialog({ open, setOpen, userId }: CongratsDialog
   }, [userId]);
 
   return (
-    <Dialog open={showDialog || open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="mt-4">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold">Congratulations!</DialogTitle>

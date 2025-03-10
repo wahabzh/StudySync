@@ -4,8 +4,6 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { leaderBoardInfo } from "@/types/leaderBoardInfo";
 
-
-
 function getLeague(points: number) {
   if (points >= 15000) return { name: "Platinum", symbol: "🏆" };
   if (points >= 10000) return { name: "Gold", symbol: "🥇" };
@@ -45,7 +43,7 @@ export async function getLeaderBoardInfo() {
   }
 
   // Find user's rank by checking their index in the sorted list
-  const userRank = allPlayers.findIndex(player => player.id === user.id) + 1; // 1-based index
+  const userRank = allPlayers.findIndex((player) => player.id === user.id) + 1; // 1-based index
 
   const { data: profile, error: docError } = await supabase
     .from("profiles") // Ensure the correct lowercase table name
@@ -53,7 +51,7 @@ export async function getLeaderBoardInfo() {
     .eq("id", user.id) // Filter where id = user.id
     .single(); // Ensure we get only one result
 
-  const formattedTopPlayers = topPlayers.map(player => ({
+  const formattedTopPlayers = topPlayers.map((player) => ({
     ...player,
     league: getLeague(player.points),
   }));
@@ -95,7 +93,6 @@ export async function addPoints(points: number) {
 
   const newPoints = (data.points || 0) + points; // Add new points
 
-
   const fetchedDate = new Date(data.last_pomodoro);
   const now = new Date();
 
@@ -115,9 +112,8 @@ export async function addPoints(points: number) {
   const diffInDays = diffInMilliseconds / (1000 * 60 * 60 * 24);
   console.log("Diff in days:", diffInDays);
 
-
   // For First Day
-  if (diffInDays === 0 && data.streak === 0 || null) {
+  if ((diffInDays === 0 && data.streak === 0) || null) {
     const { error: updateError } = await supabase
       .from("profiles")
       .update({ streak: data.streak + 1 })
@@ -153,7 +149,6 @@ export async function addPoints(points: number) {
     }
   }
 
-
   // Update the points column for the user
   const { error: updateError } = await supabase
     .from("profiles")
@@ -181,41 +176,26 @@ export async function checkDailyReward(userId: string): Promise<boolean> {
 
   const { data, error: fetchError } = await supabase
     .from("profiles")
-    .select("daily_goal, points, last_pomodoro, streak")
+    .select("points, first_login")
     .eq("id", user.id)
     .single();
 
-  if (fetchError || !data) {
+  if (fetchError) {
+    console.error("Error fetching user points:", fetchError);
     return false;
   }
 
-  if (data.last_pomodoro) {
-    const fetchedDate = new Date(data.last_pomodoro);
+  // const new_account = user.created_at?.slice(0, 10) === new Date().toISOString().slice(0, 10);
+  const giveDailyReward = data.first_login || (user.last_sign_in_at?.slice(0, 10) !== new Date().toISOString().slice(0, 10));
 
-    const now = new Date();
-
-    const diffInMilliseconds = now.getTime() - fetchedDate.getTime();
-
-    const diffInDays = diffInMilliseconds / (1000 * 60 * 60 * 24);
-
-    if (diffInDays >= 1) {
-      await supabase
-        .from("profiles")
-        .update({ streak: 0 })
-        .eq("id", user.id);
-    }
-
-  }
-
-  if (!data.daily_goal) {
+  if (giveDailyReward) {  // error-handling?
     await supabase
       .from("profiles")
-      .update({ daily_goal: true, points: data.points + 10 })
+      .update({ points: data.points + 10, first_login: false })
       .eq("id", user.id);
-    return true;
   }
 
-  return false;
+  return giveDailyReward;
 }
 
 export async function updateCustomGoalProgress(goal: number) {
@@ -269,18 +249,22 @@ export async function updateCustomGoalProgress(goal: number) {
     const nowDateOnly = getDateWithoutTime(now);
 
     const diffInDays =
-      (nowDateOnly.getTime() - fetchedDateOnly.getTime()) / (1000 * 60 * 60 * 24);
+      (nowDateOnly.getTime() - fetchedDateOnly.getTime()) /
+      (1000 * 60 * 60 * 24);
     console.log("Diff in days:", diffInDays);
 
     // For First Day
-    if (diffInDays === 0 && profile.progress_on_custom === 0 || null) {
+    if ((diffInDays === 0 && profile.progress_on_custom === 0) || null) {
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ progress_on_custom: profile.progress_on_custom + 1 })
         .eq("id", user.id);
 
       if (updateError) {
-        console.error("Error updating progress on custom user goal:", updateError);
+        console.error(
+          "Error updating progress on custom user goal:",
+          updateError
+        );
         return { success: false, message: "Error updating user goal progress" };
       }
     }
@@ -292,7 +276,10 @@ export async function updateCustomGoalProgress(goal: number) {
         .eq("id", user.id);
 
       if (updateError) {
-        console.error("Error updating progress on custom user goal:", updateError);
+        console.error(
+          "Error updating progress on custom user goal:",
+          updateError
+        );
         return { success: false, message: "Error updating user goal progress" };
       }
     }
@@ -300,13 +287,12 @@ export async function updateCustomGoalProgress(goal: number) {
     // 4. Check if the user has reached or surpassed their custom goal
     // If yes, optionally reward them and reset their progress
     if (profile.progress_on_custom >= profile.custom_user_goal) {
-
       // Reset progress on custom
       const { error: resetError } = await supabase
         .from("profiles")
         .update({ progress_on_custom: 0 })
         .eq("id", user.id);
-                
+
       // Decide how many points to award
       let rewardPoints = 0;
       switch (profile.custom_user_goal) {
@@ -342,7 +328,10 @@ export async function updateCustomGoalProgress(goal: number) {
 
       console.log("User has achieved their custom goal!");
       // Return early if desired, or continue below
-      return { success: true, message: "Custom goal completed! Reward granted." };
+      return {
+        success: true,
+        message: "Custom goal completed! Reward granted.",
+      };
     }
     // 5. Update the database with the new progress and the new last pomodoro
     const { error: updateError } = await supabase
@@ -357,7 +346,7 @@ export async function updateCustomGoalProgress(goal: number) {
       console.error("Error updating custom goal progress:", updateError);
       return { success: false, message: "Error updating custom goal progress" };
     }
-    const progress = profile.progress_on_custom
+    const progress = profile.progress_on_custom;
 
     return {
       success: true,
