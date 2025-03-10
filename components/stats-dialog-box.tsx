@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getDashboardData } from "@/app/actions";
+import { getProfileData } from "@/app/sidebar";
 import { getLeaderBoardInfo } from "@/app/gamification";
 import { User } from "@supabase/supabase-js";
 
@@ -57,7 +57,7 @@ export default function StatsDialog() {
 
   // Fetch user data
   useEffect(() => {
-    getDashboardData()
+    getProfileData()
       .then((data) => {
         if (data) setCurUser(data);
       })
