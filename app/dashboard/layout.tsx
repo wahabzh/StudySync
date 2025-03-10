@@ -186,17 +186,8 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (CurUser) {
-      // Fetch user profile data
-      getUser()
-        .then((userData) => {
-          setUserProfile({
-            username: userData.username,
-            avatar_url: userData.avatar_url
-          });
-        })
-        .catch((error) => {
-          console.error("Error fetching user profile:", error);
-        });
+      // Fetch user profile data - no need to update profile separately as we already have it in CurUser
+      // The previous code was trying to use setUserProfile which doesn't exist
 
       // Fetch latest ten documents for the user
       getUserDocumentsLatestTenSideBar(CurUser.id)
