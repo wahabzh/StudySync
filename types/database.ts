@@ -61,6 +61,30 @@ export type FlashcardDeck = {
   updated_at: string;
 };
 
+export type QuizQuestion = {
+  id: string; // Unique identifier for the flashcard
+  quiz_id: string; // Foreign key to quiz.id
+  question: string; // Question text
+  answer_a: string; // Answer text
+  answer_b: string; // Answer text
+  answer_c: string; // Answer text
+  answer_d: string; // Answer text
+  correct: number;
+  position: number; // Position in the deck for ordering
+  created_at: string;
+  updated_at: string;
+};
+
+// FlashcardDeck type represents a collection of flashcards
+export type Quiz = {
+  id: string; // Unique identifier for the deck
+  title: string; // Deck title
+  description: string | null; // Optional description
+  owner_id: string; // Foreign key to profiles.id - owner of the deck
+  created_at: string;
+  updated_at: string;
+};
+
 // Database type defines the full database schema for type safety with Supabase
 export type Database = {
   public: {
@@ -94,6 +118,17 @@ export type Database = {
         Row: Flashcard;
         Insert: Omit<Flashcard, "id" | "created_at" | "updated_at">;
         Update: Partial<Omit<Flashcard, "id" | "deck_id">>;
+      };
+      quiz_questions: {
+        Row: QuizQuestion;
+        Insert: Omit<QuizQuestion, "id" | "created_at" | "updated_at">;
+        Update: Partial<Omit<QuizQuestion, "id" | "owner_id">>;
+      };
+      // Add flashcards table
+      quizzes: {
+        Row: Quiz;
+        Insert: Omit<Quiz, "id" | "created_at" | "updated_at">;
+        Update: Partial<Omit<Quiz, "id" | "deck_id">>;
       };
     };
   };
