@@ -130,7 +130,7 @@ export async function getQuestions(quizId: string) {
     const { data: questions, error } = await supabase
         .from("quiz_questions")
         .select("*")
-        .eq("deck_id", quizId)
+        .eq("quiz_id", quizId)
         .order("position", { ascending: true });
 
     if (error) {
@@ -203,7 +203,7 @@ export async function saveQuizWithQuestions(
     const { data: existingQuestions, error: fetchError } = await supabase
         .from("quiz_questions")
         .select("id")
-        .eq("deck_id", quizId);
+        .eq("quiz_id", quizId);
 
     if (fetchError) {
         console.error("Error fetching existing quizzes:", fetchError);
@@ -245,7 +245,7 @@ export async function saveQuizWithQuestions(
                     position: question.position,
                 })
                 .eq("id", question.id)
-                .eq("deck_id", quizId);
+                .eq("quiz_id", quizId);
 
             if (updateError) {
                 console.error("Error updating question:", updateError);
@@ -256,7 +256,7 @@ export async function saveQuizWithQuestions(
             const { error: createError } = await supabase
                 .from("quiz_questions")
                 .insert({
-                    deck_id: quizId,
+                    quiz_id: quizId,
                     question: question.question,
                     answer_a: question.answer_a,
                     answer_b: question.answer_b,
