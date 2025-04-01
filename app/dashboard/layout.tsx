@@ -8,6 +8,7 @@ import {
   Bell,
   BookOpen,
   Bot,
+  Brain,
   ChevronRight,
   ChevronsUpDown,
   Command,
@@ -158,6 +159,7 @@ export default function DashboardLayout({
       let label = path.charAt(0).toUpperCase() + path.slice(1);
 
       if (path === 'decks') label = 'Flashcards';
+      if (path === 'quizzes') label = 'Quizzes';
       if (path === 'community') label = 'Community';
       if (path === 'profile') label = 'Settings';
 
@@ -268,6 +270,11 @@ export default function DashboardLayout({
         title: "Flashcards",
         url: "/dashboard/decks",
         icon: Zap,
+      },
+      {
+        title: "Quizzes",
+        url: "/dashboard/quizzes",
+        icon: Brain,
       },
       {
         title: "Community",
