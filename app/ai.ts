@@ -196,3 +196,65 @@ export async function generateFlashcardsFromDocument(documentId: string, documen
         throw new Error("Failed to generate flashcards from document");
     }
 }
+
+// Define the card schema outside the function to reduce nesting
+const QuestionSchema = z.object({
+    question: z.string().describe("A specific question about a concept in the document"),
+    answer_a: z.string().describe("A concise but complete possible answer to the question"),
+    answer_b: z.string().describe("A concise but complete possible answer to the question"),
+    answer_c: z.string().describe("A concise but complete possible answer to the question"),
+    answer_d: z.string().describe("A concise but complete possible answer to the question"),
+    correct: z.number().describe("A number from 1 to 4 representing the correct answer choice"),
+    position: z.number().describe("The position of this card in the deck, starting from 0")
+});
+
+// Define the flashcard deck schema separately
+const QuizSchema = z.object({
+    title: z.string().describe("A concise title for the flashcard deck based on the document content"),
+    description: z.string().describe("A brief description of what this flashcard deck covers"),
+    questions: z.array(QuestionSchema).min(1).max(10).describe("An array of 1-10 questions covering the key concepts in the document")
+});
+
+// Type for the generated object
+type Quiz = z.infer<typeof QuizSchema>;
+
+/**
+ * Generate flashcards from document content
+ * @param documentId The ID of the document to generate flashcards from
+ * @param documentMarkdown The content of the document
+ * @returns The ID of the created flashcard deck
+ */
+export async function generateQuizFromDocument(documentId: string, documentMarkdown: string) {
+    try {
+        // Truncate document if it's too long
+        const truncatedContent = documentMarkdown.length > 6000
+            ? documentMarkdown.slice(0, 6000) + "..."
+            : documentMarkdown;
+
+        // Generate structured flashcards using AI with type assertion
+        const result = await generateObject({
+            model: google('gemini-1.5-flash-latest'),
+            schema: QuizSchema,
+            prompt: `Create a quiz from this document: ${truncatedContent}. Each question must have four answer choices, of which only one is the correct answer.`
+        });
+
+        // Use type assertion to help TypeScript
+        const object = result.object as Quiz;
+
+        // Save the generated flashcards
+        const { saveQuizWithQuestions } = await import('./quizzes');
+
+        const { quizId } = await saveQuizWithQuestions(
+            {
+                title: object.title,
+                description: object.description
+            },
+            object.questions
+        );
+
+        return { quizId };
+    } catch (error) {
+        console.error("Error generating quiz:", error);
+        throw new Error("Failed to generate quiz from document");
+    }
+}

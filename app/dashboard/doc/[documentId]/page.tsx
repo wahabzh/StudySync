@@ -27,6 +27,7 @@ import {
 } from "@/app/document";
 import { toast } from "@/hooks/use-toast";
 import GenerateFlashcardsButton from "@/components/flashcards/GenerateFlashcardsButton";
+import GenerateQuizzesButton from "@/components/quizzes/GenerateQuiz";
 
 const ViewOnlyBadge = () => {
   return (
@@ -59,6 +60,9 @@ export default async function DocumentPage({
         <div className="flex items-center gap-2">
           {canShare && (
             <GenerateFlashcardsButton documentId={document.id} />
+          )}
+          {canShare && (
+            <GenerateQuizzesButton documentId={document.id} />
           )}
           {canShare ? (
             <DocumentSharingMenu
