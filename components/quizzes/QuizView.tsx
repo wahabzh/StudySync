@@ -2,52 +2,45 @@
 
 import { QuizQuestion } from "@/types/database";
 import { Card } from "@/components/ui/card";
-import { motion } from "framer-motion";
 
 interface QuizViewProps {
     card: QuizQuestion;
-    isFlipped: boolean;
-    onFlip: () => void;
+    selectedAnswer: number | null;
+    onSelectAnswer: (answer: number) => void;
 }
 
-export function QuizView({ card, isFlipped, onFlip }: QuizViewProps) {
-    return (
-        <div className="perspective-1000 w-full h-[300px] cursor-pointer" onClick={onFlip}>
-            <motion.div
-                className="relative w-full h-full"
-                initial={false}
-                animate={{ rotateY: isFlipped ? 180 : 0 }}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-                style={{ transformStyle: "preserve-3d" }}
-            >
-                {/* Question Side */}
-                <Card
-                    className="absolute w-full h-full p-6 flex items-center justify-center backface-hidden"
-                    style={{ backfaceVisibility: "hidden" }}
-                >
-                    <div className="text-center">
-                        <div className="text-sm text-muted-foreground mb-2">Question</div>
-                        <div className="text-xl font-medium">{card.question}</div>
-                    </div>
-                </Card>
+export function QuizView({ card, selectedAnswer, onSelectAnswer }: QuizViewProps) {
+    const correctAnswerIndex = card.correct - 1; // Convert 1-4 to 0-based index
+    const answerOptions = [card.answer_a, card.answer_b, card.answer_c, card.answer_d];
+    const correctAnswer = answerOptions[correctAnswerIndex];
 
-                {/* Answer Side */}
-                <Card
-                    className="absolute w-full h-full p-6 flex items-center justify-center backface-hidden"
-                    style={{
-                        backfaceVisibility: "hidden",
-                        transform: "rotateY(180deg)"
-                    }}
-                >
-                    <div className="text-center">
-                        <div className="text-sm text-muted-foreground mb-2">Answer Choices</div>
-                        <div className="text-xl font-medium whitespace-pre-wrap">{card.answer_a}</div>
-                        <div className="text-xl font-medium whitespace-pre-wrap">{card.answer_b}</div>
-                        <div className="text-xl font-medium whitespace-pre-wrap">{card.answer_c}</div>
-                        <div className="text-xl font-medium whitespace-pre-wrap">{card.answer_d}</div>
-                    </div>
-                </Card>
-            </motion.div>
-        </div>
+    return (
+        <Card className="w-full p-6 flex flex-col space-y-4">
+            <div className="text-center">
+                <div className="text-sm text-muted-foreground mb-2">Question</div>
+                <div className="text-xl font-medium">{card.question}</div>
+            </div>
+
+            <div className="space-y-2">
+                {answerOptions.map((answer, index) => (
+                    <button
+                        key={index}
+                        onClick={() => onSelectAnswer(index + 1)}
+                        disabled={selectedAnswer !== null}
+                        className={`w-full px-4 py-2 text-left rounded-lg border transition ${
+                            selectedAnswer === index + 1
+                                ? answer === correctAnswer
+                                    ? "bg-green-500 text-white"
+                                    : "bg-red-500 text-white"
+                                : selectedAnswer !== null && answer === correctAnswer
+                                    ? "bg-green-500 text-white"
+                                    : "bg-gray-100 hover:bg-gray-200"
+                        }`}
+                    >
+                        {answer}
+                    </button>
+                ))}
+            </div>
+        </Card>
     );
-} 
+}

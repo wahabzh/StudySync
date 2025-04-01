@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getQuiz, getQuestions } from "@/app/quizzes";
 import { Quiz, QuizQuestion } from "@/types/database";
 import { QuizView } from "./QuizView";
-import { ChevronLeft, ChevronRight, Loader2, Trophy, ArrowLeftIcon, ArrowRightIcon, Keyboard } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Trophy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function StudyQuiz() {
@@ -21,10 +21,10 @@ export function StudyQuiz() {
     const [cards, setCards] = useState<QuizQuestion[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [flipped, setFlipped] = useState(false);
+    const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>([]);
+    const [correctAnswers, setCorrectAnswers] = useState(0);
     const [completed, setCompleted] = useState(false);
 
-    // Load deck and cards
     useEffect(() => {
         const loadDeckData = async () => {
             if (!quizId) return;
@@ -37,7 +37,8 @@ export function StudyQuiz() {
                 setQuiz(quizData);
                 setCards(cardsData);
                 setCurrentIndex(0);
-                setFlipped(false);
+                setSelectedAnswers(new Array(cardsData.length).fill(null));
+                setCorrectAnswers(0);
                 setCompleted(false);
             } catch (error) {
                 console.error("Error loading data:", error);
@@ -66,42 +67,25 @@ export function StudyQuiz() {
     const handleNext = useCallback(() => {
         if (currentIndex < cards.length - 1) {
             setCurrentIndex(currentIndex + 1);
-            setFlipped(false);
-        } else if (!completed && cards.length > 0) {
-            // If we're at the last card, mark as completed
+        } else {
             setCompleted(true);
         }
-    }, [currentIndex, cards.length, completed]);
+    }, [currentIndex, cards.length]);
 
     const handlePrevious = useCallback(() => {
         if (currentIndex > 0) {
             setCurrentIndex(currentIndex - 1);
-            setFlipped(false);
         }
     }, [currentIndex]);
 
-    const handleFlip = useCallback(() => {
-        setFlipped(!flipped);
-    }, [flipped]);
-
-    const handleRestart = () => {
-        setCurrentIndex(0);
-        setFlipped(false);
-        setCompleted(false);
-    };
-
-    // Keyboard shortcuts
     useEffect(() => {
         if (!isOpen) return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "ArrowLeft") {
+            if (e.key === "ArrowLeft" && currentIndex !== 0) {
                 handlePrevious();
-            } else if (e.key === "ArrowRight") {
+            } else if (e.key === "ArrowRight" && selectedAnswers[currentIndex] !== null) {
                 handleNext();
-            } else if (e.key === " ") {
-                e.preventDefault(); // Prevent page scrolling
-                handleFlip();
             }
         };
 
@@ -109,15 +93,32 @@ export function StudyQuiz() {
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [isOpen, handlePrevious, handleNext, handleFlip]);
+    }, [isOpen, selectedAnswers, handlePrevious, handleNext]);
+
+    const handleSelectAnswer = (answerIndex: number) => {
+        if (selectedAnswers[currentIndex] !== null) return; // Prevent multiple selections
+
+        const newSelectedAnswers = [...selectedAnswers];
+        newSelectedAnswers[currentIndex] = answerIndex;
+        setSelectedAnswers(newSelectedAnswers);
+
+        if (answerIndex === cards[currentIndex].correct) {
+            setCorrectAnswers((prev) => prev + 1);
+        }
+    };
+
+    const handleRestart = () => {
+        setCurrentIndex(0);
+        setSelectedAnswers(new Array(cards.length).fill(null));
+        setCorrectAnswers(0);
+        setCompleted(false);
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
-                    <DialogTitle>
-                        {quiz ? quiz.title : "Study Quiz"}
-                    </DialogTitle>
+                    <DialogTitle>{quiz ? quiz.title : "Study Quiz"}</DialogTitle>
                 </DialogHeader>
 
                 {loading ? (
@@ -131,17 +132,15 @@ export function StudyQuiz() {
                                 <div className="rounded-full bg-primary/10 p-3 mb-4">
                                     <Trophy className="h-10 w-10 text-primary" />
                                 </div>
-                                <h3 className="text-xl font-medium mb-2">Congratulations!</h3>
+                                <h3 className="text-xl font-medium mb-2">Quiz Completed!</h3>
                                 <p className="text-muted-foreground mb-6">
-                                    You've completed all {cards.length} questions in this quiz.
+                                    You answered {correctAnswers} out of {cards.length} correctly ({((correctAnswers / cards.length) * 100).toFixed(2)}%).
                                 </p>
                                 <div className="flex gap-3">
                                     <Button variant="outline" onClick={handleClose}>
                                         Close
                                     </Button>
-                                    <Button onClick={handleRestart}>
-                                        Study Again
-                                    </Button>
+                                    <Button onClick={handleRestart}>Retry Quiz</Button>
                                 </div>
                             </div>
                         ) : (
@@ -152,52 +151,27 @@ export function StudyQuiz() {
 
                                 <QuizView
                                     card={cards[currentIndex]}
-                                    isFlipped={flipped}
-                                    onFlip={handleFlip}
+                                    selectedAnswer={selectedAnswers[currentIndex]}
+                                    onSelectAnswer={handleSelectAnswer}
                                 />
 
                                 <div className="flex justify-between items-center pt-2">
-                                    <Button
-                                        variant="outline"
-                                        onClick={handlePrevious}
-                                        disabled={currentIndex === 0}
-                                    >
+                                    <Button variant="outline" onClick={handlePrevious} disabled={currentIndex === 0}>
                                         <ChevronLeft className="h-4 w-4 mr-1" />
                                         Previous
                                     </Button>
 
-                                    <Button
-                                        variant="outline"
-                                        onClick={handleNext}
-                                    >
+                                    <Button variant="outline" onClick={handleNext} disabled={selectedAnswers[currentIndex] === null}>
                                         {currentIndex === cards.length - 1 ? "Finish" : "Next"}
                                         <ChevronRight className="h-4 w-4 ml-1" />
                                     </Button>
-                                </div>
-
-                                <div className="text-xs text-center text-muted-foreground mt-2 flex items-center justify-center gap-4">
-
-                                    <div className="flex items-center gap-1">
-                                        <ArrowLeftIcon className="h-3 w-3" />
-                                        <span>Previous</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Keyboard className="h-3 w-3" />
-                                        <span>Space to show ans</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <ArrowRightIcon className="h-3 w-3" />
-                                        <span>Next</span>
-                                    </div>
                                 </div>
                             </>
                         )}
                     </div>
                 ) : (
                     <div className="py-12 text-center">
-                        <p className="text-muted-foreground">
-                            This quiz has no questions yet. Add some questions to start studying.
-                        </p>
+                        <p className="text-muted-foreground">This quiz has no questions yet. Add some questions to start.</p>
                     </div>
                 )}
             </DialogContent>

@@ -53,13 +53,14 @@ export function QuestionEditor({ card, index, onChange, onCorrectChange, onRemov
                             <p className="text-sm font-medium">Answers (selecting an option marks it as correct):</p>
                             {(["a", "b", "c", "d"] as const).map((key, i) => {
                                 const field = `answer_${key}` as "answer_a" | "answer_b" | "answer_c" | "answer_d";
+                                const isCorrect = card.correct === i + 1;
                                 return (
                                     <div key={key} className="flex items-center gap-2">
                                         <input
                                             type="radio"
                                             id={`correct-${index}-${key}`}
                                             name={`correct-${index}`}
-                                            checked={card.correct === i + 1}
+                                            checked={isCorrect}
                                             onChange={() => onCorrectChange(index, i + 1)}
                                             className="h-4 w-4"
                                         />
@@ -75,7 +76,7 @@ export function QuestionEditor({ card, index, onChange, onCorrectChange, onRemov
                                             onChange={(e) => onChange(index, field, e.target.value)}
                                             placeholder={`Enter answer ${key}`}
                                             rows={3}
-                                            className="flex-grow"
+                                            className={`flex-grow transition-colors ${isCorrect ? "border-green-500 bg-green-100" : ""}`}
                                         />
                                     </div>
                                 );
