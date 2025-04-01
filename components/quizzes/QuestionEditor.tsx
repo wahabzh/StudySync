@@ -76,7 +76,7 @@ export function QuestionEditor({ card, index, onChange, onCorrectChange, onRemov
                                             onChange={(e) => onChange(index, field, e.target.value)}
                                             placeholder={`Enter answer ${key}`}
                                             rows={3}
-                                            className={`flex-grow transition-colors ${isCorrect ? "border-green-500 bg-green-100" : ""}`}
+                                            className={`flex-grow transition-colors ${isCorrect ? "border-green-500 bg-green-400" : ""}`}
                                         />
                                     </div>
                                 );

@@ -22,24 +22,25 @@ export function QuizView({ card, selectedAnswer, onSelectAnswer }: QuizViewProps
             </div>
 
             <div className="space-y-2">
-                {answerOptions.map((answer, index) => (
-                    <button
-                        key={index}
-                        onClick={() => onSelectAnswer(index + 1)}
-                        disabled={selectedAnswer !== null}
-                        className={`w-full px-4 py-2 text-left rounded-lg border transition ${
-                            selectedAnswer === index + 1
-                                ? answer === correctAnswer
-                                    ? "bg-green-500 text-white"
-                                    : "bg-red-500 text-white"
-                                : selectedAnswer !== null && answer === correctAnswer
-                                    ? "bg-green-500 text-white"
-                                    : "bg-gray-100 hover:bg-gray-200"
-                        }`}
-                    >
-                        {answer}
-                    </button>
-                ))}
+                {answerOptions.map((answer, index) => {
+                    const isSelected = selectedAnswer === index + 1;
+                    const isCorrect = answer === correctAnswer;
+
+                    return (
+                        <button
+                            key={index}
+                            onClick={() => onSelectAnswer(index + 1)}
+                            disabled={selectedAnswer !== null}
+                            className={`w-full px-4 py-2 text-left rounded-lg border transition 
+                                ${isSelected ? (isCorrect ? "bg-green-500 text-white" : "bg-red-500 text-white") 
+                                : selectedAnswer !== null && isCorrect ? "bg-green-500 text-white" 
+                                : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"} 
+                                text-black dark:text-white`}
+                        >
+                            {answer}
+                        </button>
+                    );
+                })}
             </div>
         </Card>
     );
