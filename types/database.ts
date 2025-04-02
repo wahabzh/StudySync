@@ -61,6 +61,7 @@ export type FlashcardDeck = {
   updated_at: string;
 };
 
+// QuizQuestion type represents an individual quiz question
 export type QuizQuestion = {
   id: string; // Unique identifier for the flashcard
   quiz_id: string; // Foreign key to quiz.id
@@ -75,12 +76,12 @@ export type QuizQuestion = {
   updated_at: string;
 };
 
-// FlashcardDeck type represents a collection of flashcards
+// Quiz type represents a collection of quiz questions
 export type Quiz = {
-  id: string; // Unique identifier for the deck
-  title: string; // Deck title
+  id: string; // Unique identifier for the quiz
+  title: string; // Quiz title
   description: string | null; // Optional description
-  owner_id: string; // Foreign key to profiles.id - owner of the deck
+  owner_id: string; // Foreign key to profiles.id - owner of the quiz
   created_at: string;
   updated_at: string;
 };
