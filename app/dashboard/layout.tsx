@@ -31,6 +31,7 @@ import {
   User,
   Users,
   Zap,
+  MessageCircle,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -369,6 +370,19 @@ export default function DashboardLayout({
                   ))}
                 </SidebarMenu>
               </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarGroup>
+              <SidebarGroupLabel>Additional Links</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/chat" className="flex items-center p-2 hover:bg-gray-100 rounded-md">
+                      <MessageCircle className="h-5 w-5 mr-2" />
+                      <span>Knowledge Base</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
             </SidebarGroup>
           </SidebarContent>
           <SidebarFooter>
