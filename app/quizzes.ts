@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { QuizQuestion, Quiz } from "@/types/database";
 import { addPoints } from "@/app/gamification";
+import { generateAndStoreQuizEmbeddings } from "@/app/knowledge-base";
 
 // ==================== Flashcard Deck Operations ====================
 
@@ -274,6 +275,36 @@ export async function saveQuizWithQuestions(
             // Award points for each new flashcard
             await addPoints(2);
         }
+    }
+
+    // After all questions are saved:
+    try {
+        // Fetch the complete quiz information
+        const { data: quiz, error: quizFetchError } = await supabase
+            .from("quizzes")
+            .select("*")
+            .eq("id", quizId)
+            .single();
+
+        if (quizFetchError) {
+            console.error("Error fetching quiz:", quizFetchError);
+        } else {
+            // Fetch all questions in the quiz
+            const { data: allQuestions, error: questionsFetchError } = await supabase
+                .from("quiz_questions")
+                .select("*")
+                .eq("quiz_id", quizId)
+                .order("position");
+
+            if (questionsFetchError) {
+                console.error("Error fetching questions:", questionsFetchError);
+            } else {
+                // Generate embeddings for the entire quiz
+                await generateAndStoreQuizEmbeddings(quiz, allQuestions);
+            }
+        }
+    } catch (error) {
+        console.error("Error generating quiz embeddings:", error);
     }
 
     revalidatePath("/dashboard/quizzes");

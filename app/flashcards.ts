@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Flashcard, FlashcardDeck } from "@/types/database";
 import { addPoints } from "@/app/gamification";
+import { generateAndStoreFlashcardEmbeddings } from "@/app/knowledge-base";
 
 // ==================== Flashcard Deck Operations ====================
 
@@ -259,6 +260,24 @@ export async function createFlashcard(
         throw error;
     }
 
+    try {
+        // Fetch the deck information
+        const { data: deck, error: deckFetchError } = await supabase
+            .from("flashcard_decks")
+            .select("*")
+            .eq("id", deckId)
+            .single();
+
+        if (deckFetchError) {
+            console.error("Error fetching deck:", deckFetchError);
+        } else {
+            // Generate embeddings for the newly created flashcard
+            await generateAndStoreFlashcardEmbeddings(deck, [flashcard]);
+        }
+    } catch (error) {
+        console.error("Error generating flashcard embeddings:", error);
+    }
+
     // Award points for creating a new flashcard
     await addPoints(2);
 
@@ -314,6 +333,35 @@ export async function updateFlashcard(
     if (error) {
         console.error("Error updating flashcard:", error);
         throw error;
+    }
+
+    try {
+        // Fetch the updated flashcard
+        const { data: updatedFlashcard, error: flashcardFetchError } = await supabase
+            .from("flashcards")
+            .select("*")
+            .eq("id", flashcardId)
+            .single();
+
+        if (flashcardFetchError) {
+            console.error("Error fetching updated flashcard:", flashcardFetchError);
+        } else {
+            // Fetch the deck
+            const { data: deck, error: deckFetchError } = await supabase
+                .from("flashcard_decks")
+                .select("*")
+                .eq("id", updatedFlashcard.deck_id)
+                .single();
+
+            if (deckFetchError) {
+                console.error("Error fetching deck:", deckFetchError);
+            } else {
+                // Generate embeddings for the updated flashcard
+                await generateAndStoreFlashcardEmbeddings(deck, [updatedFlashcard]);
+            }
+        }
+    } catch (error) {
+        console.error("Error generating flashcard embeddings:", error);
     }
 
     revalidatePath("/dashboard/decks/");
@@ -555,6 +603,34 @@ export async function saveFlashcardDeckWithCards(
             // Award points for each new flashcard
             await addPoints(2);
         }
+    }
+    try {
+        // Fetch the complete deck information
+        const { data: deck, error: deckFetchError } = await supabase
+            .from("flashcard_decks")
+            .select("*")
+            .eq("id", deckId)
+            .single();
+
+        if (deckFetchError) {
+            console.error("Error fetching deck:", deckFetchError);
+        } else {
+            // Fetch all flashcards in the deck
+            const { data: allCards, error: cardsFetchError } = await supabase
+                .from("flashcards")
+                .select("*")
+                .eq("deck_id", deckId)
+                .order("position");
+
+            if (cardsFetchError) {
+                console.error("Error fetching cards:", cardsFetchError);
+            } else {
+                // Generate embeddings for the entire flashcard deck
+                await generateAndStoreFlashcardEmbeddings(deck, allCards);
+            }
+        }
+    } catch (error) {
+        console.error("Error generating flashcard deck embeddings:", error);
     }
 
     revalidatePath("/dashboard/decks");
