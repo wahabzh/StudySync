@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { Document } from "@/types/database";
 import { doc } from "prettier";
+import { generateAndStoreDocumentEmbeddings } from "@/app/knowledge-base";
 
 // Maximum file size in bytes (800KB)
 const MAX_FILE_SIZE = 800 * 1024;
@@ -166,6 +167,12 @@ export async function createDocument(title: string) {
     throw error;
   }
 
+  try {
+    // Generate and store document embeddings
+    await generateAndStoreDocumentEmbeddings(document);
+  } catch (error) {
+    console.error("Error generating and storing document embeddings:", error);
+  }
   return document.id;
 }
 
@@ -195,8 +202,25 @@ export async function updateDocument(
     console.error("Error updating document:", error);
     throw error;
   }
-}
 
+  // Get the updated document
+  const { data: updatedDocument, error: documentError } = await supabase
+    .from("documents")
+    .select("*")
+    .eq("id", documentId)
+    .single();
+
+  if (documentError) {
+    console.error("Error fetching updated document:", documentError);
+  }
+
+  try {
+    // Generate and store document embeddings
+    await generateAndStoreDocumentEmbeddings(updatedDocument);
+  } catch (error) {
+    console.error("Error generating and storing document embeddings:", error);
+  }
+}
 export async function deleteDocument(documentId: string) {
   const supabase = await createClient();
 
