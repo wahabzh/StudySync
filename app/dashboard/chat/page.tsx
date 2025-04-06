@@ -55,7 +55,7 @@ export default function ChatPage() {
                     placeholder="Ask about your study materials..."
                     className="flex-1"
                 />
-                <Button 
+                <Button
                     type="submit" 
                     disabled={isLoading}
                 >
