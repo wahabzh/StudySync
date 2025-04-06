@@ -1,16 +1,18 @@
 // app/dashboard/chat/page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useChat } from 'ai/react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { MessageCircle, Send, ArrowRight } from "lucide-react"
+import { MessageCircle, Send, ArrowRight, User, Bot } from "lucide-react"
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import remarkGfm from 'remark-gfm'
+import { cn } from "@/lib/utils"
+
 const starterPrompts = [
     "What's in my notes about web development?",
     "Explain the flashcards I created for data structures",
@@ -23,101 +25,170 @@ export default function ChatPage() {
         api: '/api/chat',
     })
 
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+
+    // Auto-scroll to bottom when messages change
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages])
+
     const handlePromptClick = (prompt: string) => {
         setInput(prompt);
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] max-w-4xl mx-auto p-4">
-            <div className="flex items-center gap-2 mb-4">
-                <MessageCircle className="h-5 w-5" />
-                <h1 className="text-2xl font-bold">StudySync Knowledge Base</h1>
+        <div className="flex flex-col h-[calc(100vh-4rem)] w-full mx-auto px-2 sm:px-4 md:px-8 max-w-6xl">
+            {/* Header */}
+            <div className="flex items-center gap-3 py-4 border-b mb-4">
+                <div className="bg-primary/10 p-2 rounded-full">
+                    <MessageCircle className="h-5 w-5 text-primary" />
+                </div>
+                <h1 className="text-xl md:text-2xl font-bold">StudySync Knowledge Base</h1>
             </div>
 
-            <div className="flex-1 overflow-y-auto mb-4 space-y-4 pr-4">
+            {/* Messages area */}
+            <div className="flex-1 overflow-y-auto mb-4 space-y-6 pr-2 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
                 {messages.length === 0 ? (
-                    <div className="space-y-4">
-                        <Card>
+                    <div className="space-y-6 pt-8 max-w-3xl mx-auto">
+                        <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border shadow-md">
                             <CardContent className="pt-6">
-                                <h2 className="text-lg font-medium mb-2">Welcome to StudySync Knowledge Base!</h2>
-                                <p>I can help you with your study materials, documents, flashcards, and quizzes.</p>
-                                <p className="mt-2">Try asking me a question about your materials or select one of the suggestions below.</p>
+                                <h2 className="text-xl font-medium mb-3">Welcome to StudySync Knowledge Base!</h2>
+                                <p className="text-muted-foreground">I can help you with your study materials, documents, flashcards, and quizzes.</p>
+                                <p className="mt-3 text-muted-foreground">Try asking me a question about your materials or select one of the suggestions below.</p>
                             </CardContent>
                         </Card>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {starterPrompts.map((prompt, index) => (
                                 <Button
                                     key={index}
                                     variant="outline"
-                                    className="justify-between h-auto py-3 px-4 text-left"
+                                    className="justify-between h-auto py-4 px-5 text-left hover:bg-primary/5 border shadow-sm transition-all"
                                     onClick={() => handlePromptClick(prompt)}
                                 >
                                     <span className="line-clamp-2">{prompt}</span>
-                                    <ArrowRight className="h-4 w-4 ml-2 flex-shrink-0" />
+                                    <ArrowRight className="h-4 w-4 ml-2 flex-shrink-0 text-primary" />
                                 </Button>
                             ))}
                         </div>
                     </div>
                 ) : (
-                    messages.map(message => (
-                        <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`p-4 rounded-lg ${message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'} max-w-[80%]`}>
-                                {message.role === 'user' ? (
-                                    <p className="whitespace-pre-wrap">{message.content}</p>
-                                ) : (
-                                    <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            code({ node, className, children, ...props }) {
-                                                const match = /language-(\w+)/.exec(className || '');
-                                                return match ? (
-                                                    <SyntaxHighlighter
-                                                    >
-                                                        {String(children).replace(/\n$/, '')}
-                                                    </SyntaxHighlighter>
-                                                ) : (
-                                                    <code className={className} {...props}>
+                    <div className="space-y-6">
+                        {messages.map(message => (
+                            <div key={message.id} className={cn(
+                                "flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%] md:max-w-[75%]",
+                                message.role === 'user' && "flex-row-reverse"
+                            )}>
+                                <div className={cn(
+                                    "flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center",
+                                    message.role === 'user' ? "bg-primary" : "bg-secondary"
+                                )}>
+                                    {message.role === 'user'
+                                        ? <User className="h-4 w-4 text-primary-foreground" />
+                                        : <Bot className="h-4 w-4 text-secondary-foreground" />
+                                    }
+                                </div>
+                                <div className={cn(
+                                    "p-3 sm:p-4 rounded-lg shadow-md break-words",
+                                    message.role === 'user'
+                                        ? "bg-primary text-primary-foreground rounded-tr-none"
+                                        : "bg-card border rounded-tl-none"
+                                )}>
+                                    {message.role === 'user' ? (
+                                        <p className="whitespace-pre-wrap">{message.content}</p>
+                                    ) : (
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]} // for markdown formatting
+                                            components={{
+                                                code({ className, children, ...props }) {
+                                                    const match = /language-(\w+)/.exec(className || '');
+                                                    return match ? (
+                                                        <SyntaxHighlighter
+                                                            language={match[1]}
+                                                            style={vscDarkPlus} // for code highlighting
+                                                            customStyle={{ margin: '1em 0', borderRadius: '8px' }}
+                                                        >
+                                                            {String(children).replace(/\n$/, '')}
+                                                        </SyntaxHighlighter>
+                                                    ) : (
+                                                        <code className={cn("bg-muted px-1.5 py-0.5 rounded-md text-sm", className)} {...props}>
+                                                            {children}
+                                                        </code>
+                                                    );
+                                                },
+                                                ul: ({ children }) => <ul className="list-disc pl-6 my-2">{children}</ul>,
+                                                ol: ({ children }) => <ol className="list-decimal pl-6 my-2">{children}</ol>,
+                                                li: ({ children }) => <li className="mb-1">{children}</li>,
+                                                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                                                h3: ({ children }) => <h3 className="text-lg font-semibold mt-3 mb-2">{children}</h3>,
+                                                h4: ({ children }) => <h4 className="text-base font-semibold mt-3 mb-1">{children}</h4>,
+                                                pre: ({ children }) => (
+                                                    <pre className="w-full overflow-auto rounded-md my-2 bg-muted p-2 text-sm">
                                                         {children}
-                                                    </code>
-                                                );
-                                            }
-                                        }}
-                                    >
-                                        {message.content}
-                                    </ReactMarkdown>
-                                )}
+                                                    </pre>
+                                                ),
+                                                a: ({ href, children }) => (
+                                                    <a href={href} className="text-primary underline break-words" target="_blank" rel="noopener noreferrer">
+                                                        {children}
+                                                    </a>
+                                                ),
+                                            }}
+                                        >
+                                            {message.content}
+                                        </ReactMarkdown>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))
-                )}
+                        ))}
 
-                {isLoading && (
-                    <div className="flex justify-start">
-                        <div className="p-4 bg-muted rounded-lg max-w-[80%]">
-                            <p>Thinking...</p>
-                        </div>
+                        {isLoading && (
+                            <div className="flex justify-start">
+                                <div className="flex gap-3 max-w-[85%] md:max-w-[75%]">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-secondary">
+                                        <Bot className="h-4 w-4 text-secondary-foreground" />
+                                    </div>
+                                    <div className="p-4 rounded-lg shadow-md bg-card border rounded-tl-none">
+                                        <div className="flex space-x-2">
+                                            <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce"></div>
+                                            <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                            <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div ref={messagesEndRef} /> {/* Empty div to auto-scroll to bottom when messages change */}
                     </div>
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="flex items-center gap-2">
-                <Input
-                    type="text"
-                    value={input}
-                    onChange={handleInputChange}
-                    placeholder="Ask about your study materials..."
-                    className="flex-1"
-                    disabled={isLoading}
-                />
-                <Button
-                    type="submit"
-                    disabled={isLoading}
-                >
-                    <Send className="h-4 w-4 mr-2" />
-                    Send
-                </Button>
-            </form>
+            {/* Input area */}
+            <div className="pb-2 sm:pb-4">
+                <form onSubmit={handleSubmit} className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                        <Input
+                            type="text"
+                            value={input}
+                            onChange={handleInputChange}
+                            placeholder="Ask about your study materials..."
+                            className="pr-10 sm:pr-12 py-5 sm:py-6 border shadow-sm focus-visible:ring-primary/50 text-sm sm:text-base"
+                            disabled={isLoading}
+                        />
+                        <Button
+                            type="submit"
+                            size="icon"
+                            disabled={isLoading || !input.trim()}
+                            className="absolute right-1 sm:right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9"
+                        >
+                            <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        </Button>
+                    </div>
+                </form>
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                    Ask about your documents, flashcards, and quizzes - or any study-related question!
+                </p>
+            </div>
         </div>
     )
 }
