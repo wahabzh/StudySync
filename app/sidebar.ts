@@ -70,3 +70,23 @@ export async function getSharedDocumentsLatestTenSideBar(userId: string) {
 
   return documents as Document[];
 }
+
+export async function getUserProfileImage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching user avatar:", error);
+    return null;
+  }
+
+  return profile?.avatar_url;
+}

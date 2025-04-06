@@ -1,17 +1,19 @@
 // app/dashboard/chat/page.tsx
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useChat } from 'ai/react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { MessageCircle, Send, ArrowRight, User, Bot } from "lucide-react"
+import { MessageCircle, Send, ArrowRight, Bot } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import remarkGfm from 'remark-gfm'
 import { cn } from "@/lib/utils"
+import { getUserProfileImage } from "@/app/sidebar"
 
 const starterPrompts = [
     "What's in my notes about web development?",
@@ -26,6 +28,14 @@ export default function ChatPage() {
     })
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const [userAvatar, setUserAvatar] = useState<string | null>(null)
+
+    // Fetch user avatar
+    useEffect(() => {
+        getUserProfileImage().then(avatarUrl => {
+            setUserAvatar(avatarUrl)
+        })
+    }, [])
 
     // Auto-scroll to bottom when messages change
     useEffect(() => {
@@ -76,77 +86,91 @@ export default function ChatPage() {
                     <div className="space-y-6">
                         {messages.map(message => (
                             <div key={message.id} className={cn(
-                                "flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%] md:max-w-[75%]",
-                                message.role === 'user' && "flex-row-reverse"
+                                "flex w-full",
+                                message.role === 'user' ? "justify-end" : "justify-start"
                             )}>
                                 <div className={cn(
-                                    "flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center",
-                                    message.role === 'user' ? "bg-primary" : "bg-secondary"
+                                    "flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%] md:max-w-[75%]",
+                                    message.role === 'user' && "flex-row-reverse"
                                 )}>
-                                    {message.role === 'user'
-                                        ? <User className="h-4 w-4 text-primary-foreground" />
-                                        : <Bot className="h-4 w-4 text-secondary-foreground" />
-                                    }
-                                </div>
-                                <div className={cn(
-                                    "p-3 sm:p-4 rounded-lg shadow-md break-words",
-                                    message.role === 'user'
-                                        ? "bg-primary text-primary-foreground rounded-tr-none"
-                                        : "bg-card border rounded-tl-none"
-                                )}>
+                                    {/* User Avatar vs Bot Avatar */}
                                     {message.role === 'user' ? (
-                                        <p className="whitespace-pre-wrap">{message.content}</p>
+                                        <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border">
+                                            <AvatarImage src={userAvatar || ""} alt="User" />
+                                            <AvatarFallback className="bg-primary text-primary-foreground">
+                                                U
+                                            </AvatarFallback>
+                                        </Avatar>
                                     ) : (
-                                        <ReactMarkdown
-                                            remarkPlugins={[remarkGfm]} // for markdown formatting
-                                            components={{
-                                                code({ className, children, ...props }) {
-                                                    const match = /language-(\w+)/.exec(className || '');
-                                                    return match ? (
-                                                        <SyntaxHighlighter
-                                                            language={match[1]}
-                                                            style={vscDarkPlus} // for code highlighting
-                                                            customStyle={{ margin: '1em 0', borderRadius: '8px' }}
-                                                        >
-                                                            {String(children).replace(/\n$/, '')}
-                                                        </SyntaxHighlighter>
-                                                    ) : (
-                                                        <code className={cn("bg-muted px-1.5 py-0.5 rounded-md text-sm", className)} {...props}>
-                                                            {children}
-                                                        </code>
-                                                    );
-                                                },
-                                                ul: ({ children }) => <ul className="list-disc pl-6 my-2">{children}</ul>,
-                                                ol: ({ children }) => <ol className="list-decimal pl-6 my-2">{children}</ol>,
-                                                li: ({ children }) => <li className="mb-1">{children}</li>,
-                                                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                                                h3: ({ children }) => <h3 className="text-lg font-semibold mt-3 mb-2">{children}</h3>,
-                                                h4: ({ children }) => <h4 className="text-base font-semibold mt-3 mb-1">{children}</h4>,
-                                                pre: ({ children }) => (
-                                                    <pre className="w-full overflow-auto rounded-md my-2 bg-muted p-2 text-sm">
-                                                        {children}
-                                                    </pre>
-                                                ),
-                                                a: ({ href, children }) => (
-                                                    <a href={href} className="text-primary underline break-words" target="_blank" rel="noopener noreferrer">
-                                                        {children}
-                                                    </a>
-                                                ),
-                                            }}
-                                        >
-                                            {message.content}
-                                        </ReactMarkdown>
+                                        <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border bg-secondary text-secondary-foreground">
+                                            <AvatarFallback>
+                                                <Bot className="h-4 w-4" />
+                                            </AvatarFallback>
+                                        </Avatar>
                                     )}
+
+                                    <div className={cn(
+                                        "p-3 sm:p-4 rounded-lg shadow-md break-words",
+                                        message.role === 'user'
+                                            ? "bg-primary text-primary-foreground rounded-tr-none"
+                                            : "bg-card border rounded-tl-none"
+                                    )}>
+                                        {message.role === 'user' ? (
+                                            <p className="whitespace-pre-wrap">{message.content}</p>
+                                        ) : (
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]} // for markdown formatting
+                                                components={{
+                                                    code({ className, children, ...props }) {
+                                                        const match = /language-(\w+)/.exec(className || '');
+                                                        return match ? (
+                                                            <SyntaxHighlighter
+                                                                language={match[1]}
+                                                                style={vscDarkPlus} // for code highlighting
+                                                                customStyle={{ margin: '1em 0', borderRadius: '8px' }}
+                                                            >
+                                                                {String(children).replace(/\n$/, '')}
+                                                            </SyntaxHighlighter>
+                                                        ) : (
+                                                            <code className={cn("bg-muted px-1.5 py-0.5 rounded-md text-sm", className)} {...props}>
+                                                                {children}
+                                                            </code>
+                                                        );
+                                                    },
+                                                    ul: ({ children }) => <ul className="list-disc pl-6 my-2">{children}</ul>,
+                                                    ol: ({ children }) => <ol className="list-decimal pl-6 my-2">{children}</ol>,
+                                                    li: ({ children }) => <li className="mb-1">{children}</li>,
+                                                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                                                    h3: ({ children }) => <h3 className="text-lg font-semibold mt-3 mb-2">{children}</h3>,
+                                                    h4: ({ children }) => <h4 className="text-base font-semibold mt-3 mb-1">{children}</h4>,
+                                                    pre: ({ children }) => (
+                                                        <pre className="w-full overflow-auto rounded-md my-2 bg-muted p-2 text-sm">
+                                                            {children}
+                                                        </pre>
+                                                    ),
+                                                    a: ({ href, children }) => (
+                                                        <a href={href} className="text-primary underline break-words" target="_blank" rel="noopener noreferrer">
+                                                            {children}
+                                                        </a>
+                                                    ),
+                                                }}
+                                            >
+                                                {message.content}
+                                            </ReactMarkdown>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))}
 
-                        {isLoading && (
+                        {isLoading  && (
                             <div className="flex justify-start">
-                                <div className="flex gap-3 max-w-[85%] md:max-w-[75%]">
-                                    <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-secondary">
-                                        <Bot className="h-4 w-4 text-secondary-foreground" />
-                                    </div>
+                                <div className="flex gap-3 max-w-[90%] sm:max-w-[85%] md:max-w-[75%]">
+                                    <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border bg-secondary text-secondary-foreground">
+                                        <AvatarFallback>
+                                            <Bot className="h-4 w-4" />
+                                        </AvatarFallback>
+                                    </Avatar>
                                     <div className="p-4 rounded-lg shadow-md bg-card border rounded-tl-none">
                                         <div className="flex space-x-2">
                                             <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce"></div>
