@@ -33,6 +33,7 @@ import {
   Zap,
   MessageCircle,
 } from "lucide-react";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -300,7 +301,7 @@ export default function DashboardLayout({
         <Sidebar variant="inset">
           <SidebarHeader>
             <SidebarMenu>
-              <SidebarMenuItem>
+              <SidebarMenuItem className="flex items-center justify-between">
                 <SidebarMenuButton size="lg" asChild>
                   <Link href="/dashboard">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
@@ -312,6 +313,7 @@ export default function DashboardLayout({
                     </div>
                   </Link>
                 </SidebarMenuButton>
+                <ThemeSwitcher />
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarHeader>
