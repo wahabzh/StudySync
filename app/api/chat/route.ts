@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
             return new Response('Unauthorized', { status: 401 });
         }
 
-        const { messages } = await req.json();
+        const { messages, useGeneralKnowledge } = await req.json();
         const latestMessage = messages[messages.length - 1].content;
 
         // Generate embedding for the query
@@ -57,18 +57,25 @@ export async function POST(req: NextRequest) {
 
         const context = contextItems.join('\n\n');
         const hasContext = contextItems.length > 0;
+        const shouldUseGeneralKnowledge = useGeneralKnowledge === true || !hasContext;
 
+        console.log("shouldUseGeneralKnowledge", shouldUseGeneralKnowledge);
+        
         // Generate response using AI with or without context
         const result = await streamText({
             model: google('gemini-1.5-flash-latest'),
             system: `You are StudySync's Knowledge Base Assistant, a helpful AI that assists students with their study materials and learning.
+        
+${shouldUseGeneralKnowledge ? 
+    "You are allowed to use your general knowledge to answer questions beyond the user's own materials." : 
+    "Only use information from the user's own study materials to answer questions."}
 
 ${hasContext ? `I found relevant information in your study materials that might help answer your question. I'll use this to give you a specific answer.` :
-                    `I don't have any specific notes or materials from you that match this question. I'll provide a general answer based on my knowledge.`}
+            `I don't have any specific notes or materials from you that match this question. ${!shouldUseGeneralKnowledge ? "I can only answer questions based on your uploaded materials." : "I'll provide a general answer based on my knowledge."}`}
 
 ${hasContext ? `Guidelines when answering with context:
-- Use ONLY the information provided in the context below to answer the user's question
-- If the context doesn't fully answer the question, say so clearly
+- ${!shouldUseGeneralKnowledge ? "Use ONLY" : "Primarily use"} the information provided in the context below to answer the user's question
+- If the context doesn't fully answer the question, ${shouldUseGeneralKnowledge ? "supplement with general knowledge" : "say so clearly"}
 - For flashcards and quiz questions, explain the answers thoroughly
 - Format your response nicely with markdown, including headings, lists, and emphasis where appropriate
 - Use code blocks with syntax highlighting when showing code examples
@@ -76,11 +83,11 @@ ${hasContext ? `Guidelines when answering with context:
 Here is the context from the user's study materials:
 
 ${context}` :
-                    `Guidelines when answering general questions:
-- Provide accurate, educational information
+            `Guidelines when answering general questions:
+- ${shouldUseGeneralKnowledge ? "Provide accurate, educational information" : "Politely explain that you can only answer questions about their uploaded materials"}
 - Format your response nicely with markdown, including headings, lists, and emphasis where appropriate
 - Use code blocks with syntax highlighting when showing code examples
-- Always mention that this is general knowledge, not from their specific materials
+- ${shouldUseGeneralKnowledge ? "Always mention that this is general knowledge, not from their specific materials" : ""}
 - Encourage them to add their own notes on this topic to StudySync`}`,
             messages: messages,
             temperature: 0.7, // Slightly higher temperature for more creative responses

@@ -14,6 +14,8 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import remarkGfm from 'remark-gfm'
 import { cn } from "@/lib/utils"
 import { getUserProfileImage } from "@/app/sidebar"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 
 const starterPrompts = [
     "What's in my notes about web development?",
@@ -23,8 +25,13 @@ const starterPrompts = [
 ];
 
 export default function ChatPage() {
+    const [useGeneralKnowledge, setUseGeneralKnowledge] = useState(false)
+    
     const { messages, input, handleInputChange, handleSubmit, isLoading, setInput } = useChat({
         api: '/api/chat',
+        body: {
+            useGeneralKnowledge
+        },
     })
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -54,6 +61,17 @@ export default function ChatPage() {
                     <MessageCircle className="h-5 w-5 text-primary" />
                 </div>
                 <h1 className="text-xl md:text-2xl font-bold">StudySync Knowledge Base</h1>
+                
+                <div className="flex items-center space-x-2 ml-auto">
+                    <Checkbox 
+                        id="general-knowledge" 
+                        checked={useGeneralKnowledge} 
+                        onCheckedChange={(checked) => setUseGeneralKnowledge(checked === true)}
+                    />
+                    <Label htmlFor="general-knowledge" className="text-sm cursor-pointer">
+                        Use general knowledge
+                    </Label>
+                </div>
             </div>
 
             {/* Messages area */}
@@ -210,7 +228,9 @@ export default function ChatPage() {
                     </div>
                 </form>
                 <p className="text-xs text-muted-foreground mt-2 text-center">
-                    Ask about your documents, flashcards, and quizzes - or any study-related question!
+                    {useGeneralKnowledge ? 
+                        "Answers will include general knowledge beyond your study materials." :
+                        "Ask about your documents, flashcards, and quizzes - or any study-related question!"}
                 </p>
             </div>
         </div>
