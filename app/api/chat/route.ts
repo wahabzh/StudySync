@@ -31,14 +31,18 @@ export async function POST(req: NextRequest) {
                 return new Response('Thread not found or access denied', { status: 404 });
             }
 
-            // Save the user message
-            await supabase
+            // Save the user message - add error logging
+            const { error: insertError } = await supabase
                 .from('chat_messages')
                 .insert({
                     thread_id: threadId,
                     role: 'user',
                     content: latestMessage
                 });
+
+            if (insertError) {
+                console.error('Error saving user message:', insertError);
+            }
         }
 
         // Generate embedding for the query
@@ -116,13 +120,20 @@ ${context}` :
             onFinish: async ({ text }) => {
                 // Save the assistant's response in the database if threadId is provided
                 if (threadId) {
-                    await supabase
+                    console.log("Saving assistant response for thread:", threadId);
+                    const { error: assistantInsertError } = await supabase
                         .from('chat_messages')
                         .insert({
                             thread_id: threadId,
                             role: 'assistant',
                             content: text
                         });
+
+                    if (assistantInsertError) {
+                        console.error('Error saving assistant message:', assistantInsertError);
+                    } else {
+                        console.log("Successfully saved assistant message");
+                    }
                 }
             }
         });
