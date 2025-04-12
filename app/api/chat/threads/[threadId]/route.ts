@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { threadId: string } }
+    { params }: { params: Promise<{ threadId: string }> }
 ) {
     try {
         const supabase = await createClient();
@@ -17,7 +17,7 @@ export async function GET(
         const { data: thread, error: threadError } = await supabase
             .from('chat_threads')
             .select('*')
-            .eq('id', params.threadId)
+            .eq('id', (await params).threadId)
             .eq('owner_id', user.id)
             .single();
 
@@ -29,7 +29,7 @@ export async function GET(
         const { data: messages, error: messagesError } = await supabase
             .from('chat_messages')
             .select('*')
-            .eq('thread_id', params.threadId)
+            .eq('thread_id', (await params).threadId)
             .order('created_at', { ascending: true });
 
         if (messagesError) {
