@@ -71,6 +71,17 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
         setIsLoadingMessages(true)
         try {
             const response = await fetch(`/api/chat/threads/${threadId}`)
+
+            if (response.status === 404) {
+                toast({
+                    variant: "destructive",
+                    title: "Thread not found",
+                    description: "This chat thread may have been deleted"
+                })
+                router.push('/dashboard/chat/new')
+                return
+            }
+
             if (!response.ok) throw new Error('Failed to fetch thread messages')
 
             const data = await response.json()
@@ -91,6 +102,7 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                 title: "Error",
                 description: "Failed to load chat messages"
             })
+            router.push('/dashboard/chat/new')
         } finally {
             setIsLoadingMessages(false)
         }
