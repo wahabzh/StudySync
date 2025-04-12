@@ -86,6 +86,24 @@ export type Quiz = {
   updated_at: string;
 };
 
+// ChatThread type represents a conversation thread in the 'chat_threads' table
+export type ChatThread = {
+  id: string; // Unique identifier for the chat thread
+  title: string; // Chat thread title
+  owner_id: string; // Foreign key to auth.users(id) - owner of the chat thread
+  created_at: string; // Timestamp when chat thread was created
+  use_general_knowledge: boolean; // Whether this thread uses general knowledge
+};
+
+// ChatMessage type represents an individual message in the 'chat_messages' table
+export type ChatMessage = {
+  id: string; // Unique identifier for the message
+  thread_id: string; // Foreign key to chat_threads.id
+  role: 'user' | 'assistant'; // Who sent the message
+  content: string; // Message content
+  created_at: string; // Timestamp when message was created
+};
+
 // Database type defines the full database schema for type safety with Supabase
 export type Database = {
   public: {
@@ -130,6 +148,18 @@ export type Database = {
         Row: Quiz;
         Insert: Omit<Quiz, "id" | "created_at" | "updated_at">;
         Update: Partial<Omit<Quiz, "id" | "deck_id">>;
+      };
+      // Chat threads table schema
+      chat_threads: {
+        Row: ChatThread;
+        Insert: Omit<ChatThread, "id" | "created_at">;
+        Update: Partial<Omit<ChatThread, "id" | "owner_id" | "created_at">>;
+      };
+      // Chat messages table schema
+      chat_messages: {
+        Row: ChatMessage;
+        Insert: Omit<ChatMessage, "id" | "created_at">;
+        Update: Partial<Omit<ChatMessage, "id" | "thread_id" | "created_at">>;
       };
     };
   };
