@@ -25,14 +25,14 @@ export async function getProfileData() {
   return profile;
 }
 
-export async function getUserDocumentsLatestTenSideBar(userId: string) {
+export async function getUserDocumentsLatestFiveSideBar(userId: string) {
   const supabase = await createClient();
 
   let query = supabase
     .from("documents")
     .select("*")
     .order("updated_at", { ascending: false })
-    .limit(10);
+    .limit(5);
 
   // Filter documents to only include those owned or shared with the user
   query = query.or(`owner_id.eq.${userId}`);
@@ -40,7 +40,7 @@ export async function getUserDocumentsLatestTenSideBar(userId: string) {
   const { data: documents, error } = await query;
 
   if (error) {
-    console.error("Error fetching latest ten documents:", error);
+    console.error("Error fetching latest five documents:", error);
     return [] as Document[];
   }
   // console.log(documents);
@@ -48,14 +48,14 @@ export async function getUserDocumentsLatestTenSideBar(userId: string) {
   return documents as Document[];
 }
 
-export async function getSharedDocumentsLatestTenSideBar(userId: string) {
+export async function getSharedDocumentsLatestFiveSideBar(userId: string) {
   const supabase = await createClient();
 
   let query = supabase
     .from("documents")
     .select("*")
     .order("updated_at", { ascending: false })
-    .limit(10);
+    .limit(5);
 
   // Filter documents to only include those owned or shared with the user
   query = query.or(`editors.cs.{${userId}},viewers.cs.{${userId}}`);
@@ -63,7 +63,30 @@ export async function getSharedDocumentsLatestTenSideBar(userId: string) {
   const { data: documents, error } = await query;
 
   if (error) {
-    console.error("Error fetching latest ten documents:", error);
+    console.error("Error fetching latest five documents:", error);
+    return [] as Document[];
+  }
+  // console.log(documents);
+
+  return documents as Document[];
+}
+
+export async function getCommunityDocumentsLatestFiveSideBar(userId: string) {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("documents")
+    .select("*")
+    .order("updated_at", { ascending: false })
+    .limit(5);
+
+  // Filter documents to only include those owned or shared with the user
+  query = query.or('share_status.eq.published');
+
+  const { data: documents, error } = await query;
+
+  if (error) {
+    console.error("Error fetching latest five documents:", error);
     return [] as Document[];
   }
   // console.log(documents);

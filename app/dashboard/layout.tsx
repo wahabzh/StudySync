@@ -86,8 +86,9 @@ import Link from "next/link";
 import { Profile } from "@/types/database";
 import {
   getProfileData,
-  getUserDocumentsLatestTenSideBar,
-  getSharedDocumentsLatestTenSideBar,
+  getUserDocumentsLatestFiveSideBar,
+  getSharedDocumentsLatestFiveSideBar,
+  getCommunityDocumentsLatestFiveSideBar
 } from "@/app/sidebar";
 import { useEffect, useState } from "react";
 import { getUser } from "@/app/actions";
@@ -114,6 +115,17 @@ export default function DashboardLayout({
   ]);
 
   const [SharedNotes, setSharedNotes] = useState([
+    {
+      title: "Notes",
+      url: "#",
+      icon: SquareTerminal,
+      isActive: true,
+      items: [], // Initially empty, will be populated dynamically
+    },
+    // Other sections like Flashcards, Shared, etc.
+  ]);
+
+  const [CommunityNotes, setCommunityNotes] = useState([
     {
       title: "Notes",
       url: "#",
@@ -194,7 +206,7 @@ export default function DashboardLayout({
       // The previous code was trying to use setUserProfile which doesn't exist
 
       // Fetch latest ten documents for the user
-      getUserDocumentsLatestTenSideBar(CurUser.id)
+      getUserDocumentsLatestFiveSideBar(CurUser.id)
         .then((documents) => {
           const formattedNotes = documents.map((doc) => ({
             title: doc.title,
@@ -212,7 +224,7 @@ export default function DashboardLayout({
   useEffect(() => {
     if (CurUser) {
       // Fetch latest ten documents for the user
-      getSharedDocumentsLatestTenSideBar(CurUser.id)
+      getSharedDocumentsLatestFiveSideBar(CurUser.id)
         .then((documents) => {
           const formattedNotes = documents.map((doc) => ({
             title: doc.title,
@@ -227,6 +239,24 @@ export default function DashboardLayout({
     }
   }, [CurUser]);
 
+  useEffect(() => {
+    if (CurUser) {
+      // Fetch latest ten documents for the user
+      getCommunityDocumentsLatestFiveSideBar(CurUser.id)
+        .then((documents) => {
+          const formattedNotes = documents.map((doc) => ({
+            title: doc.title,
+            url: `/dashboard/community/doc/${doc.id}`,
+            icon: ChevronRight, // Default or appropriate icon
+            isActive: false, // Default inactive state
+            items: [], // No nested items for notes
+          }));
+          setCommunityNotes(formattedNotes);
+        })
+        .catch((error) => console.error("Error fetching documents:", error));
+    }
+  }, [CurUser]);
+
   const data = {
     user: {
       name: CurUser?.username,
@@ -235,8 +265,8 @@ export default function DashboardLayout({
     },
     navMain: [
       {
-        title: "Notes",
-        url: "#",
+        title: "Documents",
+        url: "/dashboard",
         icon: SquareTerminal,
         isActive: false,
         items: UserNotes,
@@ -248,23 +278,10 @@ export default function DashboardLayout({
         items: SharedNotes,
       },
       {
-        title: "Bookmarked",
-        url: "#",
-        icon: Pin,
-        items: [
-          {
-            title: "Genesis",
-            url: "#",
-          },
-          {
-            title: "Explorer",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
-          },
-        ],
+        title: "Community",
+        url: "/dashboard/community",
+        icon: Users,
+        items: CommunityNotes,
       },
     ],
     navSecondary: [

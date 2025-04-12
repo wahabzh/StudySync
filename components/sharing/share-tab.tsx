@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import { Globe, Lock } from "lucide-react";
+import { Globe, Lock, Copy } from "lucide-react";
 import { DocumentStatus } from "@/types/database";
+import { useToast } from "@/hooks/use-toast";
 
 interface ShareTabProps {
   documentId: string;
@@ -23,9 +24,13 @@ export function ShareTab({
   onInviteUser,
   isOwner,
 }: ShareTabProps) {
+  const { toast } = useToast();
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"viewer" | "editor">("viewer");
   const [isLoading, setIsLoading] = useState(false);
+  const [shareLink, setShareLink] = useState(
+    `https://studysync.site/dashboard/doc/${documentId}`
+  );
 
   const handleStatusChange = async (newStatus: DocumentStatus) => {
     setIsLoading(true);
@@ -84,6 +89,32 @@ export function ShareTab({
           </RadioGroup>
         </div>
       )}
+      <div className="space-y-2">
+        <Label htmlFor="link" className="text-lg font-semibold">
+          Shareable Link
+        </Label>
+        <div className="flex space-x-2">
+          <Input
+            id="link"
+            value={shareLink}
+            readOnly
+            className="bg-muted"
+          />
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(shareLink);
+              toast({
+                title: "Link copied",
+                description:
+                  "The shareable link has been copied to your clipboard",
+              });
+            }}
+          >
+            <Copy className="w-4 h-4 mr-2" />
+            Copy
+          </Button>
+        </div>
+      </div>
 
       <div className="space-y-2">
         <Label htmlFor="email" className="text-lg font-semibold">
