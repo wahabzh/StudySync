@@ -176,7 +176,7 @@ export async function checkDailyReward(userId: string): Promise<boolean> {
 
   const { data, error: fetchError } = await supabase
     .from("profiles")
-    .select("points, first_login")
+    .select("points, loginRewardDateStamp")
     .eq("id", user.id)
     .single();
 
@@ -186,12 +186,19 @@ export async function checkDailyReward(userId: string): Promise<boolean> {
   }
 
   // const new_account = user.created_at?.slice(0, 10) === new Date().toISOString().slice(0, 10);
-  const giveDailyReward = data.first_login || (user.last_sign_in_at?.slice(0, 10) !== new Date().toISOString().slice(0, 10));
-
+  
+  const lastRewardDate = data.loginRewardDateStamp
+  ? new Date(data.loginRewardDateStamp).toISOString().slice(0, 10)
+  : null;
+  const todayDate = new Date().toISOString().slice(0, 10);
+  const giveDailyReward = lastRewardDate !== todayDate;
+  console.log(lastRewardDate)
+  console.log(todayDate)
+  const todayDateNew = new Date().toISOString()
   if (giveDailyReward) {  // error-handling?
     await supabase
       .from("profiles")
-      .update({ points: data.points + 10, first_login: false })
+      .update({ points: data.points + 10, loginRewardDateStamp: todayDateNew  })
       .eq("id", user.id);
   }
 

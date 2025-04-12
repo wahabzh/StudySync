@@ -1,7 +1,7 @@
 "use server";
 
 import { encodedRedirect } from "@/utils/utils";
-import { createClient } from "@/utils/supabase/server";
+import { createClient , createAdminClient} from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -41,7 +41,7 @@ export const signUpAction = async (formData: FormData) => {
   } else {
     return encodedRedirect(
       "success",
-      "/sign-up",
+      "/sign-in",
       "Thanks for signing up! Please check your email for a verification link."
     );
   }
@@ -52,7 +52,7 @@ export const signInAction = async (formData: FormData) => {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: authResult, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -61,8 +61,26 @@ export const signInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", error.message);
   }
 
+  const user = authResult.user;
+
+  if (user) {
+    const { id, email } = user;
+
+    // Check if profile already exists
+    const { data: existingProfile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!existingProfile && !profileError) {
+      await supabase.from("profiles").insert({ id, email });
+    }
+  }
+
   return redirect("/dashboard");
 };
+
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -412,3 +430,137 @@ export const updateProfile = async (formData: FormData) => {
     if (authError) throw authError;
   }
 };
+
+
+export async function deleteAccount(password: string) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user || !user.email) {
+      console.error("User fetch error:", userError?.message);
+      throw new Error("Not authenticated");
+    }
+
+    // Step 1: Re-authenticate using provided password
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password,
+    });
+
+    if (authError) {
+      console.error("Password verification failed:", authError.message);
+      throw new Error("Incorrect password");
+    }
+
+    // Step 2: Delete profile
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .delete()
+      .eq("id", user.id);
+
+    if (profileError) {
+      console.error("Error deleting profile:", profileError.message);
+      throw new Error("Failed to delete profile");
+    }
+
+    // Step 3: Delete user's documents
+    const { error: docError } = await supabase
+      .from("documents")
+      .delete()
+      .eq("owner_id", user.id);
+
+    if (docError) {
+      console.error("Error deleting documents:", docError.message);
+      throw new Error("Failed to delete documents");
+    }
+
+  
+    const { data: quizzes, error: quizFetchError } = await supabase
+      .from("quizzes")
+      .select("id")
+      .eq("owner_id", user.id);
+
+    if (quizFetchError) {
+      console.error("Error fetching user's quizzes:", quizFetchError.message);
+      throw new Error("Failed to retrieve quizzes");
+    }
+
+    const quizIds = quizzes.map((q: { id: string }) => q.id);
+
+    if (quizIds.length > 0) {
+      const { error: questionDeleteError } = await supabase
+        .from("quiz_questions")
+        .delete()
+        .in("quiz_id", quizIds);
+
+      if (questionDeleteError) {
+        console.error("Error deleting quiz questions:", questionDeleteError.message);
+        throw new Error("Failed to delete quiz questions");
+      }
+
+      const { error: quizDeleteError } = await supabase
+        .from("quizzes")
+        .delete()
+        .in("id", quizIds);
+
+      if (quizDeleteError) {
+        console.error("Error deleting quizzes:", quizDeleteError.message);
+        throw new Error("Failed to delete quizzes");
+      }
+    }
+
+    const { data: flashcardsdeck, error: flashcardsdeckFetchError } = await supabase
+      .from("flashcard_decks")
+      .select("id")
+      .eq("owner_id", user.id);
+
+    if (flashcardsdeckFetchError) {
+      console.error("Error fetching user's flashcards:", flashcardsdeckFetchError.message);
+      throw new Error("Failed to retrieve flashcards");
+    }
+
+    const flashcardIds = flashcardsdeck.map((q: { id: string }) => q.id);
+
+    if (flashcardIds.length > 0) {
+      const { error: questionDeleteError } = await supabase
+        .from("flashcards")
+        .delete()
+        .in("deck_id", flashcardIds);
+
+      if (questionDeleteError) {
+        console.error("Error deleting quiz questions:", questionDeleteError.message);
+        throw new Error("Failed to delete quiz questions");
+      }
+
+      const { error: flashcarddeckDeleteError } = await supabase
+        .from("flashcard_decks")
+        .delete()
+        .in("id", flashcardIds);
+
+      if (flashcarddeckDeleteError) {
+        console.error("Error deleting Flashcard deck:", flashcarddeckDeleteError.message);
+        throw new Error("Failed to delete flashcard deck");
+      }
+    }
+
+    // Step 4: Delete user from auth using admin client
+    const adminClient = await createAdminClient();
+    const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id);
+
+    if (deleteError) {
+      console.error("Error deleting user from auth:", deleteError.message);
+      throw new Error("Failed to delete user from auth system");
+    }
+
+    console.log("Account deletion successful");
+    return true;
+  } catch (err: any) {
+    console.error("Account deletion failed:", err.message || err);
+    throw err;
+  }
+}

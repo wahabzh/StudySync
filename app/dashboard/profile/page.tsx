@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { updateProfile, getUser } from "@/app/actions";
+import { updateProfile, getUser, deleteAccount } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, Upload, User, Mail, FileText } from "lucide-react";
@@ -31,6 +31,10 @@ export default function ProfilePage() {
     const formRef = useRef<HTMLFormElement | null>(null);
     const { toast } = useToast();
     const [fileError, setFileError] = useState<string | null>(null);
+
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [password, setPassword] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         fetchProfile();
@@ -121,6 +125,32 @@ export default function ProfilePage() {
             duration: 3000,
         });
     }
+
+    async function handleDeleteAccount() {
+        setIsDeleting(true);
+        try {
+            const result = await deleteAccount(password);
+    
+            if (result == true) {
+                window.location.href = "/sign-in"; // or use Next router
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Failed to delete account.",
+                });
+            }
+        } catch (err) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "An unexpected error occurred.",
+            });
+        } finally {
+            setIsDeleting(false);
+        }
+    }
+    
 
     return (
         <div className="max-w-3xl mx-auto p-6">
@@ -280,6 +310,53 @@ export default function ProfilePage() {
 
                 <button type="submit" hidden />
             </form>
+                <Separator className="my-6" />
+
+                <div className="flex justify-between items-center">
+                    <p className="text-destructive font-medium">Danger Zone</p>
+
+                    <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="destructive">Delete Account</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Delete Account</DialogTitle>
+                            </DialogHeader>
+                            <p className="text-sm text-muted-foreground">
+                                This action is permanent. Please confirm your password to proceed.
+                            </p>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="password">Password</Label>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Enter your password"
+                                />
+                            </div>
+
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={isDeleting}>
+                                    Cancel
+                                </Button>
+                                <Button variant="destructive" onClick={handleDeleteAccount} disabled={isDeleting || !password}>
+                                    {isDeleting ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        "Delete Account"
+                                    )}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+
         </div>
     );
 }
