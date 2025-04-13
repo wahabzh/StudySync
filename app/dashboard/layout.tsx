@@ -266,14 +266,14 @@ export default function DashboardLayout({
     navMain: [
       {
         title: "Documents",
-        url: "/dashboard",
+        url: "/dashboard/?filter=owned",
         icon: SquareTerminal,
         isActive: false,
         items: UserNotes,
       },
       {
         title: "Shared",
-        url: "#",
+        url: "/dashboard/?filter=shared", // Changed from "#" to proper route
         icon: BookOpen,
         items: SharedNotes,
       },

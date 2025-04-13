@@ -15,19 +15,30 @@ import { Search, X } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { getDocuments } from "@/app/actions";
 import { Document } from "@/types/database";
+import { useRouter } from "next/navigation";  // Add this import
 
 interface DocumentFiltersProps {
   setDocuments: React.Dispatch<React.SetStateAction<Document[]>>;
   userId: string;
+  filterprop?: string;
 }
 
 export function DocumentFilters({
   setDocuments,
   userId,
+  filterprop,
 }: DocumentFiltersProps) {
+  const router = useRouter();  // Add this
   const [searchQuery, setSearchQuery] = useState("");
   const [sort, setSort] = useState("updated_desc");
-  const [filter, setFilter] = useState<string>("owned");
+  const [filter, setFilter] = useState<string>(filterprop || "published");
+
+  const handleFilterChange = (value: string) => {
+    setFilter(value);
+    if (value === "shared") {
+      router.push("/dashboard/?filter=shared");
+    }
+  };
 
   useEffect(() => {
     if (userId === "0") setFilter("published");
@@ -61,16 +72,18 @@ export function DocumentFilters({
               <SelectItem value="title_asc">Title A-Z</SelectItem>
             </SelectContent>
           </Select>
-          {userId !== "0" && (<Select defaultValue={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="owned">Owned by me</SelectItem>
-              <SelectItem value="shared">Shared with me</SelectItem>
-              {/* <SelectItem value="published">Community</SelectItem> */}
-            </SelectContent>
-          </Select>)}
+          {userId !== "0" && (
+            <Select defaultValue={filter} onValueChange={handleFilterChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="owned">Owned by me</SelectItem>
+                <SelectItem value="shared">Shared with me</SelectItem>
+                {/* <SelectItem value="published">Community</SelectItem> */}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
     </div>

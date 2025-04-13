@@ -1,7 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { Document } from "@/types/database";
 import { createDocument, getUser } from "@/app/actions";
 import NewDocumentDialog from "@/components/new-document-dialog";
@@ -89,7 +89,8 @@ export default function HomePage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showCongrats, setShowCongrats] = useState(false);
   const pomodoroState = usePomodoroContext();
-
+  const searchParams = useSearchParams();  // Initialize the hook
+  const filter = searchParams.get('filter') || 'owned';
 
   useEffect(() => {
     getUser().then(async ({ id, username, custom_user_goal, progress_on_custom }) => {
@@ -132,7 +133,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <DocumentFilters setDocuments={setDocuments} userId={userId} />
+        <DocumentFilters setDocuments={setDocuments} userId={userId} filterprop={filter}/>
         <div className="flex flex-col gap-4">
           {documents.length === 0 ? (
             <EmptyState />
