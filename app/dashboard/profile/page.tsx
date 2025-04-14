@@ -119,11 +119,15 @@ export default function ProfilePage() {
         setIsLoading(false);
         setIsDialogOpen(false);
 
+        // show the toast, then after 2 seconds, refresh the page
         toast({
             title: "Profile Updated",
             description: "Your profile has been successfully updated.",
-            duration: 3000,
+            duration: 2000,
         });
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
     }
 
     async function handleDeleteAccount() {
