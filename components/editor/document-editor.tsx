@@ -39,6 +39,56 @@ import { GetTextButton } from "./get-text-button";
 import { uploadImage } from "@/app/document";
 import { useToast } from "@/hooks/use-toast";
 
+// Add custom styles to override BlockNote dark mode variables with shadcn theme
+const customStyles = `
+  .bn-shadcn.dark {
+    --background: 20 14.3% 4.1%;
+    --foreground: 0 0% 95%;
+    --card: 24 9.8% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 12 6.5% 15.1%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 142.4 71.8% 29.2%;
+  }
+
+  .bn-shadcn.dark .bn-editor {
+    background-color: hsl(20 14.3% 4.1%);
+    color: hsl(0 0% 95%);
+  }
+
+  .bn-shadcn.dark .bn-container {
+    background-color: hsl(20 14.3% 4.1%);
+    border-color: hsl(240 3.7% 15.9%);
+  }
+
+  .bn-shadcn.dark .bn-menu {
+    background-color: hsl(0 0% 9%);
+    color: hsl(0 0% 95%);
+    border-color: hsl(240 3.7% 15.9%);
+  }
+
+  .bn-shadcn.dark .bn-menu-item:hover {
+    background-color: hsl(12 6.5% 15.1%);
+  }
+
+  .bn-shadcn.dark .bn-menu-item.selected {
+    background-color: hsl(142.1 70.6% 45.3%);
+    color: hsl(144.9 80.4% 10%);
+  }
+`;
+
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
 
 const SaveStatusIndicator = ({ status }: { status: SaveStatus }) => {
@@ -170,6 +220,7 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
 
   return (
     <div className="relative">
+      <style>{customStyles}</style>
       <div className="sticky top-4 z-50 flex justify-end">
         {canEdit && (
           <div className="rounded-full bg-background/95 px-3 py-1.5 shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-800 backdrop-blur">
