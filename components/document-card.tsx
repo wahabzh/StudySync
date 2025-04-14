@@ -68,7 +68,10 @@ export function DocumentCard({
         </div>
         <DocumentActions documentId={id} documentTitle={title} />
       </CardHeader>
-      <Link href={isPublished ? `/community/doc/${id}` : `/dashboard/doc/${id}`} className="flex-1">
+      <Link
+        href={isOwned ? `/dashboard/doc/${id}` : isPublished ? `/community/doc/${id}` : `/dashboard/doc/${id}`}
+        className="flex-1"
+      >
         <CardContent>
           <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
           {preview && (
