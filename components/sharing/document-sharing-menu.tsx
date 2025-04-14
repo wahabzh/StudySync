@@ -50,11 +50,10 @@ export default function DocumentSharingMenu({
       await updateDocumentStatus(documentId, newStatus);
       toast({
         title: "Status updated",
-        description: `Document is now ${
-          newStatus === "anyone-with-link"
+        description: `Document is now ${newStatus === "anyone-with-link"
             ? "accessible via link"
             : "invite-only"
-        }`,
+          }`,
       });
     } catch (error) {
       setError(
@@ -123,9 +122,8 @@ export default function DocumentSharingMenu({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-green-600 text-white hover:bg-green-700">
-          <Share2 className="mr-2 h-4 w-4" />
-          Share
+        <Button variant="outline" size="icon" className="h-8 w-8">
+          <Share2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

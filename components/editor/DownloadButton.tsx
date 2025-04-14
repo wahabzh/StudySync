@@ -141,7 +141,13 @@ const schema = BlockNoteSchema.create({
 //   }
 // };
 
-export default function DownloadButton({ documentId }: { documentId: string }) {
+export default function DownloadButton({
+  documentId,
+  className
+}: {
+  documentId: string;
+  className?: string;
+}) {
   const [loading, setLoading] = useState<"pdf" | "docx" | false>(false);
 
   const handleDownload = async (format: "pdf" | "docx") => {
@@ -221,7 +227,7 @@ export default function DownloadButton({ documentId }: { documentId: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" disabled={!!loading}>
+        <Button variant="outline" size="icon" disabled={!!loading} className={className}>
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (

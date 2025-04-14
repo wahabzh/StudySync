@@ -60,26 +60,29 @@ const PublishMenu: React.FC<PublishMenuProps> = ({
         shareStatus === "published" ? (
           <Button
             variant="outline"
-            className="bg-red-600 text-white hover:bg-red-700"
+            size="icon"
+            className="h-8 w-8"
             onClick={handleUnpublish}
           >
-            <FileX2 className="mr-2 h-4 w-4" />
-            Unpublish
+            <FileX2 className="h-4 w-4" />
           </Button>
         ) : (
           <Button
             variant="outline"
-            className="bg-cyan-600 text-white hover:bg-cyan-700"
+            size="icon"
+            className="h-8 w-8"
             onClick={handlePublish}
           >
-            <FileCheck2 className="mr-2 h-4 w-4" />
-            Publish
+            <FileCheck2 className="h-4 w-4" />
           </Button>
         )
       ) : shareStatus === "published" ? (
-        <Button variant="outline" className="text-cyan-600">
-          <BookOpenCheck className="mr-2 h-4 w-4" />
-          Published
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 text-cyan-600"
+        >
+          <BookOpenCheck className="h-4 w-4" />
         </Button>
       ) : null}
     </div>
