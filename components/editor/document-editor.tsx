@@ -36,6 +36,7 @@ import { Check, Cloud, CloudOff, Loader2, EyeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateToken, getRandomColor } from "@/utils/utils";
 import { ContinueWritingButton } from "./continue-writting-button";
+import { GetTextButton } from "./get-text-button";
 
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
 
@@ -204,7 +205,7 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
 
               {/* custom buttons */}
               <ContinueWritingButton key={"continueWritingButton"} />
-
+              <GetTextButton key={"getTextButton"} />
               {/* default buttons */}
               <FileCaptionButton key={"fileCaptionButton"} />
               <FileReplaceButton key={"replaceFileButton"} />
