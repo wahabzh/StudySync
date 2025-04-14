@@ -9,7 +9,6 @@ import { PDFExporter, pdfDefaultSchemaMappings } from "@blocknote/xl-pdf-exporte
 import { pdf, Image as PdfImage, View } from "@react-pdf/renderer";
 import { createClient } from "@/utils/supabase/client";
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
-import { ReactImage } from "@/components/editor/react-image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,117 +30,116 @@ const CONTENT_HEIGHT = PAGE_HEIGHT - (PAGE_MARGIN * 2);
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    reactImage: ReactImage,
   },
 });
 
-// Helper to get natural image dimensions
-const getImageDimensions = (src: string): Promise<{width: number, height: number}> => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      resolve({
-        width: img.naturalWidth,
-        height: img.naturalHeight
-      });
-    };
-    img.onerror = () => resolve({width: 400, height: 300}); // Fallback
-    img.src = src;
-  });
-};
+// // Helper to get natural image dimensions
+// const getImageDimensions = (src: string): Promise<{ width: number, height: number }> => {
+//   return new Promise((resolve) => {
+//     const img = new Image();
+//     img.onload = () => {
+//       resolve({
+//         width: img.naturalWidth,
+//         height: img.naturalHeight
+//       });
+//     };
+//     img.onerror = () => resolve({ width: 400, height: 300 }); // Fallback
+//     img.src = src;
+//   });
+// };
 
-// PDF image mapper with original sizes
-const pdfImageMapper = async (
-  block: any,
-  nestingLevel: number,
-  remainingPageHeight: number
-) => {
-  const dimensions = await getImageDimensions(block.props.src);
-  const aspectRatio = dimensions.width / dimensions.height;
-  
-  // Scale down if too large for page
-  let displayWidth = dimensions.width;
-  let displayHeight = dimensions.height;
-  
-  if (dimensions.width > PAGE_WIDTH - (PAGE_MARGIN * 2)) {
-    displayWidth = PAGE_WIDTH - (PAGE_MARGIN * 2);
-    displayHeight = displayWidth / aspectRatio;
-  }
-  
-  if (displayHeight > remainingPageHeight) {
-    displayHeight = remainingPageHeight;
-    displayWidth = displayHeight * aspectRatio;
-  }
+// // PDF image mapper with original sizes
+// const pdfImageMapper = async (
+//   block: any,
+//   nestingLevel: number,
+//   remainingPageHeight: number
+// ) => {
+//   const dimensions = await getImageDimensions(block.props.src);
+//   const aspectRatio = dimensions.width / dimensions.height;
 
-  const needsNewPage = displayHeight > remainingPageHeight;
+//   // Scale down if too large for page
+//   let displayWidth = dimensions.width;
+//   let displayHeight = dimensions.height;
 
-  return {
-    element: (
-      <View
-        key={`${block.id}-${nestingLevel}`}
-        style={{
-          marginVertical: 8,
-          minHeight: displayHeight,
-          ...(needsNewPage && { pageBreakBefore: "always" }),
-        }}
-        wrap={false}
-      >
-        <PdfImage
-          src={block.props.src}
-          style={{
-            width: displayWidth,
-            height: displayHeight,
-            maxWidth: '100%',
-            objectFit: "contain",
-          }}
-        />
-      </View>
-    ),
-    height: needsNewPage ? displayHeight : 0,
-  };
-};
+//   if (dimensions.width > PAGE_WIDTH - (PAGE_MARGIN * 2)) {
+//     displayWidth = PAGE_WIDTH - (PAGE_MARGIN * 2);
+//     displayHeight = displayWidth / aspectRatio;
+//   }
 
-// DOCX image mapper with original sizes
-const docxImageMapper = async (block: any) => {
-  try {
-    // Fetch the image data
-    const response = await fetch(block.props.src);
-    const arrayBuffer = await response.arrayBuffer();
-    const imageData = new Uint8Array(arrayBuffer);
+//   if (displayHeight > remainingPageHeight) {
+//     displayHeight = remainingPageHeight;
+//     displayWidth = displayHeight * aspectRatio;
+//   }
 
-    // Determine image type from URL or content
-    const dimensions = await getImageDimensions(block.props.src);
-    const aspectRatio = dimensions.width / dimensions.height;
-  
-  // Scale down if too large for page
-  let displayWidth = dimensions.width;
-  let displayHeight = dimensions.height;
-  
-  if (dimensions.width > PAGE_WIDTH - (PAGE_MARGIN * 2)) {
-    displayWidth = PAGE_WIDTH - (PAGE_MARGIN * 2);
-    displayHeight = displayWidth / aspectRatio;
-  }
-    const imageType = block.props.src.split('.').pop()?.toLowerCase() || 'png';
+//   const needsNewPage = displayHeight > remainingPageHeight;
 
-    return new Paragraph({
-      children: [
-        new ImageRun({
-          data: imageData,
-          transformation: {
-            width: displayWidth,
-            height: displayHeight,
-          },
-          type: imageType === 'svg' ? 'svg' : 'png', // Required for SVG
-          fallback: imageType === 'svg' ? 'png' : imageType, // Required for SVG
-        }),
-      ],
-    });
-  } catch (error) {
-    console.error("Failed to process image for DOCX:", error);
-    // Fallback to empty paragraph if image fails to load
-    return new Paragraph({ children: [] });
-  }
-};
+//   return {
+//     element: (
+//       <View
+//         key={`${block.id}-${nestingLevel}`}
+//         style={{
+//           marginVertical: 8,
+//           minHeight: displayHeight,
+//           ...(needsNewPage && { pageBreakBefore: "always" }),
+//         }}
+//         wrap={false}
+//       >
+//         <PdfImage
+//           src={block.props.src}
+//           style={{
+//             width: displayWidth,
+//             height: displayHeight,
+//             maxWidth: '100%',
+//             objectFit: "contain",
+//           }}
+//         />
+//       </View>
+//     ),
+//     height: needsNewPage ? displayHeight : 0,
+//   };
+// };
+
+// // DOCX image mapper with original sizes
+// const docxImageMapper = async (block: any) => {
+//   try {
+//     // Fetch the image data
+//     const response = await fetch(block.props.src);
+//     const arrayBuffer = await response.arrayBuffer();
+//     const imageData = new Uint8Array(arrayBuffer);
+
+//     // Determine image type from URL or content
+//     const dimensions = await getImageDimensions(block.props.src);
+//     const aspectRatio = dimensions.width / dimensions.height;
+
+//     // Scale down if too large for page
+//     let displayWidth = dimensions.width;
+//     let displayHeight = dimensions.height;
+
+//     if (dimensions.width > PAGE_WIDTH - (PAGE_MARGIN * 2)) {
+//       displayWidth = PAGE_WIDTH - (PAGE_MARGIN * 2);
+//       displayHeight = displayWidth / aspectRatio;
+//     }
+//     const imageType = block.props.src.split('.').pop()?.toLowerCase() || 'png';
+
+//     return new Paragraph({
+//       children: [
+//         new ImageRun({
+//           data: imageData,
+//           transformation: {
+//             width: displayWidth,
+//             height: displayHeight,
+//           },
+//           type: imageType === 'svg' ? 'svg' : 'png', // Required for SVG
+//           fallback: imageType === 'svg' ? 'png' : imageType, // Required for SVG
+//         }),
+//       ],
+//     });
+//   } catch (error) {
+//     console.error("Failed to process image for DOCX:", error);
+//     // Fallback to empty paragraph if image fails to load
+//     return new Paragraph({ children: [] });
+//   }
+// };
 
 export default function DownloadButton({ documentId }: { documentId: string }) {
   const [loading, setLoading] = useState<"pdf" | "docx" | false>(false);
@@ -163,40 +161,39 @@ export default function DownloadButton({ documentId }: { documentId: string }) {
       const { title, content } = data;
 
       if (format === "pdf") {
-        let remainingHeight = CONTENT_HEIGHT;
         const exporter = new PDFExporter(schema, {
-          blockMapping: {
-            ...pdfDefaultSchemaMappings.blockMapping,
-            reactImage: async (
-              block: { id: string; props: { src: string } }, 
-              exporter: any, 
-              nestingLevel: number
-            ) => {
-              const result = await pdfImageMapper(block, nestingLevel, remainingHeight);
-              remainingHeight = result.height > 0 ? CONTENT_HEIGHT - result.height : remainingHeight - result.height;
-              return result.element;
-            },
-          },
+          blockMapping: pdfDefaultSchemaMappings.blockMapping,
           inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,
           styleMapping: pdfDefaultSchemaMappings.styleMapping,
         });
 
-        const pdfDocument = await exporter.toReactPDFDocument(content, title);
-        const blob = await pdf(pdfDocument).toBlob();
-        
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${title || "document"}.pdf`;
-        link.click();
-        URL.revokeObjectURL(url);
-      } 
+        // Temporarily override console.error
+        const originalConsoleError = console.error;
+        console.error = (...args) => {
+          if (typeof args[0] === 'string' && args[0].includes('key')) {
+            return; // Suppress key warnings
+          }
+          originalConsoleError.apply(console, args);
+        };
+
+        try {
+          const pdfDocument = await exporter.toReactPDFDocument(content, title);
+          const blob = await pdf(pdfDocument).toBlob();
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `${title || "document"}.pdf`;
+          link.click();
+          URL.revokeObjectURL(url);
+        } finally {
+          // Restore original console.error
+          console.error = originalConsoleError;
+        }
+      }
       else if (format === "docx") {
         const exporter = new DOCXExporter(schema, {
-          blockMapping: {
-            ...docxDefaultSchemaMappings.blockMapping,
-            reactImage: async (block) => await docxImageMapper(block),
-          },
+          blockMapping: docxDefaultSchemaMappings.blockMapping,
           inlineContentMapping: docxDefaultSchemaMappings.inlineContentMapping,
           styleMapping: docxDefaultSchemaMappings.styleMapping,
         });
@@ -233,10 +230,10 @@ export default function DownloadButton({ documentId }: { documentId: string }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => handleDownload("pdf")}>
+        <DropdownMenuItem key="pdf" onClick={() => handleDownload("pdf")}>
           Download as PDF
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleDownload("docx")}>
+        <DropdownMenuItem key="docx" onClick={() => handleDownload("docx")}>
           Download as DOCX
         </DropdownMenuItem>
       </DropdownMenuContent>

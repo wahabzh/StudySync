@@ -306,7 +306,7 @@ export async function getDocumentWithCollaborators(documentId: string) {
   };
 }
 
-export async function uploadImage(formData: FormData) {
+export async function uploadImage(formData: FormData): Promise<string> {
   //"use server";
 
   // Get user from Supabase auth
@@ -316,12 +316,12 @@ export async function uploadImage(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return null;
+    throw new Error("User not authenticated");
   }
 
-  const file = formData.get("image") as File;
+  const file = formData.get("file") as File;
   if (!file) {
-    return { error: "No file uploaded" };
+    throw new Error("No file uploaded");
   }
 
   try {
@@ -350,10 +350,10 @@ export async function uploadImage(formData: FormData) {
     // Revalidate cache if needed
     //revalidatePath("/");  
 
-    return { url: publicUrl.publicUrl };
+    return publicUrl.publicUrl;
   } catch (error) {
     console.error("Upload failed:", error);
-    return { error: "Image upload failed. Please try again." };
+    throw new Error("Image upload failed. Please try again.");
   }
 }
 

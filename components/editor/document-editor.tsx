@@ -25,7 +25,6 @@ import {
   defaultBlockSpecs,
   filterSuggestionItems,
 } from "@blocknote/core";
-import { ReactImage, insertReactImage, uploadLocalImage} from "./react-image";
 import { TiptapCollabProvider } from "@hocuspocus/provider";
 import * as Y from "yjs";
 import { Document } from "@/types/database";
@@ -37,6 +36,8 @@ import { cn } from "@/lib/utils";
 import { generateToken, getRandomColor } from "@/utils/utils";
 import { ContinueWritingButton } from "./continue-writting-button";
 import { GetTextButton } from "./get-text-button";
+import { uploadImage } from "@/app/document";
+import { useToast } from "@/hooks/use-toast";
 
 type SaveStatus = "saved" | "saving" | "unsaved" | "error";
 
@@ -85,13 +86,12 @@ interface DocumentEditorProps {
   canEdit: boolean;
 }
 
-
 export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("saved");
   const [content, setContent] = useState(doc.content);
   const [debouncedContent] = useDebounce(content, 1000); // 1 second
   const ydoc = useMemo(() => new Y.Doc(), [doc.id]);
-
+  const { toast } = useToast();
   const provider = useMemo(() => {
     return new TiptapCollabProvider({
       name: doc.id,
@@ -100,6 +100,18 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
       document: ydoc,
     });
   }, [doc.id]);
+
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const imageUrl = await uploadImage(formData);
+      return imageUrl;
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      throw error;
+    }
+  }
 
   const editor = useCreateBlockNote({
     collaboration: {
@@ -125,14 +137,8 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
       //   return cursor;
       // },
     },
-    schema: BlockNoteSchema.create({
-      blockSpecs: {
-        // Adds all default blocks.
-        ...defaultBlockSpecs,
-        // Add custom block
-        reactImage: ReactImage,
-      },
-    }),
+
+    uploadFile: uploadFile,
   });
 
   useEffect(() => {
@@ -183,21 +189,6 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
           }
         }}
       >
-        <SuggestionMenuController
-          triggerCharacter={"/"}
-          getItems={async (query: string) =>
-            // Gets all default slash menu items and `insertReact` item.
-            filterSuggestionItems(
-              [
-                ...getDefaultReactSlashMenuItems(editor),
-                insertReactImage(editor),
-                uploadLocalImage(editor),
-              ],
-              query
-            )
-          }
-        />
-
         <FormattingToolbarController
           formattingToolbar={() => (
             <FormattingToolbar>
@@ -258,3 +249,4 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
     </div>
   );
 }
+
