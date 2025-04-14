@@ -51,8 +51,8 @@ export default function DocumentSharingMenu({
       toast({
         title: "Status updated",
         description: `Document is now ${newStatus === "anyone-with-link"
-            ? "accessible via link"
-            : "invite-only"
+          ? "accessible via link"
+          : "invite-only"
           }`,
       });
     } catch (error) {
