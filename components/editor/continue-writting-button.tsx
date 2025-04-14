@@ -47,7 +47,7 @@ export const ContinueWritingButton = () => {
     }
 
     // Don't render the button if a file block is selected
-    if (isFileBlock) {
+    if (isFileBlock || !editor.isEditable) {
         return null;
     }
 

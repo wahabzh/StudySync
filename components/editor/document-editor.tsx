@@ -246,8 +246,12 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
               <BlockTypeSelect key={"blockTypeSelect"} />
 
               {/* custom buttons */}
-              <ContinueWritingButton key={"continueWritingButton"} />
-              <GetTextButton key={"getTextButton"} />
+              {canEdit && (
+                <>
+                  <ContinueWritingButton key={"continueWritingButton"} />
+                  <GetTextButton key={"getTextButton"} />
+                </>
+              )}
               {/* default buttons */}
               <FileCaptionButton key={"fileCaptionButton"} />
               <FileReplaceButton key={"replaceFileButton"} />

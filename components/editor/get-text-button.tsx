@@ -56,7 +56,7 @@ export const GetTextButton = () => {
     }
 
     // Don't render the button if a file block is selected or if we're not in an image block
-    if (!isFileBlock || editor.getTextCursorPosition().block.type !== "image") {
+    if (!isFileBlock || editor.getTextCursorPosition().block.type !== "image" || !editor.isEditable) {
         return null;
     }
 
