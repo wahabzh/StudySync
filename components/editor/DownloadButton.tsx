@@ -167,7 +167,11 @@ export default function DownloadButton({ documentId }: { documentId: string }) {
         const exporter = new PDFExporter(schema, {
           blockMapping: {
             ...pdfDefaultSchemaMappings.blockMapping,
-            reactImage: async (block, _, nestingLevel) => {
+            reactImage: async (
+              block: { id: string; props: { src: string } }, 
+              exporter: any, 
+              nestingLevel: number
+            ) => {
               const result = await pdfImageMapper(block, nestingLevel, remainingHeight);
               remainingHeight = result.height > 0 ? CONTENT_HEIGHT - result.height : remainingHeight - result.height;
               return result.element;
