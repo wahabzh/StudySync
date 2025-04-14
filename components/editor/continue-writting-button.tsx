@@ -4,13 +4,27 @@ import {
     useEditorContentOrSelectionChange,
 } from "@blocknote/react";
 import "@blocknote/shadcn/style.css";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { continueWriting } from "@/app/ai";
+import { checkBlockIsFileBlock } from "@blocknote/core";
+import { useSelectedBlocks } from "@blocknote/react";
 
 export const ContinueWritingButton = () => {
     const editor = useBlockNoteEditor();
     const Components = useComponentsContext()!;
 
+    const selectedBlocks = useSelectedBlocks(editor)
+    const isFileBlock = useMemo(() => {
+        // Checks if only one block is selected.
+        if (selectedBlocks.length !== 1) {
+          return false;
+        }
+        const block = selectedBlocks[0];
+        // Return true if it's a file block
+        return checkBlockIsFileBlock(block, editor);
+      }, [editor, selectedBlocks]);
+    
+    
     // state to store selected text
     const [selectedText, setSelectedText] = useState(editor.getSelectedText());
 
@@ -30,6 +44,11 @@ export const ContinueWritingButton = () => {
             { type: "text", text: response, styles: {} }
         ]);
 
+    }
+
+    // Don't render the button if a file block is selected
+    if (isFileBlock) {
+        return null;
     }
 
     return (
