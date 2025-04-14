@@ -1,7 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/server";
-import { redirect, useSearchParams } from "next/navigation";
+import { redirect, useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Document } from "@/types/database";
 import { createDocument, getUser } from "@/app/actions";
 import NewDocumentDialog from "@/components/new-document-dialog";
@@ -88,11 +88,30 @@ function GoalProgressBar() {
 function FilteredContent({ userId }: { userId: string }) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Get the filter from URL or default to 'owned'
   const filter = searchParams.get('filter') || 'owned';
+
+  // Update URL when filter changes
+  const handleFilterChange = (newFilter: string) => {
+    if (newFilter === 'owned') {
+      // Remove the filter parameter for the default view
+      router.replace(pathname);
+    } else {
+      router.replace(`${pathname}?filter=${newFilter}`);
+    }
+  };
 
   return (
     <>
-      <DocumentFilters setDocuments={setDocuments} userId={userId} filterprop={filter} />
+      <DocumentFilters
+        setDocuments={setDocuments}
+        userId={userId}
+        filterprop={filter}
+        onFilterChange={handleFilterChange}
+      />
       <div className="flex flex-col gap-4">
         {documents.length === 0 ? (
           <EmptyState />

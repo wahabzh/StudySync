@@ -21,23 +21,23 @@ interface DocumentFiltersProps {
   setDocuments: React.Dispatch<React.SetStateAction<Document[]>>;
   userId: string;
   filterprop?: string;
+  onFilterChange?: (filter: string) => void;
 }
 
 export function DocumentFilters({
   setDocuments,
   userId,
   filterprop,
+  onFilterChange,
 }: DocumentFiltersProps) {
   const router = useRouter();  // Add this
   const [searchQuery, setSearchQuery] = useState("");
   const [sort, setSort] = useState("updated_desc");
-  const [filter, setFilter] = useState<string>(filterprop || "published");
+  const [filter, setFilter] = useState<string>(filterprop || "owned");
 
   const handleFilterChange = (value: string) => {
     setFilter(value);
-    if (value === "shared") {
-      router.push("/dashboard/?filter=shared");
-    }
+    onFilterChange?.(value);
   };
 
   useEffect(() => {
