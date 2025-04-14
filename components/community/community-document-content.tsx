@@ -21,8 +21,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
-import { ReactImage } from "../editor/react-image";
 
 interface CommunityDocumentContentProps {
   document: Document & { has_clapped: boolean };
@@ -36,14 +34,6 @@ export const CommunityDocumentContent = ({
   // console.log("document", document.content); // Debugging
   const editor = useCreateBlockNote({
     initialContent: document.content,
-    schema: BlockNoteSchema.create({
-      blockSpecs: {
-        // Adds all default blocks.
-        ...defaultBlockSpecs,
-        // Add custom block
-        reactImage: ReactImage,
-      },
-    }),
   });
 
   const handleClap = () => {

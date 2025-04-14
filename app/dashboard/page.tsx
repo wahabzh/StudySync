@@ -9,7 +9,7 @@ import StatsDialog from "@/components/stats-dialog-box";
 import { DocumentCard } from "@/components/document-card";
 import { DocumentFilters } from "@/components/document-filters";
 import { formatDistanceToNow } from "date-fns";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import CongratsDialog from "@/components/log-in-reward";
 import { checkDailyReward } from "@/app/gamification";
 import { usePomodoroContext } from "@/contexts/pomodoro-context";
@@ -84,20 +84,36 @@ function GoalProgressBar() {
   );
 }
 
-export default function HomePage() {
-  const [userId, setUserId] = useState<string>("");   // after refresh fix
+// Create a separate client component for the filtered content
+function FilteredContent({ userId }: { userId: string }) {
   const [documents, setDocuments] = useState<Document[]>([]);
+  const searchParams = useSearchParams();
+  const filter = searchParams.get('filter') || 'owned';
+
+  return (
+    <>
+      <DocumentFilters setDocuments={setDocuments} userId={userId} filterprop={filter} />
+      <div className="flex flex-col gap-4">
+        {documents.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <DocumentGrid documents={documents} userId={userId} />
+        )}
+      </div>
+    </>
+  );
+}
+
+export default function HomePage() {
+  const [userId, setUserId] = useState<string>("");
   const [showCongrats, setShowCongrats] = useState(false);
   const pomodoroState = usePomodoroContext();
-  const searchParams = useSearchParams();  // Initialize the hook
-  const filter = searchParams.get('filter') || 'owned';
 
   useEffect(() => {
     getUser().then(async ({ id, username, custom_user_goal, progress_on_custom }) => {
       setUserId(id);
       sessionStorage.setItem("username", username);
 
-      // Update Pomodoro context with persisted values
       pomodoroState.saveSettings({
         ...pomodoroState.settings,
         userGoal: custom_user_goal,
@@ -112,20 +128,12 @@ export default function HomePage() {
   return (
     userId && (
       <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        {/* Congrats Dialog */}
         <CongratsDialog open={showCongrats} setOpen={setShowCongrats} userId={userId} />
 
-        {/* Header Section */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h1 className="text-2xl font-semibold tracking-tight">My Documents</h1>
 
           <div className="flex flex-col md:flex-row items-center gap-4">
-            {/* Progress Bar - Only show if goal is set */}
-            {/* {pomodoroState.settings?.userGoal && pomodoroState.settings?.userGoal > 0 && (
-              <GoalProgressBar />
-            )} */}
-
-            {/* Action Buttons */}
             <div className="flex gap-2 self-end md:self-auto">
               <NewDocumentDialog onCreate={createDocument} />
               <StatsDialog />
@@ -133,14 +141,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        <DocumentFilters setDocuments={setDocuments} userId={userId} filterprop={filter}/>
-        <div className="flex flex-col gap-4">
-          {documents.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <DocumentGrid documents={documents} userId={userId} />
-          )}
-        </div>
+        <Suspense fallback={<div>Loading...</div>}>
+          <FilteredContent userId={userId} />
+        </Suspense>
       </div>
     )
   );

@@ -5,12 +5,29 @@ import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+  : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "StudySync",
   description: "For students, by students",
+  openGraph: {
+    title: "StudySync",
+    description: "For students, by students",
+    url: defaultUrl,
+    siteName: "StudySync",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "StudySync",
+    description: "For students, by students",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
