@@ -1,10 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-    req: NextRequest,
-    { params }: { params: { threadId: string } }
-) {
+export async function GET(req: NextRequest, props: { params: Promise<{ threadId: string }> }) {
+    const params = await props.params;
     try {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -43,10 +41,8 @@ export async function GET(
     }
 }
 
-export async function PUT(
-    req: NextRequest,
-    { params }: { params: { threadId: string } }
-) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ threadId: string }> }) {
+    const params = await props.params;
     try {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -92,10 +88,8 @@ export async function PUT(
     }
 }
 
-export async function DELETE(
-    req: NextRequest,
-    { params }: { params: { threadId: string } }
-) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ threadId: string }> }) {
+    const params = await props.params;
     try {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
