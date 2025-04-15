@@ -30,6 +30,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { useRouter } from "next/navigation";
 
 interface CommunityDocumentContentProps {
   document: Document & { has_clapped: boolean };
@@ -42,7 +43,7 @@ export const CommunityDocumentContent = ({
   const [clapCount, setClapCount] = useState(document.clap_count || 0);
   const [hasClapped, setHasClapped] = useState(document.has_clapped || false);
   const { toast } = useToast();
-  
+  const router = useRouter();
   console.log("hasClapped", hasClapped);
   const editor = useCreateBlockNote({
     initialContent: document.content,
@@ -121,7 +122,7 @@ export const CommunityDocumentContent = ({
             variant="ghost"
             size="sm"
             className="mb-4 -ml-2 text-muted-foreground"
-            onClick={() => window.history.back()}
+            onClick={() => router.push('/community')}
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
