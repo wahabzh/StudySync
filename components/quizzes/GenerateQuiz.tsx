@@ -7,12 +7,6 @@ import { Sparkles, Loader2, FileQuestion } from "lucide-react";
 import { generateQuizFromDocument } from "@/app/ai";
 import { useToast } from "@/hooks/use-toast";
 import { getDocumentContentById } from "@/app/document";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface GenerateQuizButtonProps {
     documentId: string;
@@ -50,27 +44,18 @@ export default function GenerateQuizButton({ documentId, className }: GenerateQu
     };
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={isGenerating}
-                    className={className}
-                >
-                    {isGenerating ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                        <FileQuestion className="h-4 w-4" />
-                    )}
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleGenerateQuiz}>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Generate Quiz
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+            variant="outline"
+            size="icon"
+            disabled={isGenerating}
+            className={className}
+            onClick={handleGenerateQuiz}
+        >
+            {isGenerating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+                <FileQuestion className="h-4 w-4" />
+            )}
+        </Button>
     );
 } 

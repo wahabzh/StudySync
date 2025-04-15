@@ -50,27 +50,18 @@ export default function GenerateFlashcardsButton({ documentId, className }: Gene
     };
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={isGenerating}
-                    className={className}
-                >
-                    {isGenerating ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                        <BookOpen className="h-4 w-4" />
-                    )}
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleGenerateFlashcards}>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Generate Flashcards
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+            variant="outline"
+            size="icon"
+            disabled={isGenerating}
+            className={className}
+            onClick={handleGenerateFlashcards}
+        >
+            {isGenerating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+                <BookOpen className="h-4 w-4" />
+            )}
+        </Button>
     );
 } 
