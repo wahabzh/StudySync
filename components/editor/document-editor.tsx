@@ -66,11 +66,16 @@ const customStyles = `
   .bn-shadcn.dark .bn-editor {
     background-color: hsl(20 14.3% 4.1%);
     color: hsl(0 0% 95%);
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .bn-shadcn.dark .bn-container {
     background-color: hsl(20 14.3% 4.1%);
     border-color: hsl(240 3.7% 15.9%);
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .bn-shadcn.dark .bn-menu {
