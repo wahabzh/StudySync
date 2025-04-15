@@ -42,37 +42,41 @@ export async function getCommunityDocument(documentId: string) {
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
 
-    let query = supabase
+    // Query to get the document
+    const { data: document, error } = await supabase
         .from("documents")
         .select("*")
         .eq("id", documentId)
-        .eq("share_status", "published");
-
-    // Only check for claps if user is logged in
-    if (user) {
-        query = supabase
-            .from("documents")
-            .select(`
-                *,
-                document_claps!left (
-                    user_id
-                )
-            `)
-            .eq("id", documentId)
-            .eq("share_status", "published")
-            .eq("document_claps.user_id", user.id);
-    }
-
-    const { data: document, error } = await query.single();
+        .eq("share_status", "published")
+        .single();
 
     if (error) {
         console.error("Error fetching document:", error);
         return null;
     }
 
+    // Default has_clapped to false
+    let has_clapped = false;
+
+    // Check if user has clapped this document
+    if (user) {
+        const { data: userClap, error: clapError } = await supabase
+            .from("document_claps")
+            .select()
+            .eq("document_id", documentId)
+            .eq("user_id", user.id)
+            .single();
+
+        has_clapped = !!userClap;
+
+        if (clapError && clapError.code !== 'PGRST116') { // PGRST116 is the "no rows returned" error
+            console.error("Error checking user clap:", clapError);
+        }
+    }
+
     return {
         ...document,
-        has_clapped: document.has_clapped?.length > 0
+        has_clapped
     } as Document & { has_clapped: boolean };
 }
 
