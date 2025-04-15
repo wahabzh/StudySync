@@ -19,7 +19,8 @@ interface DocumentCardProps {
   isOwned: boolean;
   isShared: boolean;
   isPublished: boolean;
-  userId: string
+  userId: string;
+  onDeleted?: () => void;
 }
 
 export function DocumentCard({
@@ -30,7 +31,8 @@ export function DocumentCard({
   isOwned,
   isShared,
   isPublished,
-  userId
+  userId,
+  onDeleted
 }: DocumentCardProps) {
   return (
     <Card className="group flex flex-col h-full transition-all hover:shadow-md">
@@ -66,7 +68,7 @@ export function DocumentCard({
             )}
           </div>
         </div>
-        <DocumentActions documentId={id} documentTitle={title} />
+        <DocumentActions documentId={id} documentTitle={title} onDeleted={onDeleted} />
       </CardHeader>
       <Link
         href={isOwned ? `/dashboard/doc/${id}` : isPublished ? `/community/doc/${id}` : `/dashboard/doc/${id}`}

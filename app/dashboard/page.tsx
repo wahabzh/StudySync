@@ -9,7 +9,7 @@ import StatsDialog from "@/components/stats-dialog-box";
 import { DocumentCard } from "@/components/document-card";
 import { DocumentFilters } from "@/components/document-filters";
 import { formatDistanceToNow } from "date-fns";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import CongratsDialog from "@/components/log-in-reward";
 import { checkDailyReward } from "@/app/gamification";
 import { usePomodoroContext } from "@/contexts/pomodoro-context";
@@ -28,9 +28,11 @@ const EmptyState = () => {
 const DocumentGrid = ({
   documents,
   userId,
+  onDocumentDeleted,
 }: {
   documents: Document[];
   userId: string;
+  onDocumentDeleted: (documentId: string) => void;
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -46,6 +48,7 @@ const DocumentGrid = ({
           isShared={(document.editors?.includes(userId) || false) || (document.viewers?.includes(userId) || false)}
           isPublished={document.share_status === "published"}
           userId={userId}
+          onDeleted={() => onDocumentDeleted(document.id)}
         />
       ))}
     </div>
@@ -87,6 +90,7 @@ function GoalProgressBar() {
 // Create a separate client component for the filtered content
 function FilteredContent({ userId }: { userId: string }) {
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -104,6 +108,11 @@ function FilteredContent({ userId }: { userId: string }) {
     }
   };
 
+  // Handle document deletion
+  const handleDocumentDeleted = useCallback((documentId: string) => {
+    setDocuments(prev => prev.filter(doc => doc.id !== documentId));
+  }, []);
+
   return (
     <>
       <DocumentFilters
@@ -111,12 +120,26 @@ function FilteredContent({ userId }: { userId: string }) {
         userId={userId}
         filterprop={filter}
         onFilterChange={handleFilterChange}
+        setLoading={setLoading}
       />
       <div className="flex flex-col gap-4">
-        {documents.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="h-[180px] rounded-lg border border-border bg-card p-6 shadow-sm animate-pulse"
+              />
+            ))}
+          </div>
+        ) : documents.length === 0 ? (
           <EmptyState />
         ) : (
-          <DocumentGrid documents={documents} userId={userId} />
+          <DocumentGrid 
+            documents={documents} 
+            userId={userId} 
+            onDocumentDeleted={handleDocumentDeleted} 
+          />
         )}
       </div>
     </>

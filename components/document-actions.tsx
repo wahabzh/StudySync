@@ -29,6 +29,7 @@ interface DocumentActionsProps {
   userAccess?: "none" | "view" | "edit" | "owner";
   onSelect?: () => void;
   isSelected?: boolean;
+  onDeleted?: () => void;
 }
 
 export function DocumentActions({
@@ -37,6 +38,7 @@ export function DocumentActions({
   userAccess = "owner",
   onSelect,
   isSelected = false,
+  onDeleted,
 }: DocumentActionsProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -46,7 +48,11 @@ export function DocumentActions({
     setIsDeleting(true);
     try {
       await deleteDocument(documentId);
-      router.refresh();
+      if (onDeleted) {
+        onDeleted();
+      } else {
+        router.refresh();
+      }
     } catch (error) {
       console.error("Failed to delete document:", error);
     } finally {

@@ -22,6 +22,7 @@ interface DocumentFiltersProps {
   userId: string;
   filterprop?: string;
   onFilterChange?: (filter: string) => void;
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function DocumentFilters({
@@ -29,6 +30,7 @@ export function DocumentFilters({
   userId,
   filterprop,
   onFilterChange,
+  setLoading,
 }: DocumentFiltersProps) {
   const router = useRouter();  // Add this
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,11 +45,18 @@ export function DocumentFilters({
   useEffect(() => {
     if (userId === "0") setFilter("published");
     const fetchDocuments = async () => {
-      const documents = await getDocuments(userId, searchQuery, sort, filter);
-      setDocuments(documents);
+      setLoading?.(true);
+      try {
+        const documents = await getDocuments(userId, searchQuery, sort, filter);
+        setDocuments(documents);
+      } catch (error) {
+        console.error("Error fetching documents:", error);
+      } finally {
+        setLoading?.(false);
+      }
     };
     fetchDocuments();
-  }, [searchQuery, sort, filter]);
+  }, [searchQuery, sort, filter, userId, setDocuments, setLoading]);
 
   return (
     <div className="space-y-4">
