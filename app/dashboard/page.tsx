@@ -146,6 +146,13 @@ function FilteredContent({ userId }: { userId: string }) {
   );
 }
 
+function FilteredContentWrapper({ userId }: { userId: string }) {
+  const searchParams = useSearchParams();
+  const filter = searchParams.get("filter") || "owned";
+
+  return <FilteredContent key={filter} userId={userId} />;
+}  
+
 export default function HomePage() {
   const [userId, setUserId] = useState<string>("");
   const [showCongrats, setShowCongrats] = useState(false);
@@ -184,7 +191,7 @@ export default function HomePage() {
         </div>
 
         <Suspense fallback={<div>Loading...</div>}>
-          <FilteredContent userId={userId} />
+          <FilteredContentWrapper userId={userId}/>
         </Suspense>
       </div>
     )
