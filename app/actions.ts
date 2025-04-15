@@ -564,3 +564,36 @@ export async function deleteAccount(password: string) {
     throw err;
   }
 }
+
+export async function renameDocument(documentId: string, title: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Not authenticated");
+  }
+
+  // Validate title
+  if (!title.trim()) {
+    throw new Error("Title cannot be empty");
+  }
+
+  const { error } = await supabase
+    .from("documents")
+    .update({
+      title,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", documentId);
+
+  if (error) {
+    console.error("Error renaming document:", error);
+    throw error;
+  }
+
+  revalidatePath(`/dashboard/doc/${documentId}`);
+  return { success: true };
+}

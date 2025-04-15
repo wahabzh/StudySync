@@ -17,6 +17,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { renameDocument } from "@/app/actions";
+import EditDocumentTitle from "@/components/edit-document-title";
 
 const ViewOnlyBadge = () => {
   return (
@@ -56,13 +58,17 @@ export default async function DocumentPage({
     <div className="flex flex-1 flex-col h-full">
       {/* Minimal Header */}
       <div className="flex items-center justify-between py-2 px-4 border-b bg-background/95 sticky top-0 z-10 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 group">
           <Button variant="ghost" size="icon" asChild className="h-8 w-8">
             <Link href="/dashboard">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <h1 className="font-medium text-lg truncate max-w-[35ch]">{document.title}</h1>
+          <EditDocumentTitle 
+            documentId={document.id} 
+            initialTitle={document.title} 
+            canEdit={canShare && document.share_status !== "published"}
+          />
           <div className="hidden md:flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
             <span>Edited {lastEdited}</span>
