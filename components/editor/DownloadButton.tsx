@@ -141,6 +141,28 @@ const schema = BlockNoteSchema.create({
 //   }
 // };
 
+// Function to check if document content is empty
+const isDocumentEmpty = (content: any): boolean => {
+  // Check if content is null or undefined
+  if (!content) return true;
+  
+  // Check if content is an empty array
+  if (Array.isArray(content) && content.length === 0) return true;
+  
+  // Check if content is [{}] which represents an empty document
+  if (Array.isArray(content) && content.length === 1 && Object.keys(content[0]).length === 0) return true;
+  
+  // Check if content has only one empty paragraph block
+  if (Array.isArray(content) && content.length === 1) {
+    const block = content[0];
+    return block.type === "paragraph" &&
+      (!block.content || block.content.length === 0 ||
+        (block.content.length === 1 && block.content[0].type === "text" && !block.content[0].text));
+  }
+  
+  return false;
+};
+
 export default function DownloadButton({
   documentId,
   className
@@ -165,6 +187,16 @@ export default function DownloadButton({
       }
 
       const { title, content } = data;
+
+      // Check if document is empty
+      if (isDocumentEmpty(content)) {
+        toast({
+          title: "Cannot download empty document",
+          description: "Please add some content to your document before downloading.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       if (format === "pdf") {
         const exporter = new PDFExporter(schema, {
