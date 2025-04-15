@@ -101,13 +101,13 @@ export default function ChatSidebar({
         <>
             {/* Desktop Sidebar */}
             <div className={cn(
-                "w-64 border-r bg-background flex-shrink-0 hidden md:flex flex-col",
+                "w-64 border-l bg-background flex-shrink-0 hidden md:flex flex-col",
             )}>
                 {/* Sidebar Header */}
-                <div className="p-4 border-b">
+                <div className="p-4 border-b bg-primary/5 backdrop-blur-sm">
                     <Button
                         onClick={() => setShowNewChatDialog(true)}
-                        className="w-full flex items-center justify-center gap-2"
+                        className="w-full flex items-center justify-center gap-2 bg-primary/90 hover:bg-primary/95 text-primary-foreground shadow-sm transition-colors"
                     >
                         <Plus size={16} />
                         New Chat
@@ -115,10 +115,10 @@ export default function ChatSidebar({
                 </div>
 
                 {/* Threads List */}
-                <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-gradient-to-b from-background to-background/95">
                     {loadingThreads ? (
                         <div className="flex justify-center py-8">
-                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                            <Loader2 className="h-6 w-6 animate-spin text-primary/60" />
                         </div>
                     ) : threads.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground text-sm">
@@ -130,8 +130,8 @@ export default function ChatSidebar({
                                 key={thread.id}
                                 className={cn(
                                     "group flex items-center gap-2 rounded-md p-2 text-sm",
-                                    "hover:bg-muted/50 cursor-pointer transition-colors",
-                                    selectedThreadId === thread.id && "bg-muted"
+                                    "hover:bg-primary/5 cursor-pointer transition-all duration-200",
+                                    selectedThreadId === thread.id ? "bg-primary/10 border border-primary/20 shadow-sm" : "hover:border-primary/10 border border-transparent"
                                 )}
                             >
                                 <Link
@@ -144,14 +144,14 @@ export default function ChatSidebar({
                                             <Input
                                                 value={editThreadTitle}
                                                 onChange={(e) => setEditThreadTitle(e.target.value)}
-                                                className="h-7 text-xs"
+                                                className="h-7 text-xs focus-visible:ring-primary/40"
                                                 autoFocus
                                                 onClick={(e) => e.stopPropagation()}
                                             />
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="h-6 w-6"
+                                                className="h-6 w-6 hover:bg-primary/10 hover:text-primary"
                                                 onClick={(e) => {
                                                     e.stopPropagation()
                                                     e.preventDefault()
@@ -164,7 +164,7 @@ export default function ChatSidebar({
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="h-6 w-6"
+                                                className="h-6 w-6 hover:bg-destructive/10 hover:text-destructive"
                                                 onClick={(e) => {
                                                     e.stopPropagation()
                                                     e.preventDefault()
@@ -176,8 +176,16 @@ export default function ChatSidebar({
                                         </div>
                                     ) : (
                                         <span className="flex items-center">
-                                            <MessageCircle className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                                            {thread.title}
+                                            <MessageCircle className={cn(
+                                                "h-3.5 w-3.5 mr-2",
+                                                selectedThreadId === thread.id ? "text-primary" : "text-muted-foreground"
+                                            )} />
+                                            <span className={cn(
+                                                selectedThreadId === thread.id ? "text-foreground font-medium" : "text-foreground/80",
+                                                "transition-colors duration-200"
+                                            )}>
+                                                {thread.title}
+                                            </span>
                                         </span>
                                     )}
                                 </Link>
@@ -188,27 +196,28 @@ export default function ChatSidebar({
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-6 w-6 opacity-0 group-hover:opacity-100"
+                                                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
                                                 <MoreVertical className="h-3.5 w-3.5" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
+                                        <DropdownMenuContent align="end" className="w-[160px]">
                                             <DropdownMenuItem
                                                 onClick={() => {
                                                     setEditingThreadId(thread.id)
                                                     setEditThreadTitle(thread.title)
                                                 }}
+                                                className="gap-2"
                                             >
-                                                <Edit className="mr-2 h-4 w-4" />
+                                                <Edit className="h-4 w-4" />
                                                 Rename
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
-                                                className="text-destructive focus:text-destructive"
+                                                className="text-destructive focus:text-destructive gap-2"
                                                 onClick={() => onDeleteThread(thread.id)}
                                             >
-                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                <Trash2 className="h-4 w-4" />
                                                 Delete
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -220,13 +229,13 @@ export default function ChatSidebar({
                 </div>
 
                 {/* Sidebar Footer */}
-                <div className="p-4 border-t">
+                <div className="p-4 border-t bg-background/50 backdrop-blur-sm">
                     <AlertDialog open={showDeleteAllDialog} onOpenChange={setShowDeleteAllDialog}>
                         <AlertDialogTrigger asChild>
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="w-full flex items-center justify-center gap-2 text-destructive hover:text-destructive"
+                                className="w-full flex items-center justify-center gap-2 text-destructive hover:text-destructive hover:bg-destructive/5 transition-colors"
                                 disabled={threads.length === 0 || deletingAllThreads}
                             >
                                 {deletingAllThreads ? (
@@ -256,7 +265,7 @@ export default function ChatSidebar({
             </div>
 
             {/* Mobile sidebar button */}
-            <div className="md:hidden fixed bottom-20 left-4 z-10">
+            <div className="md:hidden fixed bottom-20 right-4 z-10">
                 <Button
                     variant="outline"
                     size="icon"
@@ -269,7 +278,7 @@ export default function ChatSidebar({
 
             {/* Mobile sidebar dialog */}
             <Dialog open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
-                <DialogContent className="sm:max-w-[425px] p-0 h-[80vh]">
+                <DialogContent className="sm:max-w-[425px] p-0 h-[80vh] right-0 left-auto">
                     <DialogHeader className="p-4 border-b">
                         <DialogTitle>Your Chats</DialogTitle>
                         <Button

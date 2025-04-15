@@ -166,7 +166,12 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
     }
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] w-full">
+        <div className="flex h-[calc(100vh-4rem)] w-full bg-gradient-to-tr from-background to-primary/5 overflow-hidden">
+            {/* <ChatWindow
+                threadId={selectedThreadId}
+                onCreateThread={createThread}
+                threads={threads}
+            /> */}
             <ChatSidebar
                 threads={threads}
                 loadingThreads={loadingThreads}

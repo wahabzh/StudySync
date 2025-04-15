@@ -172,9 +172,9 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
     const currentThread = threads.find(t => t.id === threadId)
 
     return (
-        <div className="flex-1 flex flex-col h-full">
+        <div className="flex-1 flex flex-col h-full relative bg-gradient-to-br from-background via-background to-background/95 animated-gradient">
             {/* Header */}
-            <div className="flex items-center gap-3 p-4 border-b">
+            <div className="flex items-center gap-3 p-4 border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10">
                 <div className="bg-primary/10 p-2 rounded-full">
                     <MessageCircle className="h-5 w-5 text-primary" />
                 </div>
@@ -187,30 +187,32 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                         id="general-knowledge"
                         checked={useGeneralKnowledge}
                         onCheckedChange={(checked) => toggleGeneralKnowledge(checked === true)}
+                        className="data-[state=checked]:bg-primary/90 data-[state=checked]:text-primary-foreground"
                     />
-                    <Label htmlFor="general-knowledge" className="text-sm cursor-pointer">
+                    <Label htmlFor="general-knowledge" className="text-sm cursor-pointer hover:text-primary transition-colors">
                         Use general knowledge
                     </Label>
                 </div>
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto px-4 pt-4 pb-24 space-y-6 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-24 space-y-6 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
                 {isLoadingMessages ? (
                     <div className="flex justify-center py-8">
                         <div className="flex space-x-2">
-                            <div className="h-4 w-4 bg-muted-foreground/40 rounded-full animate-bounce"></div>
-                            <div className="h-4 w-4 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                            <div className="h-4 w-4 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                            <div className="h-4 w-4 bg-primary/30 rounded-full animate-bounce"></div>
+                            <div className="h-4 w-4 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            <div className="h-4 w-4 bg-primary/70 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                         </div>
                     </div>
                 ) : messages.length === 0 ? (
-                    <div className="space-y-6 pt-8 max-w-3xl mx-auto">
-                        <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border shadow-md">
-                            <CardContent className="pt-6">
-                                <h2 className="text-xl font-medium mb-3">Welcome to StudySync Knowledge Base!</h2>
-                                <p className="text-muted-foreground">I can help you with your study materials, documents, flashcards, and quizzes.</p>
-                                <p className="mt-3 text-muted-foreground">Try asking me a question about your materials or select one of the suggestions below.</p>
+                    <div className="space-y-8 pt-8 max-w-3xl mx-auto">
+                        <Card className="bg-gradient-to-br from-primary/10 to-secondary/5 border shadow-md overflow-hidden animated-gradient">
+                            <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,#fff,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25"></div>
+                            <CardContent className="pt-6 relative">
+                                <h2 className="text-2xl font-medium mb-3 text-foreground/90">Welcome to StudySync Chat!</h2>
+                                <p className="text-muted-foreground/90">I can help you with your study materials, documents, flashcards, and quizzes.</p>
+                                <p className="mt-3 text-muted-foreground/90">Try asking me a question about your materials or select one of the suggestions below.</p>
                             </CardContent>
                         </Card>
 
@@ -219,11 +221,12 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                                 <Button
                                     key={index}
                                     variant="outline"
-                                    className="justify-between h-auto py-4 px-5 text-left hover:bg-primary/5 border shadow-sm transition-all"
+                                    className="justify-between h-auto py-4 px-5 text-left hover:bg-primary/5 border shadow-sm transition-all group overflow-hidden relative"
                                     onClick={() => handlePromptClick(prompt)}
                                 >
-                                    <span className="line-clamp-2">{prompt}</span>
-                                    <ArrowRight className="h-4 w-4 ml-2 flex-shrink-0 text-primary" />
+                                    <span className="line-clamp-2 z-10 relative">{prompt}</span>
+                                    <ArrowRight className="h-4 w-4 ml-2 flex-shrink-0 text-primary group-hover:translate-x-1 transition-transform duration-200" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-primary/5 group-hover:opacity-100 opacity-0 transition-opacity"></div>
                                 </Button>
                             ))}
                         </div>
@@ -241,14 +244,14 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                                 )}>
                                     {/* User Avatar vs Bot Avatar */}
                                     {message.role === 'user' ? (
-                                        <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border">
+                                        <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border shadow-sm">
                                             <AvatarImage src={userAvatar || ""} alt="User" />
-                                            <AvatarFallback className="bg-primary text-primary-foreground">
+                                            <AvatarFallback className="bg-primary/90 text-primary-foreground font-medium">
                                                 U
                                             </AvatarFallback>
                                         </Avatar>
                                     ) : (
-                                        <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border bg-secondary text-secondary-foreground">
+                                        <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border shadow-sm bg-secondary/80 text-secondary-foreground">
                                             <AvatarFallback>
                                                 <Bot className="h-4 w-4" />
                                             </AvatarFallback>
@@ -258,51 +261,54 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                                     <div className={cn(
                                         "p-3 sm:p-4 rounded-lg shadow-md break-words",
                                         message.role === 'user'
-                                            ? "bg-primary text-primary-foreground rounded-tr-none"
-                                            : "bg-card border rounded-tl-none"
+                                            ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-tr-none"
+                                            : "bg-card border rounded-tl-none backdrop-blur-sm relative overflow-hidden"
                                     )}>
                                         {message.role === 'user' ? (
                                             <p className="whitespace-pre-wrap">{message.content}</p>
                                         ) : (
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkGfm]}
-                                                components={{
-                                                    code({ className, children, ...props }) {
-                                                        const match = /language-(\w+)/.exec(className || '');
-                                                        return match ? (
-                                                            <SyntaxHighlighter
-                                                                language={match[1]}
-                                                                style={vscDarkPlus}
-                                                                customStyle={{ margin: '1em 0', borderRadius: '8px' }}
-                                                            >
-                                                                {String(children).replace(/\n$/, '')}
-                                                            </SyntaxHighlighter>
-                                                        ) : (
-                                                            <code className={cn("bg-muted px-1.5 py-0.5 rounded-md text-sm", className)} {...props}>
+                                            <>
+                                                <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-700/10 opacity-10"></div>
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkGfm]}
+                                                    components={{
+                                                        code({ className, children, ...props }) {
+                                                            const match = /language-(\w+)/.exec(className || '');
+                                                            return match ? (
+                                                                <SyntaxHighlighter
+                                                                    language={match[1]}
+                                                                    style={vscDarkPlus}
+                                                                    customStyle={{ margin: '1em 0', borderRadius: '8px' }}
+                                                                >
+                                                                    {String(children).replace(/\n$/, '')}
+                                                                </SyntaxHighlighter>
+                                                            ) : (
+                                                                <code className={cn("bg-muted px-1.5 py-0.5 rounded-md text-sm", className)} {...props}>
+                                                                    {children}
+                                                                </code>
+                                                            );
+                                                        },
+                                                        ul: ({ children }) => <ul className="list-disc pl-6 my-2">{children}</ul>,
+                                                        ol: ({ children }) => <ol className="list-decimal pl-6 my-2">{children}</ol>,
+                                                        li: ({ children }) => <li className="mb-1">{children}</li>,
+                                                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                                                        h3: ({ children }) => <h3 className="text-lg font-semibold mt-3 mb-2">{children}</h3>,
+                                                        h4: ({ children }) => <h4 className="text-base font-semibold mt-3 mb-1">{children}</h4>,
+                                                        pre: ({ children }) => (
+                                                            <pre className="w-full overflow-auto rounded-md my-2 bg-muted p-2 text-sm">
                                                                 {children}
-                                                            </code>
-                                                        );
-                                                    },
-                                                    ul: ({ children }) => <ul className="list-disc pl-6 my-2">{children}</ul>,
-                                                    ol: ({ children }) => <ol className="list-decimal pl-6 my-2">{children}</ol>,
-                                                    li: ({ children }) => <li className="mb-1">{children}</li>,
-                                                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                                                    h3: ({ children }) => <h3 className="text-lg font-semibold mt-3 mb-2">{children}</h3>,
-                                                    h4: ({ children }) => <h4 className="text-base font-semibold mt-3 mb-1">{children}</h4>,
-                                                    pre: ({ children }) => (
-                                                        <pre className="w-full overflow-auto rounded-md my-2 bg-muted p-2 text-sm">
-                                                            {children}
-                                                        </pre>
-                                                    ),
-                                                    a: ({ href, children }) => (
-                                                        <a href={href} className="text-primary underline break-words" target="_blank" rel="noopener noreferrer">
-                                                            {children}
-                                                        </a>
-                                                    ),
-                                                }}
-                                            >
-                                                {message.content}
-                                            </ReactMarkdown>
+                                                            </pre>
+                                                        ),
+                                                        a: ({ href, children }) => (
+                                                            <a href={href} className="text-primary underline break-words" target="_blank" rel="noopener noreferrer">
+                                                                {children}
+                                                            </a>
+                                                        ),
+                                                    }}
+                                                >
+                                                    {message.content}
+                                                </ReactMarkdown>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -312,16 +318,16 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                         {isLoading && (
                             <div className="flex justify-start">
                                 <div className="flex gap-3 max-w-[90%] sm:max-w-[85%] md:max-w-[75%]">
-                                    <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border bg-secondary text-secondary-foreground">
+                                    <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border shadow-sm bg-secondary/80 text-secondary-foreground">
                                         <AvatarFallback>
                                             <Bot className="h-4 w-4" />
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="p-4 rounded-lg shadow-md bg-card border rounded-tl-none">
                                         <div className="flex space-x-2">
-                                            <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce"></div>
-                                            <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                                            <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                                            <div className="h-2 w-2 bg-primary/30 rounded-full animate-typing-dot animate-typing-dot-1"></div>
+                                            <div className="h-2 w-2 bg-primary/50 rounded-full animate-typing-dot animate-typing-dot-2"></div>
+                                            <div className="h-2 w-2 bg-primary/70 rounded-full animate-typing-dot animate-typing-dot-3"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -334,22 +340,22 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
             </div>
 
             {/* Input area */}
-            <div className="absolute bottom-0 left-0 right-0 bg-background md:ml-64 px-4 pb-4 pt-2 border-t">
-                <form onSubmit={handleSubmitWithThread} className="flex items-center gap-2">
+            <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm px-4 pb-6 pt-4 border-t">
+                <form onSubmit={handleSubmitWithThread} className="flex items-center gap-2 w-full">
                     <div className="relative flex-1">
                         <Input
                             type="text"
                             value={input}
                             onChange={handleInputChange}
                             placeholder="Ask about your study materials..."
-                            className="pr-10 sm:pr-12 py-5 sm:py-6 border shadow-sm focus-visible:ring-primary/50 text-sm sm:text-base"
+                            className="pr-10 sm:pr-12 py-6 sm:py-7 border border-input/70 shadow-sm focus-visible:ring-primary/50 text-sm sm:text-base rounded-full pl-5 transition-all duration-200 focus-visible:border-primary/30"
                             disabled={isLoading}
                         />
                         <Button
                             type="submit"
                             size="icon"
                             disabled={isLoading || !input.trim()}
-                            className="absolute right-1 sm:right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9"
+                            className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-primary/90 hover:bg-primary shadow-sm transition-colors"
                         >
                             <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                         </Button>
