@@ -296,11 +296,6 @@ export default function DashboardLayout({
         icon: Brain,
       },
       {
-        title: "Community",
-        url: "/dashboard/community",
-        icon: Users,
-      },
-      {
         title: "Knowledge Base",
         url: "/dashboard/chat",
         icon: MessageCircle,
