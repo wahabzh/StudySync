@@ -1,5 +1,5 @@
 "use client";
-import { Document } from "@/types/database";
+import { Document, CommunityDocument } from "@/types/database";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import { format } from "date-fns";
@@ -33,7 +33,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { useRouter } from "next/navigation";
 
 interface CommunityDocumentContentProps {
-  document: Document & { has_clapped: boolean };
+  document: CommunityDocument;
 }
 
 export const CommunityDocumentContent = ({

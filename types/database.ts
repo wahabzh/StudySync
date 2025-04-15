@@ -40,6 +40,11 @@ export type DocumentClap = {
   created_at: string;
 };
 
+// Type for community documents that includes has_clapped property
+export type CommunityDocument = Document & {
+  has_clapped: boolean;
+};
+
 // Flashcard type represents an individual flashcard
 export type Flashcard = {
   id: string; // Unique identifier for the flashcard

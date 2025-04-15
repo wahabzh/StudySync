@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { Document } from "@/types/database";
+import { Document, CommunityDocument } from "@/types/database";
 
 export async function getCommunityDocuments(
     search: string,
@@ -77,7 +77,7 @@ export async function getCommunityDocument(documentId: string) {
     return {
         ...document,
         has_clapped
-    } as Document & { has_clapped: boolean };
+    } as CommunityDocument;
 }
 
 export async function toggleDocumentClap(documentId: string) {
