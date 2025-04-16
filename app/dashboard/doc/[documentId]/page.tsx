@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
-import { DocumentEditorWrapper } from "@/components/editor/document-editor-wrapper";
 import { getDocumentWithCollaborators } from "@/app/document";
-import { DocumentHeader } from "@/components/editor/document-header";
-import DocumentEditorClientWrapper from "@/components/editor/document-page-wrapper"
+import DocumentEditorWrapper from "@/components/editor/document-page-wrapper"
 
 function formatDate(dateString: string) {
   const date = new Date(dateString);
@@ -31,7 +29,7 @@ export default async function DocumentPage({
 
   return (
     <div className="flex flex-1 flex-col h-full">
-      <DocumentEditorClientWrapper
+      <DocumentEditorWrapper
         document={document}
         canShare={canShare}
         lastEdited={lastEdited}
