@@ -98,7 +98,7 @@ export default function DocumentEditorWrapper({
                     <GenerateFlashcardsButton documentId={document.id} />
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">
+                <TooltipContent side="top">
                   <p>Generate flashcards</p>
                 </TooltipContent>
               </Tooltip>
@@ -109,7 +109,7 @@ export default function DocumentEditorWrapper({
                     <GenerateQuizzesButton documentId={document.id} />
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">
+                <TooltipContent side="top">
                   <p>Generate quiz</p>
                 </TooltipContent>
               </Tooltip>
@@ -129,7 +129,7 @@ export default function DocumentEditorWrapper({
                   />
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="bottom">
+              <TooltipContent side="top">
                 <p>Share document</p>
               </TooltipContent>
             </Tooltip>
@@ -145,7 +145,7 @@ export default function DocumentEditorWrapper({
                 />
               </div>
             </TooltipTrigger>
-            <TooltipContent side="bottom">
+            <TooltipContent side="top">
               <p>{document.share_status === "published" ? "Unpublish" : "Publish"} document</p>
             </TooltipContent>
           </Tooltip>
