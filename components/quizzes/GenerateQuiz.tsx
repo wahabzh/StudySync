@@ -33,11 +33,11 @@ export default function GenerateQuizButton({ documentId, className }: GenerateQu
             router.push(`/dashboard/quizzes?edit=${quizId}`);
         } catch (error) {
             console.error("Error generating quiz:", error);
-            toast({
-                variant: "destructive",
-                title: "Generation failed",
-                description: "Failed to generate quiz. Please try again.",
-            });
+            // toast({
+            //     variant: "destructive",
+            //     title: "Generation failed",
+            //     description: "Failed to generate quiz. Please try again.",
+            // });
         } finally {
             setIsGenerating(false);
         }
