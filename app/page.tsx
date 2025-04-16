@@ -321,10 +321,10 @@ export default async function Index() {
               © {new Date().getFullYear()} StudySync. All rights reserved.
             </p>
             <div className="flex gap-4 mt-4 md:mt-0">
-              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Terms of Service
               </Link>
             </div>
