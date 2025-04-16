@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getDocumentWithCollaborators } from "@/app/document";
-import DocumentEditorWrapper from "@/components/editor/document-page-wrapper"
+import DocumentEditorWrapper from "@/components/editor/document-editor-wrapper"
 
 function formatDate(dateString: string) {
   const date = new Date(dateString);
