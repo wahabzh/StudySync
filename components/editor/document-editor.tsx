@@ -228,7 +228,7 @@ export default function DocumentEditor({ doc, canEdit }: DocumentEditorProps) {
       <style>{customStyles}</style>
       <div className="sticky top-4 z-50 flex justify-end">
         {canEdit && (
-          <div className="rounded-full bg-background/95 px-3 py-1.5 shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-800 backdrop-blur">
+          <div className="rounded-full bg-background/95 px-3 py-1.5 shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-800 backdrop-blur sticky top-2">
             <SaveStatusIndicator status={saveStatus} />
           </div>
         )}
