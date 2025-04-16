@@ -38,7 +38,7 @@ import { ContinueWritingButton } from "./continue-writting-button";
 import { GetTextButton } from "./get-text-button";
 import { uploadImage } from "@/app/document";
 import { useToast } from "@/hooks/use-toast";
-import { SaveStatusIndicator } from "./save-status-indicator";
+import { useTheme } from "next-themes";
 
 // Add custom styles to override BlockNote dark mode variables with shadcn theme
 const customStyles = `
@@ -109,6 +109,7 @@ export default function DocumentEditor({ doc, canEdit, onSaveStatusChange }: Doc
   const [debouncedContent] = useDebounce(content, 1000); // 1 second
   const ydoc = useMemo(() => new Y.Doc(), [doc.id]);
   const { toast } = useToast();
+  const { theme } = useTheme();
   const provider = useMemo(() => {
     return new TiptapCollabProvider({
       name: doc.id,
@@ -196,7 +197,7 @@ export default function DocumentEditor({ doc, canEdit, onSaveStatusChange }: Doc
   }, [content]);
 
   return (
-    <div className="relative">
+    <div className={cn("bn-shadcn", theme === "dark" && "dark")}>
       <style>{customStyles}</style>
       {/*<div className="sticky top-4 z-50 flex justify-end">
         {canEdit && (
