@@ -392,7 +392,8 @@ export const updateProfile = async (formData: FormData) => {
       );
     }
 
-    const filePath = `avatars/${user.id}.${avatarFile.name}`;
+    const fileName = avatarFile.name.replace(/\s+/g, '');
+    const filePath = `avatars/${user.id}.${fileName}`;
     const { error: uploadError } = await supabase.storage
       .from("Avatars")
       .upload(filePath, avatarFile, {
