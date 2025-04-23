@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Define types explicitly
 type League = {
@@ -71,6 +72,7 @@ function getProgressToNextLeague(points: number): { progress: number, nextLeague
 export default function StatsDialog() {
   const [open, setOpen] = useState<boolean>(false);
   const [CurUser, setCurUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData>({
     username: "",
     points: 0,
@@ -95,6 +97,7 @@ export default function StatsDialog() {
   // Fetch leaderboard data when the dialog opens
   useEffect(() => {
     if (open) {
+      setLoading(true);
       getLeaderBoardInfo().then((data) => {
         if (data) {
           setLeaderboardData({
@@ -106,6 +109,7 @@ export default function StatsDialog() {
             userLeague: data.userLeague || { name: "", symbol: "" },
           });
         }
+        setTimeout(() => setLoading(false), 500); // Small delay for better UX
       });
     }
   }, [open]);
@@ -135,71 +139,77 @@ export default function StatsDialog() {
           </TabsList>
 
           <TabsContent value="stats" className="space-y-4 pt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-16 w-16 border-2 border-primary">
-                  <AvatarFallback className="bg-primary/10 text-primary text-lg">
-                    {leaderboardData.username ? leaderboardData.username.substring(0, 2).toUpperCase() : "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="text-xl font-bold">{leaderboardData.username || "Loading..."}</h3>
-                  <Badge 
-                    className={`${getLeagueColor(leaderboardData.userLeague.name)} text-white`}
-                  >
-                    {leaderboardData.userLeague.symbol} {leaderboardData.userLeague.name} League
+            {loading ? (
+              <StatsSkeletonLoader />
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-16 w-16 border-2 border-primary">
+                      <AvatarFallback className="bg-primary/10 text-primary text-lg">
+                        {leaderboardData.username ? leaderboardData.username.substring(0, 2).toUpperCase() : "?"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="text-xl font-bold">{leaderboardData.username}</h3>
+                      <Badge 
+                        className={`${getLeagueColor(leaderboardData.userLeague.name)} text-white`}
+                      >
+                        {leaderboardData.userLeague.symbol} {leaderboardData.userLeague.name} League
+                      </Badge>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-lg px-3 py-1">
+                    Rank #{leaderboardData.userRank}
                   </Badge>
                 </div>
-              </div>
-              <Badge variant="outline" className="text-lg px-3 py-1">
-                Rank #{leaderboardData.userRank}
-              </Badge>
-            </div>
 
-            <Separator />
+                <Separator />
 
-            <div className="grid grid-cols-2 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Total Points</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Award className="h-5 w-5 text-primary" />
-                    <span className="text-2xl font-bold">{leaderboardData.points.toLocaleString()}</span>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Current Streak</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Flame className="h-5 w-5 text-orange-500" />
-                    <span className="text-2xl font-bold">{leaderboardData.streak} days</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm text-muted-foreground">Total Points</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2">
+                        <Award className="h-5 w-5 text-primary" />
+                        <span className="text-2xl font-bold">{leaderboardData.points.toLocaleString()}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm text-muted-foreground">Current Streak</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2">
+                        <Flame className="h-5 w-5 text-orange-500" />
+                        <span className="text-2xl font-bold">{leaderboardData.streak} days</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Progress to {nextLeague}</span>
-                  <span className="text-sm font-medium">{progress.toFixed(0)}%</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Progress value={progress} className="h-2" />
-                {pointsNeeded > 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    {pointsNeeded.toLocaleString()} more points needed
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Progress to {nextLeague}</span>
+                      <span className="text-sm font-medium">{progress.toFixed(0)}%</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Progress value={progress} className="h-2" />
+                    {pointsNeeded > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        {pointsNeeded.toLocaleString()} more points needed
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="leaderboard" className="pt-4">
@@ -212,7 +222,9 @@ export default function StatsDialog() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-1">
-                  {leaderboardData.topPlayers.length > 0 ? (
+                  {loading ? (
+                    <LeaderboardSkeletonLoader />
+                  ) : leaderboardData.topPlayers.length > 0 ? (
                     leaderboardData.topPlayers.map((player, index) => (
                       <div 
                         key={index} 
@@ -244,14 +256,14 @@ export default function StatsDialog() {
                   ) : (
                     <div className="flex items-center justify-center py-8">
                       <Users className="h-6 w-6 mr-2 text-muted-foreground" />
-                      <p className="text-muted-foreground">Loading leaderboard data...</p>
+                      <p className="text-muted-foreground">No leaderboard data available</p>
                     </div>
                   )}
                 </div>
               </CardContent>
             </Card>
 
-            {leaderboardData.userRank !== "N/A" && (
+            {!loading && leaderboardData.userRank !== "N/A" && (
               <div className="mt-4 p-3 border rounded-lg bg-muted/30">
                 <p className="text-sm text-muted-foreground">Your position</p>
                 <div className="flex items-center justify-between mt-1">
@@ -263,9 +275,80 @@ export default function StatsDialog() {
                 </div>
               </div>
             )}
+            
+            {loading && (
+              <div className="mt-4">
+                <Skeleton className="h-16 w-full rounded-lg" />
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Skeleton loader for the stats tab
+function StatsSkeletonLoader() {
+  return (
+    <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-16 w-16 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-5 w-40" />
+          </div>
+        </div>
+        <Skeleton className="h-8 w-20 rounded-full" />
+      </div>
+
+      <Skeleton className="h-[1px] w-full my-4" />
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2 border rounded-lg p-4">
+          <Skeleton className="h-4 w-20" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-5 w-5 rounded-full" />
+            <Skeleton className="h-7 w-24" />
+          </div>
+        </div>
+        
+        <div className="space-y-2 border rounded-lg p-4">
+          <Skeleton className="h-4 w-24" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-5 w-5 rounded-full" />
+            <Skeleton className="h-7 w-20" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2 border rounded-lg p-4">
+        <div className="flex justify-between">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-10" />
+        </div>
+        <Skeleton className="h-2 w-full" />
+        <Skeleton className="h-4 w-40" />
+      </div>
+    </>
+  );
+}
+
+// Skeleton loader for the leaderboard tab
+function LeaderboardSkeletonLoader() {
+  return (
+    <>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="flex items-center justify-between p-2 rounded-md">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-5 w-6 rounded-full" />
+          </div>
+          <Skeleton className="h-5 w-16" />
+        </div>
+      ))}
+    </>
   );
 }
