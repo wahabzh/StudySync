@@ -10,7 +10,7 @@ import { doc } from "prettier";
 import { generateAndStoreDocumentEmbeddings } from "@/app/knowledge-base";
 
 // Maximum file size in bytes (800KB)
-const MAX_FILE_SIZE = 800 * 1024;
+const MAX_FILE_SIZE = 1000 * 1024;
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
