@@ -73,11 +73,11 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
             const response = await fetch(`/api/chat/threads/${threadId}`)
 
             if (response.status === 404) {
-                toast({
+                /*toast({
                     variant: "destructive",
                     title: "Thread not found",
                     description: "This chat thread may have been deleted"
-                })
+                })*/
                 router.push('/dashboard/chat/new')
                 return
             }
