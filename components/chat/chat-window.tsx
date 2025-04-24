@@ -221,38 +221,34 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                         <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
                     </div>
                 ) : messages.length === 0 ? (
-                    <div className="flex flex-col h-full items-center justify-center text-center px-4 py-10 space-y-8">
-                        <div className="max-w-md space-y-4">
+                    <div className="flex flex-col h-full items-center justify-center text-center px-4 py-6">
+                        <div className="max-w-md space-y-3 mb-6">
                             <div className="bg-primary/10 p-3 rounded-full w-fit mx-auto">
                                 <Brain className="h-6 w-6 text-primary" />
                             </div>
                             <h3 className="text-xl font-semibold">Your Knowledge Assistant</h3>
-                            <p className="text-muted-foreground">
-                                Ask questions about your study materials or start a conversation to explore topics in depth.
+                            <p className="text-muted-foreground text-sm">
+                                Ask questions about your study materials or explore topics in depth.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-2xl">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl">
                             {[
-                                "Explain the concept of photosynthesis",
-                                "Summarize my notes on World War II",
-                                "What are the key points from my economics document?",
-                                "Compare the flashcards from my biology deck",
-                                "Help me understand this formula from my math notes",
-                                "What's the relationship between these concepts?",
+                                "Explain photosynthesis",
+                                "Summarize my ML notes",
+                                "Key points from economics doc?",
+                                "Compare biology flashcards",
+                                "Help with this math formula",
+                                "Link these concepts"
                             ].map((prompt) => (
                                 <Button
                                     key={prompt}
                                     variant="outline"
-                                    className="justify-start h-auto px-4 py-3 text-left bg-card hover:bg-accent"
+                                    className="justify-start h-auto py-2 px-3 text-left bg-card hover:bg-accent"
                                     onClick={() => handlePromptClick(prompt)}
                                 >
-                                    <div className="flex">
-                                        <span className="text-primary mr-2">
-                                            <MessageCircle className="h-4 w-4" />
-                                        </span>
-                                        <span className="text-sm truncate">{prompt}</span>
-                                    </div>
+                                    <MessageCircle className="h-3.5 w-3.5 text-primary mr-2 flex-shrink-0" />
+                                    <span className="text-sm truncate">{prompt}</span>
                                 </Button>
                             ))}
                         </div>
@@ -331,7 +327,7 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                                                     code: ({ node, ...props }) => (
                                                         <code {...props} className={cn(
                                                             "rounded px-1 py-0.5 font-mono text-sm",
-                                                                isUser ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
+                                                            isUser ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
                                                         )} />
                                                     ),
                                                     pre: ({ node, ...props }) => (
