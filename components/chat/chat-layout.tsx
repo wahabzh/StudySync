@@ -182,15 +182,6 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
                 onCreateThread={createThread}
                 threads={threads}
             /> */}
-            <ChatSidebar
-                threads={threads}
-                loadingThreads={loadingThreads}
-                selectedThreadId={selectedThreadId}
-                onCreateThread={createThread}
-                onUpdateThread={updateThread}
-                onDeleteThread={deleteThread}
-                onDeleteAllThreads={deleteAllThreads}
-            />
              {selectedThreadId === null ? (
                 <main className="min-h-screen bg-gradient-to-b from-green-50 to-white text-gray-800 flex flex-col items-center justify-center px-6 py-12">
                 <div className="max-w-3xl text-center">
@@ -218,6 +209,15 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
                 onCreateThread={createThread}
                 threads={threads}
             />)}
+            <ChatSidebar
+                threads={threads}
+                loadingThreads={loadingThreads}
+                selectedThreadId={selectedThreadId}
+                onCreateThread={createThread}
+                onUpdateThread={updateThread}
+                onDeleteThread={deleteThread}
+                onDeleteAllThreads={deleteAllThreads}
+            />
         </div>
     )
 }
