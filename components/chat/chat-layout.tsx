@@ -183,7 +183,7 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
                 threads={threads}
             /> */}
              {selectedThreadId === null ? (
-                <main className="min-h-screen bg-gradient-to-b from-green-50 to-white text-gray-800 flex flex-col items-center justify-center px-6 py-12">
+                <main className="min-h-screen bg-white text-gray-800 flex flex-col items-center justify-center px-6 py-12">
                 <div className="max-w-3xl text-center">
                     <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
                         StudySync Chat
