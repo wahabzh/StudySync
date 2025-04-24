@@ -8,6 +8,8 @@ import { ChatThread } from '@/types/database'
 import { useToast } from '@/hooks/use-toast'
 import { Sparkles, MessageCircle, Bot, Brain } from "lucide-react"
 import { Button } from '../ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 
 export default function ChatLayout({ selectedThreadId }: { selectedThreadId: string | null }) {
     const router = useRouter()
@@ -183,26 +185,49 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
                 threads={threads}
             /> */}
              {selectedThreadId === null ? (
-                <main className="min-h-screen bg-white text-gray-800 flex flex-col items-center justify-center px-6 py-12">
-                <div className="max-w-3xl text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
-                        StudySync Chat
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-600 mb-8">
-                        Supercharge your learning with AI-powered conversations. Ask questions, get instant explanations, and explore topics in-depth — anytime, anywhere.
-                    </p>
-                    <Button onClick={() => createThread('New Chat', false)}>
-                            <Sparkles className="mr-2 h-5 w-5" />
-                            Start Chatting Now
-                    </Button>
+                <div className="flex flex-col items-center justify-center w-full h-full bg-background text-foreground text-center p-8 overflow-y-auto">
+                <h1 className="text-4xl font-bold mb-4">Welcome to StudySync Chat</h1>
+                <p className="text-lg text-muted-foreground mb-6 max-w-xl">
+                  Your personal AI-powered study assistant. Ask questions, get explanations, and boost your learning—anytime.
+                </p>
+                <Button onClick={() => createThread('New Chat', false)} className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-2xl shadow-md transition mb-10">
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Start Chatting Now
+                </Button>
+              
+                {/* Feature Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl w-full">
+                  <Card className="text-left">
+                    <CardHeader className="flex flex-row items-center gap-3">
+                      <MessageCircle className="w-6 h-6 text-green-600" />
+                      <CardTitle>Natural Conversations</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-muted-foreground">
+                      Chat with the AI like you're talking to a tutor — no jargon, just clarity.
+                    </CardContent>
+                  </Card>
+              
+                  <Card className="text-left">
+                    <CardHeader className="flex flex-row items-center gap-3">
+                      <Brain className="w-6 h-6 text-green-600" />
+                      <CardTitle>Smart Assistance</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-muted-foreground">
+                      Get explanations, summaries, and study help tailored to your needs.
+                    </CardContent>
+                  </Card>
+              
+                  <Card className="text-left">
+                    <CardHeader className="flex flex-row items-center gap-3">
+                      <Bot className="w-6 h-6 text-green-600" />
+                      <CardTitle>Available 24/7</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-muted-foreground">
+                      Whether it’s midnight or midday, StudySync Chat is always ready.
+                    </CardContent>
+                  </Card>
                 </div>
-
-                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full px-4">
-                    <FeatureCard icon={<MessageCircle />} title="Natural Conversations" description="Chat with the AI like you're talking to a tutor — no jargon, just clarity." />
-                    <FeatureCard icon={<Brain />} title="Smart Assistance" description="Get explanations, summaries, and study help tailored to your needs." />
-                    <FeatureCard icon={<Bot />} title="Available 24/7" description="Whether it’s midnight or midday, StudySync Chat is always ready." />
-                </div>
-            </main>
+              </div>
              ):(
             <ChatWindow
                 threadId={selectedThreadId}
