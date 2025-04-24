@@ -6,6 +6,8 @@ import ChatSidebar from './chat-sidebar'
 import ChatWindow from './chat-window'
 import { ChatThread } from '@/types/database'
 import { useToast } from '@/hooks/use-toast'
+import { Sparkles, MessageCircle, Bot, Brain } from "lucide-react"
+import { Button } from '../ui/button'
 
 export default function ChatLayout({ selectedThreadId }: { selectedThreadId: string | null }) {
     const router = useRouter()
@@ -164,7 +166,15 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
             })
         }
     }
-
+    function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+        return (
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow hover:shadow-md transition">
+                <div className="text-green-600 mb-4">{icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{title}</h3>
+                <p className="text-gray-600">{description}</p>
+            </div>
+        );
+    }
     return (
         <div className="flex h-[calc(100vh-4rem)] w-full bg-gradient-to-tr from-background to-primary/5 overflow-hidden">
             {/* <ChatWindow
@@ -181,11 +191,33 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
                 onDeleteThread={deleteThread}
                 onDeleteAllThreads={deleteAllThreads}
             />
+             {selectedThreadId === null ? (
+                <main className="min-h-screen bg-gradient-to-b from-green-50 to-white text-gray-800 flex flex-col items-center justify-center px-6 py-12">
+                <div className="max-w-3xl text-center">
+                    <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
+                        StudySync Chat
+                    </h1>
+                    <p className="text-lg md:text-xl text-gray-600 mb-8">
+                        Supercharge your learning with AI-powered conversations. Ask questions, get instant explanations, and explore topics in-depth — anytime, anywhere.
+                    </p>
+                    <Button onClick={() => createThread('New Chat', false)}>
+                            <Sparkles className="mr-2 h-5 w-5" />
+                            Start Chatting Now
+                    </Button>
+                </div>
+
+                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full px-4">
+                    <FeatureCard icon={<MessageCircle />} title="Natural Conversations" description="Chat with the AI like you're talking to a tutor — no jargon, just clarity." />
+                    <FeatureCard icon={<Brain />} title="Smart Assistance" description="Get explanations, summaries, and study help tailored to your needs." />
+                    <FeatureCard icon={<Bot />} title="Available 24/7" description="Whether it’s midnight or midday, StudySync Chat is always ready." />
+                </div>
+            </main>
+             ):(
             <ChatWindow
                 threadId={selectedThreadId}
                 onCreateThread={createThread}
                 threads={threads}
-            />
+            />)}
         </div>
     )
 }
