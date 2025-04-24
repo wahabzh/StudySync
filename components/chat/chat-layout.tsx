@@ -191,8 +191,8 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
                   Your personal AI-powered study assistant. Ask questions, get explanations, and boost your learning—anytime.
                 </p>
                 <Button onClick={() => createThread('New Chat', false)} className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-2xl shadow-md transition mb-10">
-                        <Sparkles className="mr-2 h-5 w-5" />
-                        Start Chatting Now
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Start Chatting Now
                 </Button>
               
                 {/* Feature Cards */}
