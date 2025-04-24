@@ -6,7 +6,7 @@ import { useChat } from 'ai/react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { MessageCircle, Send, ArrowRight, Bot } from "lucide-react"
+import { MessageCircle, Send, ArrowRight, Bot, User, Sparkles, Brain } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -18,6 +18,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { ChatThread, ChatMessage } from "@/types/database"
 import { useToast } from '@/hooks/use-toast'
+import { Switch } from "@/components/ui/switch"
+import { Loader2 } from "lucide-react"
 
 const starterPrompts = [
     "What's in my notes about web development?",
@@ -172,174 +174,187 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
     const currentThread = threads.find(t => t.id === threadId)
 
     return (
-        <div className="flex-1 flex flex-col h-full relative bg-gradient-to-br from-background via-background to-background/95 animated-gradient">
-            {/* Header */}
-            <div className="flex items-center gap-3 p-4 border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10">
-                <div className="bg-primary/10 p-2 rounded-full">
-                    <MessageCircle className="h-5 w-5 text-primary" />
-                </div>
-                <h1 className="text-xl font-bold truncate">
-                    {currentThread?.title || 'New Chat'}
-                </h1>
+        <div className="relative flex-1 flex flex-col h-full overflow-hidden bg-background/40">
+            {/* Message Thread Header */}
+            <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur-sm">
+                <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex items-center gap-2">
+                        {currentThread && (
+                            <>
+                                <div className="flex items-center">
+                                    <div className="bg-primary/10 p-1.5 rounded-md">
+                                        <MessageCircle className="h-4 w-4 text-primary" />
+                                    </div>
+                                    <h2 className="text-lg font-medium ml-2">
+                                        {currentThread.title}
+                                    </h2>
+                                    {currentThread.use_general_knowledge && (
+                                        <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                            General Knowledge
+                                        </span>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
 
-                <div className="flex items-center space-x-2 ml-auto">
-                    <Checkbox
-                        id="general-knowledge"
-                        checked={useGeneralKnowledge}
-                        onCheckedChange={(checked) => toggleGeneralKnowledge(checked === true)}
-                        className="data-[state=checked]:bg-primary/90 data-[state=checked]:text-primary-foreground"
-                    />
-                    <Label htmlFor="general-knowledge" className="text-sm cursor-pointer hover:text-primary transition-colors">
-                        Use general knowledge
-                    </Label>
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center">
+                            <Switch
+                                id="general-knowledge"
+                                checked={useGeneralKnowledge}
+                                onCheckedChange={toggleGeneralKnowledge}
+                                className="mr-2"
+                            />
+                            <Label htmlFor="general-knowledge" className="text-sm text-muted-foreground cursor-pointer">
+                                Use general knowledge
+                            </Label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Messages area */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-24 space-y-6 scrollbar-thin scrollbar-thumb-primary/10 scrollbar-track-transparent">
+            {/* Messages Container */}
+            <div className="flex-1 overflow-y-auto p-4 pb-24">
                 {isLoadingMessages ? (
-                    <div className="flex justify-center py-8">
-                        <div className="flex space-x-2">
-                            <div className="h-4 w-4 bg-primary/30 rounded-full animate-bounce"></div>
-                            <div className="h-4 w-4 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                            <div className="h-4 w-4 bg-primary/70 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                        </div>
+                    <div className="flex h-full items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
                     </div>
                 ) : messages.length === 0 ? (
-                    <div className="space-y-8 pt-8 max-w-3xl mx-auto">
-                        <Card className="bg-gradient-to-br from-primary/10 to-secondary/5 border shadow-md overflow-hidden animated-gradient">
-                            <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,#fff,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25"></div>
-                            <CardContent className="pt-6 relative">
-                                <h2 className="text-2xl font-medium mb-3 text-foreground/90">Welcome to StudySync Chat!</h2>
-                                <p className="text-muted-foreground/90">I can help you with your study materials, documents, flashcards, and quizzes.</p>
-                                <p className="mt-3 text-muted-foreground/90">Try asking me a question about your materials or select one of the suggestions below.</p>
-                            </CardContent>
-                        </Card>
+                    <div className="flex flex-col h-full items-center justify-center text-center px-4 py-10 space-y-8">
+                        <div className="max-w-md space-y-4">
+                            <div className="bg-primary/10 p-3 rounded-full w-fit mx-auto">
+                                <Brain className="h-6 w-6 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-semibold">Your Knowledge Assistant</h3>
+                            <p className="text-muted-foreground">
+                                Ask questions about your study materials or start a conversation to explore topics in depth.
+                            </p>
+                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {starterPrompts.map((prompt, index) => (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-2xl">
+                            {[
+                                "Explain the concept of photosynthesis",
+                                "Summarize my notes on World War II",
+                                "What are the key points from my economics document?",
+                                "Compare the flashcards from my biology deck",
+                                "Help me understand this formula from my math notes",
+                                "What's the relationship between these concepts?",
+                            ].map((prompt) => (
                                 <Button
-                                    key={index}
+                                    key={prompt}
                                     variant="outline"
-                                    className="justify-between h-auto py-4 px-5 text-left hover:bg-primary/5 border shadow-sm transition-all group overflow-hidden relative"
+                                    className="justify-start h-auto px-4 py-3 text-left bg-card hover:bg-accent"
                                     onClick={() => handlePromptClick(prompt)}
                                 >
-                                    <span className="line-clamp-2 z-10 relative">{prompt}</span>
-                                    <ArrowRight className="h-4 w-4 ml-2 flex-shrink-0 text-primary group-hover:translate-x-1 transition-transform duration-200" />
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-primary/5 group-hover:opacity-100 opacity-0 transition-opacity"></div>
+                                    <div className="flex">
+                                        <span className="text-primary mr-2">
+                                            <MessageCircle className="h-4 w-4" />
+                                        </span>
+                                        <span className="text-sm truncate">{prompt}</span>
+                                    </div>
                                 </Button>
                             ))}
                         </div>
                     </div>
                 ) : (
-                    <div className="space-y-6">
-                        {messages.map(message => (
-                            <div key={message.id} className={cn(
-                                "flex w-full",
-                                message.role === 'user' ? "justify-end" : "justify-start"
-                            )}>
-                                <div className={cn(
-                                    "flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[85%] md:max-w-[75%]",
-                                    message.role === 'user' && "flex-row-reverse"
-                                )}>
-                                    {/* User Avatar vs Bot Avatar */}
-                                    {message.role === 'user' ? (
-                                        <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border shadow-sm">
-                                            <AvatarImage src={userAvatar || ""} alt="User" />
-                                            <AvatarFallback className="bg-primary/90 text-primary-foreground font-medium">
-                                                U
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    ) : (
-                                        <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border shadow-sm bg-secondary/80 text-secondary-foreground">
-                                            <AvatarFallback>
-                                                <Bot className="h-4 w-4" />
-                                            </AvatarFallback>
-                                        </Avatar>
+                    <>
+                        {messages.map((message, index) => {
+                            const isUser = message.role === 'user'
+
+                            return (
+                                <div
+                                    key={index}
+                                    className={cn(
+                                        "mb-4 flex items-start",
+                                        isUser ? "justify-end" : "justify-start"
                                     )}
-
-                                    <div className={cn(
-                                        "p-3 sm:p-4 rounded-lg shadow-md break-words",
-                                        message.role === 'user'
-                                            ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground rounded-tr-none"
-                                            : "bg-card border rounded-tl-none backdrop-blur-sm relative overflow-hidden"
-                                    )}>
-                                        {message.role === 'user' ? (
-                                            <p className="whitespace-pre-wrap">{message.content}</p>
-                                        ) : (
-                                            <>
-                                                <div className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-700/10 opacity-10"></div>
-                                                <ReactMarkdown
-                                                    remarkPlugins={[remarkGfm]}
-                                                    components={{
-                                                        code({ className, children, ...props }) {
-                                                            const match = /language-(\w+)/.exec(className || '');
-                                                            return match ? (
-                                                                <SyntaxHighlighter
-                                                                    language={match[1]}
-                                                                    style={vscDarkPlus}
-                                                                    customStyle={{ margin: '1em 0', borderRadius: '8px' }}
-                                                                >
-                                                                    {String(children).replace(/\n$/, '')}
-                                                                </SyntaxHighlighter>
-                                                            ) : (
-                                                                <code className={cn("bg-muted px-1.5 py-0.5 rounded-md text-sm", className)} {...props}>
-                                                                    {children}
-                                                                </code>
-                                                            );
-                                                        },
-                                                        ul: ({ children }) => <ul className="list-disc pl-6 my-2">{children}</ul>,
-                                                        ol: ({ children }) => <ol className="list-decimal pl-6 my-2">{children}</ol>,
-                                                        li: ({ children }) => <li className="mb-1">{children}</li>,
-                                                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                                                        h3: ({ children }) => <h3 className="text-lg font-semibold mt-3 mb-2">{children}</h3>,
-                                                        h4: ({ children }) => <h4 className="text-base font-semibold mt-3 mb-1">{children}</h4>,
-                                                        pre: ({ children }) => (
-                                                            <pre className="w-full overflow-auto rounded-md my-2 bg-muted p-2 text-sm">
-                                                                {children}
-                                                            </pre>
-                                                        ),
-                                                        a: ({ href, children }) => (
-                                                            <a href={href} className="text-primary underline break-words" target="_blank" rel="noopener noreferrer">
-                                                                {children}
-                                                            </a>
-                                                        ),
-                                                    }}
-                                                >
-                                                    {message.content}
-                                                </ReactMarkdown>
-                                            </>
+                                >
+                                    <div
+                                        className={cn(
+                                            "rounded-2xl px-4 py-3 max-w-[85%] sm:max-w-[75%]",
+                                            isUser
+                                                ? "bg-primary text-primary-foreground"
+                                                : "bg-accent text-accent-foreground border border-accent-foreground/10"
                                         )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-
-                        {isLoading && (
-                            <div className="flex justify-start">
-                                <div className="flex gap-3 max-w-[90%] sm:max-w-[85%] md:max-w-[75%]">
-                                    <Avatar className="flex-shrink-0 h-8 w-8 rounded-full border shadow-sm bg-secondary/80 text-secondary-foreground">
-                                        <AvatarFallback>
-                                            <Bot className="h-4 w-4" />
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="p-4 rounded-lg shadow-md bg-card border rounded-tl-none">
-                                        <div className="flex space-x-2">
-                                            <div className="h-2 w-2 bg-primary/30 rounded-full animate-typing-dot animate-typing-dot-1"></div>
-                                            <div className="h-2 w-2 bg-primary/50 rounded-full animate-typing-dot animate-typing-dot-2"></div>
-                                            <div className="h-2 w-2 bg-primary/70 rounded-full animate-typing-dot animate-typing-dot-3"></div>
+                                    >
+                                        <div className="flex items-center mb-1">
+                                            <div
+                                                className={cn(
+                                                    "flex h-6 w-6 shrink-0 select-none items-center justify-center",
+                                                    isUser
+                                                        ? ""
+                                                        : "bg-primary/10 text-primary rounded-md"
+                                                )}
+                                            >
+                                                {isUser ? (
+                                                    <Avatar className="h-6 w-6 rounded-md">
+                                                        <AvatarImage src={userAvatar || ""} alt="User" />
+                                                        <AvatarFallback className="bg-primary/90 text-primary-foreground font-medium rounded-md">
+                                                            U
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                ) : (
+                                                    <Sparkles className="h-3.5 w-3.5" />
+                                                )}
+                                            </div>
+                                            <div className="ml-2 text-sm font-medium">
+                                                {isUser ? 'You' : 'Knowledge Base'}
+                                            </div>
+                                        </div>
+                                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]}
+                                                components={{
+                                                    a: ({ node, ...props }) => (
+                                                        <a
+                                                            {...props}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className={cn(
+                                                                "underline underline-offset-4",
+                                                                isUser
+                                                                    ? "text-primary-foreground/90 hover:text-primary-foreground"
+                                                                    : "text-blue-600 dark:text-blue-400"
+                                                            )}
+                                                        />
+                                                    ),
+                                                    p: ({ node, ...props }) => (
+                                                        <p {...props} className="mb-2 last:mb-0" />
+                                                    ),
+                                                    ul: ({ node, ...props }) => (
+                                                        <ul {...props} className="list-disc pl-6 mb-2" />
+                                                    ),
+                                                    ol: ({ node, ...props }) => (
+                                                        <ol {...props} className="list-decimal pl-6 mb-2" />
+                                                    ),
+                                                    code: ({ node, ...props }) => (
+                                                        <code {...props} className={cn(
+                                                            "rounded px-1 py-0.5 font-mono text-sm",
+                                                                isUser ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
+                                                        )} />
+                                                    ),
+                                                    pre: ({ node, ...props }) => (
+                                                        <pre
+                                                            {...props}
+                                                            className="bg-muted text-muted-foreground p-3 rounded-md my-2 overflow-x-auto text-sm"
+                                                        />
+                                                    ),
+                                                }}
+                                            >
+                                                {message.content}
+                                            </ReactMarkdown>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-
+                            )
+                        })}
                         <div ref={messagesEndRef} />
-                    </div>
+                    </>
                 )}
             </div>
 
-            {/* Input area */}
+            {/* Input Box */}
             <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm px-4 pb-6 pt-4 border-t">
                 <form onSubmit={handleSubmitWithThread} className="flex items-center gap-2 w-full">
                     <div className="relative flex-1">
@@ -357,7 +372,11 @@ export default function ChatWindow({ threadId, onCreateThread, threads }: ChatWi
                             disabled={isLoading || !input.trim()}
                             className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-primary/90 hover:bg-primary shadow-sm transition-colors"
                         >
-                            <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            {isLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            )}
                         </Button>
                     </div>
                 </form>

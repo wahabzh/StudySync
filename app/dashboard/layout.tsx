@@ -169,6 +169,17 @@ export default function DashboardLayout({
         continue;
       }
 
+      // Hide chat thread IDs from the breadcrumb
+      if (path === 'chat' && i < paths.length - 1 && paths[i + 1] !== 'new') {
+        // Just add "Chat" without the ID
+        breadcrumbs.push({
+          label: 'Knowledge Base',
+          href: currentPath,
+          current: true
+        });
+        break; // Stop processing further paths
+      }
+
       // Handle special cases
       let label = path.charAt(0).toUpperCase() + path.slice(1);
 
@@ -176,6 +187,7 @@ export default function DashboardLayout({
       if (path === 'quizzes') label = 'Quizzes';
       if (path === 'community') label = 'Community';
       if (path === 'profile') label = 'Settings';
+      if (path === 'chat') label = 'Knowledge Base';
 
       breadcrumbs.push({
         label,
@@ -458,8 +470,8 @@ export default function DashboardLayout({
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2">
+        <SidebarInset className="flex flex-col h-screen">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b">
             <div className="flex items-center gap-2 px-4">
               <SidebarTrigger className="-ml-1" />
               <Separator orientation="vertical" className="mr-2 h-4" />
@@ -485,7 +497,9 @@ export default function DashboardLayout({
               </Breadcrumb>
             </div>
           </header>
-          {children}
+          <div className="flex-1 overflow-hidden">
+            {children}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </PomodoroProvider>

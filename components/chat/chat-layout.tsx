@@ -6,8 +6,9 @@ import ChatSidebar from './chat-sidebar'
 import ChatWindow from './chat-window'
 import { ChatThread } from '@/types/database'
 import { useToast } from '@/hooks/use-toast'
-import { Sparkles, MessageCircle, Bot, Brain } from "lucide-react"
+import { Sparkles, MessageCircle, Brain } from "lucide-react"
 import { Button } from '../ui/button'
+import Link from 'next/link'
 
 export default function ChatLayout({ selectedThreadId }: { selectedThreadId: string | null }) {
     const router = useRouter()
@@ -166,49 +167,89 @@ export default function ChatLayout({ selectedThreadId }: { selectedThreadId: str
             })
         }
     }
-    function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
-        return (
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow hover:shadow-md transition">
-                <div className="text-green-600 mb-4">{icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{title}</h3>
-                <p className="text-gray-600">{description}</p>
-            </div>
-        );
-    }
+
     return (
         <div className="flex h-[calc(100vh-4rem)] w-full bg-gradient-to-tr from-background to-primary/5 overflow-hidden">
-            {/* <ChatWindow
-                threadId={selectedThreadId}
-                onCreateThread={createThread}
-                threads={threads}
-            /> */}
-             {selectedThreadId === null ? (
-                <main className="min-h-screen bg-white text-gray-800 flex flex-col items-center justify-center px-6 py-12">
-                <div className="max-w-3xl text-center">
-                    <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
-                        StudySync Chat
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-600 mb-8">
-                        Supercharge your learning with AI-powered conversations. Ask questions, get instant explanations, and explore topics in-depth — anytime, anywhere.
-                    </p>
-                    <Button onClick={() => createThread('New Chat', false)}>
-                            <Sparkles className="mr-2 h-5 w-5" />
-                            Start Chatting Now
-                    </Button>
-                </div>
+            {selectedThreadId === null ? (
+                <main className="flex-1 overflow-y-auto">
+                    <div className="max-w-4xl mx-auto px-6 py-16 h-full flex flex-col justify-center">
+                        <div className="text-center">
+                            <div className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-4">StudySync AI</div>
+                            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                                Knowledge Base
+                            </h1>
+                            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
+                                Access all your learning materials in one place. Study smarter with AI-powered insights from your documents, flashcards, and quizzes.
+                            </p>
+                            <div className="flex flex-wrap gap-4 justify-center mb-16">
+                                <Button
+                                    onClick={() => createThread('New Chat', false)}
+                                    className="gap-2 px-5 py-6 rounded-xl bg-primary hover:bg-primary/90 text-white"
+                                    size="lg"
+                                >
+                                    <Sparkles className="h-5 w-5" />
+                                    Start Chatting Now
+                                </Button>
+                                <Button
+                                    onClick={() => createThread('General Knowledge Chat', true)}
+                                    className="gap-2 px-5 py-6 rounded-xl bg-background hover:bg-accent"
+                                    variant="outline"
+                                    size="lg"
+                                >
+                                    <Brain className="h-5 w-5" />
+                                    Use General Knowledge
+                                </Button>
+                            </div>
+                        </div>
 
-                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full px-4">
-                    <FeatureCard icon={<MessageCircle />} title="Natural Conversations" description="Chat with the AI like you're talking to a tutor — no jargon, just clarity." />
-                    <FeatureCard icon={<Brain />} title="Smart Assistance" description="Get explanations, summaries, and study help tailored to your needs." />
-                    <FeatureCard icon={<Bot />} title="Available 24/7" description="Whether it’s midnight or midday, StudySync Chat is always ready." />
-                </div>
-            </main>
-             ):(
-            <ChatWindow
-                threadId={selectedThreadId}
-                onCreateThread={createThread}
-                threads={threads}
-            />)}
+                        {threads.length > 0 ? (
+                            <div className="bg-card/80 backdrop-blur-sm border rounded-xl p-8 shadow-sm">
+                                <h2 className="text-2xl font-semibold mb-4">Recent Conversations</h2>
+                                <div className="grid gap-3 md:grid-cols-2">
+                                    {threads.slice(0, 6).map(thread => (
+                                        <Link
+                                            key={thread.id}
+                                            href={`/dashboard/chat/${thread.id}`}
+                                            className="flex items-center gap-3 p-4 rounded-lg hover:bg-accent/50 transition-colors border border-transparent hover:border-primary/20 group"
+                                        >
+                                            <div className="bg-primary/10 p-2 rounded-full group-hover:bg-primary/20 transition-colors">
+                                                <MessageCircle className="h-5 w-5 text-primary" />
+                                            </div>
+                                            <span className="font-medium group-hover:text-primary transition-colors line-clamp-1">
+                                                {thread.title}
+                                            </span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="bg-card/80 backdrop-blur-sm border rounded-xl p-8 shadow-sm text-center">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                                    <MessageCircle className="h-8 w-8 text-primary" />
+                                </div>
+                                <h2 className="text-2xl font-semibold mb-2">No conversations yet</h2>
+                                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                                    Start your first chat to begin exploring your knowledge base and get AI-powered insights.
+                                </p>
+                                <Button
+                                    onClick={() => createThread('New Chat', false)}
+                                    className="gap-2"
+                                    variant="outline"
+                                >
+                                    <Sparkles className="h-4 w-4" />
+                                    Start your first chat
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </main>
+            ) : (
+                <ChatWindow
+                    threadId={selectedThreadId}
+                    onCreateThread={createThread}
+                    threads={threads}
+                />
+            )}
             <ChatSidebar
                 threads={threads}
                 loadingThreads={loadingThreads}
