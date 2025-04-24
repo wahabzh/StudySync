@@ -23,6 +23,7 @@ export function PomodoroTimer() {
     settings,
     timer,
     completedPomodoros,
+    goalCompleted,
     toggleTimer,
     resetTimer,
     saveSettings,
@@ -58,8 +59,10 @@ export function PomodoroTimer() {
           timer={timer}
           settings={settings}
           completedPomodoros={completedPomodoros}
+          goalCompleted={goalCompleted}
           toggleTimer={toggleTimer}
           resetTimer={resetTimer}
+          saveSettings={saveSettings}
         />
       </SidebarGroupContent>
     </SidebarGroup>

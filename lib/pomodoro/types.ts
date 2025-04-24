@@ -10,8 +10,8 @@ export interface Settings {
   shortBreak: number;
   longBreak: number;
   longBreakInterval: number;
-  userGoal: number | null,
-  progressOnCustom: number | null,
+  userGoal: number;
+  progressOnCustom: number;
   autoStartBreaks: boolean;
   autoStartPomodoros: boolean;
 }

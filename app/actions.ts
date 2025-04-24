@@ -347,10 +347,10 @@ export async function savePomodoroGoal(userGoal: number) {
   }
 
   // Optional: Validate the goal
-  const allowedGoals = [0, 3, 5, 7];
-  if (!allowedGoals.includes(userGoal)) {
-    return { success: false, message: "Invalid goal selected." };
-  }
+  // const allowedGoals = [0, 3, 5, 7];
+  // if (!allowedGoals.includes(userGoal)) {
+  //   return { success: false, message: "Invalid goal selected." };
+  // }
   // Prepare update data: if userGoal is 0, reset progress_on_custom to 0
   const updateData: Record<string, any> = { custom_user_goal: userGoal };
   if (userGoal === 0) {
