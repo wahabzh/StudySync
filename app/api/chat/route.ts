@@ -87,6 +87,14 @@ export async function POST(req: NextRequest) {
         const hasContext = contextItems.length > 0;
         const shouldUseGeneralKnowledge = useGeneralKnowledge === true || !hasContext;
 
+        // console.log("Context:", context);
+        // console.log("Document data:", documentData);
+        // console.log("Flashcard data:", flashcardData);
+        // console.log("Quiz data:", quizData);
+        // console.log("Has context:", hasContext);
+        // console.log("Should use general knowledge:", shouldUseGeneralKnowledge);
+        // console.log("useGeneralKnowledge:", useGeneralKnowledge);
+
         // Generate response using AI with or without context
         const result = await streamText({
             model: google('gemini-1.5-flash-latest'),
