@@ -319,6 +319,12 @@ export default function DashboardLayout({
       },
     ],
   };
+
+  const handleSignOut = async () => {
+    localStorage.clear(); // Clear browser data
+    await signOutAction(); // Then call the server-side sign-out
+  };
+
   return (
     <PomodoroProvider>
       <SidebarProvider>
@@ -460,7 +466,7 @@ export default function DashboardLayout({
                         </div>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuItem onSelect={signOutAction}>
+                    <DropdownMenuItem onSelect={handleSignOut}>
                       <LogOut />
                       Log out
                     </DropdownMenuItem>

@@ -73,7 +73,7 @@ export default function DocumentEditorWrapper({
 
       <TooltipProvider delayDuration={300}>
         <div className="flex items-center gap-2">
-          {canShare && document.share_status !== "published" && (
+          {canShare && (
             <div className="rounded-full bg-background/95 px-3 py-1.5 shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-800 backdrop-blur">
               <SaveStatusIndicator status={saveStatus} />
             </div>
