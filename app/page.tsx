@@ -291,11 +291,6 @@ export default async function Index() {
                     Community
                   </Link>
                 </li>
-                <li>
-                  <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Features
-                  </Link>
-                </li>
               </ul>
             </div>
             

@@ -58,7 +58,7 @@ export function LandingNavbar() {
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link href="#community" legacyBehavior passHref>
+              <Link href="/community" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   Community
                 </NavigationMenuLink>

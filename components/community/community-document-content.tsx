@@ -98,7 +98,7 @@ export const CommunityDocumentContent = ({
                 <ChevronRight className="h-3.5 w-3.5" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/community">
+                <BreadcrumbLink onClick={() => router.back()} className="cursor-pointer">
                   <span>Community</span>
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -122,7 +122,7 @@ export const CommunityDocumentContent = ({
             variant="ghost"
             size="sm"
             className="mb-4 -ml-2 text-muted-foreground"
-            onClick={() => router.push('/community')}
+            onClick={() => router.back()}
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
