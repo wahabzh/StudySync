@@ -23,10 +23,16 @@ export async function generateAndStoreDocumentEmbeddings(document: Document) {
             value: documentText,
         });
 
+        // Delete any existing embeddings for this document first
+        await supabase
+            .from('document_embeddings')
+            .delete()
+            .eq('document_id', document.id);
+
         // Store embedding in Supabase
         const { error } = await supabase
             .from('document_embeddings')
-            .upsert({
+            .insert({
                 document_id: document.id,
                 content: documentText,
                 embedding
