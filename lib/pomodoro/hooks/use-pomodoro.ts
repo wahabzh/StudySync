@@ -356,18 +356,18 @@ export function usePomodoro(initialSettings: Settings) {
         }
       }
 
-      toast({
-        title: "Goal updated",
-        description: newSettings.userGoal > 0
-          ? `New goal set: ${newSettings.userGoal} pomodoros`
-          : "Goal removed",
-      });
+      // toast({
+      //   title: "Goal updated",
+      //   description: newSettings.userGoal > 0
+      //     ? `New goal set: ${newSettings.userGoal} pomodoros`
+      //     : "Goal removed",
+      // });
     }
 
-    toast({
-      title: "Settings saved",
-      description: "Your timer settings have been updated.",
-    });
+    // toast({
+    //   title: "Settings saved",
+    //   description: "Your timer settings have been updated.",
+    // });
   }, [settings]);
 
   // Request notification permission
