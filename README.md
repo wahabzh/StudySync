@@ -30,7 +30,6 @@
 - **Authentication**: Supabase Auth with social logins
 
 ## 📸 Screenshots
----
 
 ![StudySync](/public/screenshots/document-editor.png)
 *Rich text editor with real-time collaboration and slash commands*
@@ -76,7 +75,7 @@ pnpm dev
 - **📊 Progress Analytics** - Track your learning journey
 - **🌐 Community Hub** - Share and discover study materials
 
-
+## 🔁 Architecture
 ```
 ┌─ Next.js App Router ─────────────────────┐
 │  ├─ Server Components (SSR)              │
